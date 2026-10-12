@@ -1,0 +1,1 @@
+-- Create a temporary table to migrate from
