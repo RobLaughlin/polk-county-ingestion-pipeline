@@ -1,0 +1,1 @@
+docker exec polk-county-ingestion-dev uv run --locked python ingest.py

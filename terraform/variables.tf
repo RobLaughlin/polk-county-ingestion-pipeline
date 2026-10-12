@@ -12,3 +12,9 @@ variable "gcp_project_zone" {
   type        = string
   description = "The zone used in your GCP Project"
 }
+
+variable "application_source_path" {
+  type        = string
+  description = "Optional absolute host path to the uv application. Defaults to this repository's app directory."
+  default     = null
+}

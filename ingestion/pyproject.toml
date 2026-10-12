@@ -1,0 +1,13 @@
+[project]
+name = "polk-county-ingestion"
+version = "0.1.0"
+description = "Residential sales ingestion for Polk County, Iowa."
+requires-python = ">=3.12,<3.13"
+dependencies = []
+
+[tool.uv]
+package = false
+
+# Keep this app independent of any surrounding uv workspace.
+[tool.uv.workspace]
+members = []

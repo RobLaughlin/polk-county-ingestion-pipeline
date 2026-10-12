@@ -1,0 +1,4 @@
+# Only the Dockerfile is needed to build this development image.
+*
+!Dockerfile
+!.dockerignore
