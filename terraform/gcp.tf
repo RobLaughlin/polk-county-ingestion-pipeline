@@ -23,7 +23,7 @@ resource "google_storage_bucket" "default" {
 }
 
 resource "google_bigquery_dataset" "raw" {
-  dataset_id                  = "raw_ingest_${random_id.raw_ingest_suffix.hex}"
+  dataset_id                  = "${var.raw_ingest_dataset_name}_${random_id.raw_ingest_suffix.hex}"
   friendly_name               = "Raw Ingestion Data"
   description                 = "Raw Polk County sales data"
   location                    = "US"

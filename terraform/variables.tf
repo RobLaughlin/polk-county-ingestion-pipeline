@@ -22,5 +22,11 @@ variable "application_source_path" {
 variable "raw_ingest_bucket_name" {
   type        = string
   description = "Identifier for the GCP bucket to store the raw ingest data"
-  default     = "polk_county_ingest_data_raw"
+  default     = "polk_county_bucket_ingest_data_raw"
+}
+
+variable "raw_ingest_dataset_name" {
+  type        = string
+  description = "Identifier for the GCP BQ dataset to store the raw ingest data"
+  default     = "polk_county_dataset_ingest_data_raw"
 }
