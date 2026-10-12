@@ -42,3 +42,19 @@ terraform.rc
 # Optional: ignore plan files saved before destroying Terraform configuration
 # Uncomment the line below if you want to ignore planout files.
 # planout
+
+# Local configuration and credentials (keep the documented template).
+.env
+.env.*
+!.env.example
+credentials/
+*credentials*.json
+*service-account*.json
+
+# Python tooling and generated artifacts.
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+*.tfplan
