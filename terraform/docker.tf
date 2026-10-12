@@ -26,6 +26,11 @@ resource "docker_container" "ingest" {
   working_dir = "/ingestion"
   init        = true
 
+  env = [
+    "GOOGLE_APPLICATION_CREDENTIALS=/secrets/gcp-adc.json",
+    "GOOGLE_CLOUD_PROJECT=${var.gcp_project_id}",
+  ]
+
   # The volumes syntax preserves host paths with Docker Desktop's WSL integration.
   volumes {
     host_path      = local.application_source_path
@@ -37,4 +42,14 @@ resource "docker_container" "ingest" {
     volume_name    = docker_volume.ingest_venv.name
     container_path = "/opt/venv"
   }
+
+  volumes {
+    host_path = pathexpand(
+      "~/.config/gcloud/application_default_credentials.json"
+    )
+    container_path = "/secrets/gcp-adc.json"
+    read_only      = true
+  }
 }
+
+

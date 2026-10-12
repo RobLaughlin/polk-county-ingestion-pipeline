@@ -12,3 +12,8 @@ output "gcp_bucket_raw_ingest_id" {
   value       = google_storage_bucket.default.id
   description = "The GCP raw storage bucket ID"
 }
+
+output "raw_ingest_source_url" {
+  value       = var.raw_ingest_source_url
+  description = "The source URL for where to pull the raw CSV sales data"
+}

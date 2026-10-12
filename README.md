@@ -23,4 +23,5 @@ only missing or changed files to Google Cloud Storage, and log results to BigQue
 3. Run the following command: `gcloud auth application-default login` . If running on WSL2, append `--no-launch-browser` to the command. These credentials will be saved and used by default in Terraform.
 4. `cd` into the `terraform` directory and run `terraform init`.
 5. Run `terraform plan` and if everything looks good to you, run `terraform apply` to create the infrastructure. Infrastructure can be destroyed with `terraform destroy`. You can also use `terraform show` to show the current terraform state.
-6. Run `./scripts/ingest.sh` to run the ingestion script within the ingestion docker image.
+6. Run `./scripts/save_outputs.sh` to save the necessary terraform resources to the ingestion app.
+7. Run `./scripts/ingest.sh` to run the ingestion script within the ingestion docker image.

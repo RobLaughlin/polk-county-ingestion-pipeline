@@ -1,0 +1,22 @@
+{
+  "gcp_bigquery_raw_ingest_id": {
+    "sensitive": false,
+    "type": "string",
+    "value": "polk_county_dataset_ingest_data_raw_d76e97fd"
+  },
+  "gcp_bucket_raw_ingest_id": {
+    "sensitive": false,
+    "type": "string",
+    "value": "polk_county_bucket_ingest_data_raw_d76e97fd"
+  },
+  "gcp_project_id": {
+    "sensitive": false,
+    "type": "string",
+    "value": "polk-county-ingestion-pipeline"
+  },
+  "raw_ingest_source_url": {
+    "sensitive": false,
+    "type": "string",
+    "value": "https://www.assess.co.polk.ia.us/info/web/exports/res/sales/polk"
+  }
+}
