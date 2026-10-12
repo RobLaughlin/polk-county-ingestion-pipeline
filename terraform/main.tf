@@ -8,6 +8,10 @@ terraform {
       source  = "kreuzwerker/docker"
       version = "~> 4.2.0"
     }
+    random = {
+      source  = "hashicorp/random"
+      version = "~> 3.6"
+    }
   }
 }
 
@@ -18,7 +22,3 @@ provider "google" {
 }
 
 provider "docker" {}
-
-resource "google_compute_network" "vpc_network" {
-  name = "terraform-network"
-}

@@ -15,6 +15,12 @@ variable "gcp_project_zone" {
 
 variable "application_source_path" {
   type        = string
-  description = "Optional absolute host path to the uv application. Defaults to this repository's app directory."
+  description = "Optional absolute host path to the uv application. Defaults to this repository's app directory"
   default     = null
+}
+
+variable "raw_ingest_bucket_name" {
+  type        = string
+  description = "Identifier for the GCP bucket to store the raw ingest data"
+  default     = "polk_county_ingest_data_raw"
 }
