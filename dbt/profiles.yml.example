@@ -1,0 +1,10 @@
+polk_county:
+  target: dev
+  outputs:
+    dev:
+      type: bigquery
+      method: oauth
+      project: __GCP_PROJECT_ID__
+      dataset: polk_county_dbt_dev
+      location: US
+      threads: 1

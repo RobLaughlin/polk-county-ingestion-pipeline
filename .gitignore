@@ -1,3 +1,5 @@
+.vscode
+
 # Local .terraform directories
 .terraform/
 
@@ -58,3 +60,12 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 *.tfplan
+
+# dbt generated artifacts and local connection configuration.
+/dbt/target/
+/dbt/logs/
+/dbt/dbt_packages/
+/dbt/.user.yml
+/dbt/profiles.yml
+/dbt/outputs.json
+/dbt/models/staging/terraform_sources.yml

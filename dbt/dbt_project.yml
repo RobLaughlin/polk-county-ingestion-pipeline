@@ -1,0 +1,8 @@
+name: polk_county
+version: "1.0.0"
+config-version: 2
+profile: polk_county
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+analysis-paths: ["analyses"]
