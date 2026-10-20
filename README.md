@@ -21,7 +21,7 @@ only missing or changed files to Google Cloud Storage, and log results to BigQue
 1. Create a [GCP Project](https://console.cloud.google.com/projectcreate) and make note of the Project ID.
 2. Enable the Google Compute Engine API for your project in the [GCP Console](https://console.developers.google.com/apis/library/compute.googleapis.com).
 3. Run the following command: `gcloud auth application-default login` . If running on WSL2, append `--no-launch-browser` to the command. On Linux/WSL, the default ADC file is `~/.config/gcloud/application_default_credentials.json`; Terraform and local dbt use it automatically when no credential override is set.
-4. `cd` into the `terraform` directory and run `terraform init`.
+4. `cd` into the `terraform` directory, set your `terraform.tfvars` variables using the `terraform.tfvars.example` template, and run `terraform init`.
 5. Run `terraform plan` and if everything looks good to you, run `terraform apply` to create the infrastructure. Infrastructure can be destroyed with `terraform destroy`. You can also use `terraform show` to show the current terraform state.
 6. Run `./scripts/save_outputs.sh` to export Terraform outputs for ingestion and generate the local dbt profile and raw-source configuration. This requires Python 3 and uses only its standard library. See [dbt setup](dbt/README.md).
 7. Run `./scripts/ingest.sh` to run the ingestion script within the ingestion docker image.
