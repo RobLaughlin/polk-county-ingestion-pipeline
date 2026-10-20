@@ -71,10 +71,10 @@ def download_csv_file(url, retries):
         Returns None otherwise.
     """
     r = 0
-    response = requests.get(url)
-
+    
     while (r < len(retries)):
         try:
+            response = requests.get(url)
             # Ensure the download was successful
             response.raise_for_status()
 
