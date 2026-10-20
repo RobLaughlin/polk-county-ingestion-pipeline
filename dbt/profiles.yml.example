@@ -5,6 +5,6 @@ polk_county:
       type: bigquery
       method: oauth
       project: __GCP_PROJECT_ID__
-      dataset: polk_county_dbt_dev
+      dataset: __TRANSFORM_DATASET_ID__
       location: US
       threads: 1

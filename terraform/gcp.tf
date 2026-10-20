@@ -34,3 +34,15 @@ resource "google_bigquery_dataset" "raw" {
     google_project_service.bigquery_api
   ]
 }
+
+resource "google_bigquery_dataset" "transform" {
+  dataset_id                  = var.transform_dataset_name
+  friendly_name               = "Transformed Sales Data"
+  description                 = "Polk County staging, intermediate, and mart models managed by dbt"
+  location                    = google_bigquery_dataset.raw.location
+  default_table_expiration_ms = null
+
+  depends_on = [
+    google_project_service.bigquery_api
+  ]
+}

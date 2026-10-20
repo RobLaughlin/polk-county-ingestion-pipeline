@@ -8,6 +8,11 @@ output "gcp_bigquery_raw_ingest_id" {
   description = "The GCP BigQuery raw dataset ID"
 }
 
+output "gcp_bigquery_transform_id" {
+  value       = google_bigquery_dataset.transform.dataset_id
+  description = "The GCP BigQuery dataset ID for dbt staging, intermediate, and mart models"
+}
+
 output "gcp_bucket_raw_ingest_id" {
   value       = google_storage_bucket.default.id
   description = "The GCP raw storage bucket ID"

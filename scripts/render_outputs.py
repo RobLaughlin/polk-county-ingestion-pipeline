@@ -36,6 +36,7 @@ def export_outputs(project_dir, outputs):
         for name in (
             "gcp_project_id",
             "gcp_bigquery_raw_ingest_id",
+            "gcp_bigquery_transform_id",
             "gcp_bucket_raw_ingest_id",
             "raw_ingest_source_url",
         )
@@ -48,7 +49,10 @@ def export_outputs(project_dir, outputs):
     files = {
         project_dir / "ingestion/outputs.json": json_text,
         dbt_dir / "outputs.json": json_text,
-        dbt_dir / "profiles.yml": render_template(dbt_dir / "profiles.yml.example", project),
+        dbt_dir / "profiles.yml": render_template(
+            dbt_dir / "profiles.yml.example",
+            {**project, "__TRANSFORM_DATASET_ID__": values["gcp_bigquery_transform_id"]},
+        ),
         dbt_dir / "models/staging/terraform_sources.yml": render_template(
             dbt_dir / "models/staging/sources.yml.example",
             {**project, "__RAW_DATASET_ID__": values["gcp_bigquery_raw_ingest_id"]},

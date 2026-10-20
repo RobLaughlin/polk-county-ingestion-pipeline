@@ -1,6 +1,7 @@
 # Polk County dbt scaffold
 
 - `models/staging/`: initial cleanup models and the template for the `raw.sales_raw` source declaration.
+- `models/intermediate/`: reusable transformations between staging and marts, when you add them.
 - `models/marts/`: analytical models you build from staging models.
 - `seeds/`: small reference CSVs loaded with `dbt seed`.
 - `analyses/`: SQL compiled by dbt but not materialized as tables or views.
@@ -12,6 +13,8 @@ The `.gitkeep` files retain the empty folders in Git.
 From the repository root, with dbt and BigQuery support installed:
 
 ```bash
+terraform -chdir=terraform plan
+terraform -chdir=terraform apply
 bash scripts/save_outputs.sh
 dbt debug --project-dir dbt --profiles-dir dbt
 dbt parse --project-dir dbt --profiles-dir dbt
@@ -22,7 +25,8 @@ change. The script reads Terraform outputs once and writes:
 
 - `ingestion/outputs.json`: the existing ingestion configuration.
 - `dbt/outputs.json`: the same Terraform output snapshot for reference.
-- `dbt/profiles.yml`: the BigQuery connection profile with a concrete project ID.
+- `dbt/profiles.yml`: the BigQuery connection profile with concrete project and
+  transform dataset IDs.
 - `dbt/models/staging/terraform_sources.yml`: the raw source with its concrete
   project and dataset IDs.
 
@@ -30,12 +34,33 @@ The last three files are generated and Git-ignored. dbt reads the generated YAML
 it does not automatically read `outputs.json`. Project/dataset environment variables
 are no longer needed for this configuration.
 
-Edit `profiles.yml.example` to change the transformation dataset (default
-`polk_county_dbt_dev`), threads, or location. Edit `models/staging/sources.yml.example`
-to change the raw source declaration or add source documentation/tests. Keep the
-`__GCP_PROJECT_ID__` and `__RAW_DATASET_ID__` placeholders unquoted: the exporter
-replaces them with safely quoted Terraform values. Re-run `save_outputs.sh` after
-editing either template; edits to generated files are overwritten.
+Set `transform_dataset_name` in your local `terraform/terraform.tfvars` to choose
+the transformation dataset. Terraform creates that exact dataset ID and exports
+`gcp_bigquery_transform_id`; the renderer puts it in the dbt profile's `dataset`
+field. Apply Terraform before saving outputs, since adding a variable/output to the
+configuration alone does not update the outputs stored in Terraform state.
+
+All models under `models/` use this shared destination by default, including staging,
+intermediate, marts, and dev/preview models. Folders organize SQL; no per-layer
+`+schema` overrides are needed. dbt's standard custom-schema behavior would create
+additional dataset names if you added those overrides. The `raw.sales_raw` source
+continues to use `gcp_bigquery_raw_ingest_id`, independently of the model destination.
+Terraform owns the datasets; dbt owns the transformed tables and views.
+
+Edit `profiles.yml.example` to change threads or location. Edit
+`models/staging/sources.yml.example` to change the raw source declaration or add
+source documentation/tests. Keep `__GCP_PROJECT_ID__`, `__RAW_DATASET_ID__`, and
+`__TRANSFORM_DATASET_ID__` unquoted: the exporter replaces them with safely quoted
+Terraform values. Re-run `save_outputs.sh` after editing either template; edits to
+generated files are overwritten.
+
+Changing the target dataset makes `ref()` point to models in the new destination;
+it does not move existing tables from an earlier target. Rebuild your ready models
+in the transform dataset before querying them. For example:
+
+```bash
+dbt run --project-dir dbt --profiles-dir dbt --select sales_preview
+```
 
 The exporter validates required output values and renders both templates before
 writing. A Terraform or input-validation failure leaves the previous exports intact.
@@ -66,7 +91,7 @@ from {{ source('raw', 'sales_raw') }}
 ```
 
 Then run `dbt build --project-dir dbt --profiles-dir dbt` from the repository root.
-The scaffold contains only a source declaration, so there are no models to build yet.
+Select the models you have finished writing when building the project.
 
 For the existing Python development container, mount this `dbt/` directory, install
 the `dbt-bigquery` adapter with uv, and make ADC available inside the container.
