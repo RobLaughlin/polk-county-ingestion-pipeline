@@ -10,5 +10,5 @@ ENV UV_PROJECT_ENVIRONMENT=/opt/venv \
 
 WORKDIR /app
 
-# Terraform mounts the source. Run the application on demand with docker exec.
+# Compose mounts the source. Run the application on demand with docker compose exec.
 CMD ["sleep", "infinity"]

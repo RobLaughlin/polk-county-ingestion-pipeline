@@ -1,0 +1,22 @@
+name: polk-county-ingestion
+
+services:
+  ingest:
+    build:
+      context: ./docker
+    image: polk-county-ingestion:dev
+    container_name: polk-county-ingestion-dev
+    init: true
+    working_dir: /ingestion
+    environment:
+      GOOGLE_APPLICATION_CREDENTIALS: /secrets/gcp-adc.json
+      # scripts/ingest.sh sets this from the Terraform outputs.
+      GOOGLE_CLOUD_PROJECT: ${GOOGLE_CLOUD_PROJECT:-}
+    volumes:
+      - ./ingestion:/ingestion:ro
+      - ingest_venv:/opt/venv
+      - ${HOME}/.config/gcloud/application_default_credentials.json:/secrets/gcp-adc.json:ro
+
+volumes:
+  ingest_venv:
+    name: polk-county-ingestion-venv

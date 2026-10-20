@@ -21,10 +21,6 @@ resource "google_storage_bucket" "default" {
     enabled = true
   }
 
-  depends_on = [
-    docker_container.ingest,
-    docker_volume.ingest_venv
-  ]
   force_destroy = true
 }
 
@@ -37,8 +33,6 @@ resource "google_bigquery_dataset" "raw" {
 
   # Ensures Terraform enables the API before attempting to create the dataset
   depends_on = [
-    docker_container.ingest,
-    docker_volume.ingest_venv,
     google_project_service.bigquery_api,
     google_storage_bucket.default
   ]
@@ -54,8 +48,6 @@ resource "google_bigquery_dataset" "transform" {
   default_table_expiration_ms = null
 
   depends_on = [
-    docker_container.ingest,
-    docker_volume.ingest_venv,
     google_project_service.bigquery_api,
   ]
   
