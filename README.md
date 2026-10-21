@@ -1,14 +1,35 @@
 # Polk County Ingestion Pipeline
 
-A local Docker ingestion pipeline for residential sale CSVs published by the
-[Polk County Assessor](https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=downloads/res_sales_polk).
+Loads residential sale records published by the
+[Polk County Assessor](https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=downloads/res_sales_polk)
+in Iowa into BigQuery for analysis. As of October 2026 the raw table holds 403,264 sales
+from January 1990 through July 2026.
 
-The current scaffold uses Terraform to create the GCP infrastructure and Docker Compose
-to build a slim Python + uv image and start a development container with the
-application source mounted from your machine.
+Terraform creates the Google Cloud infrastructure, and a Docker Compose container runs
+the Python ingestion job, built with uv.
 
-The planned ingestion will discover yearly CSVs, download them concurrently, upload
-only missing or changed files to Google Cloud Storage, and log results to BigQuery.
+## How it works
+
+1. Terraform creates a versioned Cloud Storage bucket and two BigQuery datasets: `raw` for
+   the loaded files and `transform` for dbt models.
+2. The ingestion job downloads each yearly sale file, from 1990 to the current year, and
+   retries failed downloads.
+3. It compares each file's MD5 hash with the copy in Cloud Storage and uploads only new or
+   changed files.
+4. It then reloads the 80-column `sales_raw` table in BigQuery from every CSV in the bucket.
+
+## Status
+
+- Done: infrastructure, ingestion with change detection, the raw BigQuery load, dbt
+  connection settings generated from Terraform outputs, and a dry-run script that
+  estimates a dbt model's BigQuery scan before it runs.
+- In progress: dbt staging models and a star schema (`fct_sales` with property, date, and
+  location dimensions), with key and relationship tests.
+- Planned: concurrent downloads and an ingestion log table in BigQuery.
+- Known issue: the reload decision checks only the latest year's file.
+
+The finished pipeline will also be submitted as the final project for Harvard's CS50
+Introduction to Databases with SQL.
 
 ## Prerequisites
 
