@@ -1,4 +1,6 @@
 outputs.json
+ingestion/logs/*
+!ingestion/logs/.gitkeep
 
 .vscode
 

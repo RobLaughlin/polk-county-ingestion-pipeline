@@ -25,6 +25,19 @@ variable "raw_ingest_dataset_name" {
   default     = "polk_county_dataset_ingest_data_raw"
 }
 
+
+variable "raw_ingest_table_name" {
+  type        = string
+  description = "GCP BQ table that stores the raw ingest sales data"
+  default     = "sales_raw"
+}
+
+variable "raw_ingest_logs_table_name" {
+  type        = string
+  description = "GCP BQ table that stores the logs for the raw ingest sales data"
+  default     = "sales_raw_logs"
+}
+
 variable "raw_ingest_source_url" {
   type        = string
   description = "The source URL for where to pull the raw CSV sales data"

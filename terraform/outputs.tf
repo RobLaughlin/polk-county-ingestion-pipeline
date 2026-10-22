@@ -8,6 +8,16 @@ output "gcp_bigquery_raw_ingest_id" {
   description = "The GCP BigQuery raw dataset ID"
 }
 
+output "gcp_bigquery_sales_raw_table_name" {
+  value       = var.raw_ingest_table_name
+  description = "The table where the raw ingest data is stored"
+}
+
+output "gcp_bigquery_sales_raw_logs_table_name" {
+  value       = var.raw_ingest_logs_table_name
+  description = "The table where the logs for the raw ingestion process is stored"
+}
+
 output "gcp_bigquery_transform_id" {
   value       = google_bigquery_dataset.transform.dataset_id
   description = "The GCP BigQuery dataset ID for dbt staging, intermediate, and mart models"
