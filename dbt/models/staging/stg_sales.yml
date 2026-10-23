@@ -147,10 +147,10 @@ models:
         data_type: string
 
       - name: land_sf
-        data_type: numeric
+        data_type: numeric(38, 9)
 
       - name: land_acres
-        data_type: numeric
+        data_type: numeric(38, 9)
 
       - name: occupancy
         data_type: string
@@ -165,7 +165,7 @@ models:
         data_type: string
 
       - name: percent_brick
-        data_type: numeric
+        data_type: numeric(38, 9)
 
       - name: roof_type
         data_type: string
@@ -174,70 +174,70 @@ models:
         data_type: string
 
       - name: main_living_area
-        data_type: numeric
+        data_type: numeric(38, 9)
 
       - name: upper_living_area
-        data_type: numeric
+        data_type: numeric(38, 9)
 
       - name: fin_attic_area
-        data_type: numeric
+        data_type: numeric(38, 9)
 
       - name: total_living_area
-        data_type: numeric
+        data_type: numeric(38, 9)
 
       - name: unfin_attic_area
-        data_type: numeric
+        data_type: numeric(38, 9)
 
       - name: foundation
         data_type: string
 
       - name: basement_area
-        data_type: numeric
+        data_type: numeric(38, 9)
 
       - name: fin_bsmt_area_tot
-        data_type: numeric
+        data_type: numeric(38, 9)
 
       - name: bsmt_walkout
-        data_type: numeric
+        data_type: numeric(38, 9)
 
       - name: bsmt_gar_capacity
         data_type: int64
 
       - name: att_garage_area
-        data_type: numeric
+        data_type: numeric(38, 9)
 
       - name: garage_brick
-        data_type: numeric
+        data_type: numeric(38, 9)
 
       - name: open_porch_area
-        data_type: numeric
+        data_type: numeric(38, 9)
 
       - name: enclose_porch_area
-        data_type: numeric
+        data_type: numeric(38, 9)
 
       - name: patio_area
-        data_type: numeric
+        data_type: numeric(38, 9)
 
       - name: deck_area
-        data_type: numeric
+        data_type: numeric(38, 9)
 
       - name: canopy_area
-        data_type: numeric
+        data_type: numeric(38, 9)
 
       - name: veneer_area
-        data_type: numeric
+        data_type: numeric(38, 9)
 
       - name: carport_area
-        data_type: numeric
+        data_type: numeric(38, 9)
 
       - name: fin_bsmt_area1
-        data_type: numeric
+        data_type: numeric(38, 9)
 
       - name: fin_bsmt_qual1
         data_type: string
 
       - name: fin_bsmt_area2
-        data_type: numeric
+        data_type: numeric(38, 9)
 
       - name: fin_bsmt_qual2
         data_type: string
@@ -270,7 +270,7 @@ models:
         data_type: int64
 
       - name: families
-        data_type: numeric
+        data_type: numeric(38, 9)
 
       - name: year_built
         data_type: int64
@@ -318,13 +318,13 @@ models:
         data_type: string
 
       - name: air_conditioning
-        data_type: numeric
+        data_type: numeric(38, 9)
 
       - name: percent_complete
-        data_type: numeric
+        data_type: numeric(38, 9)
 
       - name: condo_fin_liv_area
-        data_type: numeric
+        data_type: numeric(38, 9)
 
       - name: condo_year_built
         data_type: int64

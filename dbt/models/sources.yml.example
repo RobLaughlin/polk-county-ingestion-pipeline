@@ -7,5 +7,9 @@ sources:
     schema: __RAW_DATASET_ID__
     tables:
       - name: __RAW_TABLE_ID__
+        # No loaded_at_field, so BigQuery's table last-modified time is used.
+        config:
+          freshness:
+            warn_after: {count: 90, period: day}
       - name: __RAW_LOGS_TABLE_ID__
 
