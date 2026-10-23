@@ -1,8 +1,0 @@
-version: 2
-
-sources:
-  - name: raw
-    database: __GCP_PROJECT_ID__
-    schema: __RAW_DATASET_ID__
-    tables:
-      - name: sales_raw

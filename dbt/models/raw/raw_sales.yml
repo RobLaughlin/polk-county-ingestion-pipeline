@@ -1,0 +1,9 @@
+models:
+  - name: raw_sales_null_counts
+    data_tests:
+      - dbt_utils.expression_is_true: # error if dp has any nulls
+          arguments:
+            expression: "null_count = 0"
+          config:
+            where: "column_name = 'dp'"
+            severity: error

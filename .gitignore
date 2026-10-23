@@ -72,4 +72,4 @@ __pycache__/
 /dbt/.user.yml
 /dbt/profiles.yml
 /dbt/outputs.json
-/dbt/models/staging/terraform_sources.yml
+/dbt/models/sources.yml

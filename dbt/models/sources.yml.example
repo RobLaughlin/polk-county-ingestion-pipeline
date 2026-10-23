@@ -1,0 +1,11 @@
+version: 2
+
+sources:
+  - name: raw
+    description: "The raw source data ingested from the Polk County Ingestion Pipeline"
+    database: __GCP_PROJECT_ID__
+    schema: __RAW_DATASET_ID__
+    tables:
+      - name: __RAW_TABLE_ID__
+      - name: __RAW_LOGS_TABLE_ID__
+
