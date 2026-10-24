@@ -1,0 +1,9 @@
+id,grade,description
+0,Executive,"Adjustments: +00 (none), +05, +10, -05, -10, or +20 up to +200."
+1,Superior,"Adjustments: +00 (none), +05, +10, -05 or -10."
+2,High,"Adjustments: +00 (none), +05, +10, -05 or -10."
+3,Good,"Adjustments: +00 (none), +05, +10, -05 or -10."
+4,Average,"Adjustments: +00 (none), +05, +10, -05 or -10."
+5,Below Average,"Adjustments: +00 (none), +05, +10, -05 or -10."
+6,Sub-standard,"Adjustments: +00 (none), +05, +10, -05, -10, or -15 to -30."
+7,Other,Grade not in this list.

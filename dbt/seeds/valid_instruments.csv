@@ -1,0 +1,4 @@
+id,instrument,description
+1,Deed,The sale was recorded as a deed.
+2,Contract,The sale was recorded as a contract. Neither the assessor nor the Iowa Department of Revenue uses contract sales for analysis.
+3,Other,Document type not in this list.

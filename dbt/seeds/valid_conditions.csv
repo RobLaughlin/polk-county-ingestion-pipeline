@@ -1,0 +1,9 @@
+id,condition,description
+1,Excellent,Fully revitalized.
+2,Very Good,"Well maintained, with many components overhauled."
+3,Above Normal,No obvious maintenance needed.
+4,Normal,Minor deferred maintenance.
+5,Below Normal,Badly worn.
+6,Poor,Worn out.
+7,Very Poor,Uninhabitable.
+8,Other,Condition not in this list.

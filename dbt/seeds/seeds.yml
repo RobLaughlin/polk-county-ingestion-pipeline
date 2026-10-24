@@ -1,0 +1,259 @@
+seeds:
+  # Sale condition codes from the data dictionary. Code 0 is named differently in each column,
+  # so it has one row for quality1 ('Arms Length') and one for quality2 ('No Code').
+  - name: valid_sale_conditions
+    config:
+      column_types:
+        id: int64
+        quality1: bool
+        quality2: bool
+        quality: string
+        description: string
+
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - id
+              - quality1
+
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - id
+              - quality2
+
+    columns:
+      - name: id
+        data_tests:
+          - not_null
+
+      - name: quality
+        data_tests:
+          - unique
+          - not_null
+
+  - name: valid_grades
+    config:
+      column_types:
+        id: int64
+        grade: string
+        description: string
+
+    columns:
+      - name: id
+        data_tests:
+          - unique
+          - not_null
+
+      - name: grade
+        data_tests:
+          - unique
+          - not_null
+
+  - name: valid_conditions
+    config:
+      column_types:
+        id: int64
+        condition: string
+        description: string
+
+    columns:
+      - name: id
+        data_tests:
+          - unique
+          - not_null
+
+      - name: condition
+        data_tests:
+          - unique
+          - not_null
+
+  - name: valid_instruments
+    config:
+      column_types:
+        id: int64
+        instrument: string
+        description: string
+
+    columns:
+      - name: id
+        data_tests:
+          - unique
+          - not_null
+
+      - name: instrument
+        data_tests:
+          - unique
+          - not_null
+
+  - name: valid_analysis_qualities
+    config:
+      column_types:
+        id: int64
+        analysis_quality: string
+        description: string
+
+    columns:
+      - name: id
+        data_tests:
+          - unique
+          - not_null
+
+      - name: analysis_quality
+        data_tests:
+          - unique
+          - not_null
+
+  - name: valid_school_districts
+    config:
+      column_types:
+        id: int64
+        school_district: string
+
+    columns:
+      - name: id
+        data_tests:
+          - unique
+          - not_null
+
+      - name: school_district
+        data_tests:
+          - unique
+          - not_null
+
+  - name: valid_occupancies
+    config:
+      column_types:
+        id: int64
+        occupancy: string
+
+    columns:
+      - name: id
+        data_tests:
+          - unique
+          - not_null
+
+      - name: occupancy
+        data_tests:
+          - unique
+          - not_null
+
+  - name: valid_residence_types
+    config:
+      column_types:
+        id: int64
+        residence_type: string
+
+    columns:
+      - name: id
+        data_tests:
+          - unique
+          - not_null
+
+      - name: residence_type
+        data_tests:
+          - unique
+          - not_null
+
+  - name: valid_bldg_styles
+    config:
+      column_types:
+        id: int64
+        bldg_style: string
+
+    columns:
+      - name: id
+        data_tests:
+          - unique
+          - not_null
+
+      - name: bldg_style
+        data_tests:
+          - unique
+          - not_null
+
+  - name: valid_exterior_wall_types
+    config:
+      column_types:
+        id: int64
+        exterior_wall_type: string
+
+    columns:
+      - name: id
+        data_tests:
+          - unique
+          - not_null
+
+      - name: exterior_wall_type
+        data_tests:
+          - unique
+          - not_null
+
+  - name: valid_roof_types
+    config:
+      column_types:
+        id: int64
+        roof_type: string
+
+    columns:
+      - name: id
+        data_tests:
+          - unique
+          - not_null
+
+      - name: roof_type
+        data_tests:
+          - unique
+          - not_null
+
+  - name: valid_roof_materials
+    config:
+      column_types:
+        id: int64
+        roof_material: string
+
+    columns:
+      - name: id
+        data_tests:
+          - unique
+          - not_null
+
+      - name: roof_material
+        data_tests:
+          - unique
+          - not_null
+
+  - name: valid_foundations
+    config:
+      column_types:
+        id: int64
+        foundation: string
+
+    columns:
+      - name: id
+        data_tests:
+          - unique
+          - not_null
+
+      - name: foundation
+        data_tests:
+          - unique
+          - not_null
+
+  - name: valid_heating_types
+    config:
+      column_types:
+        id: int64
+        heating: string
+
+    columns:
+      - name: id
+        data_tests:
+          - unique
+          - not_null
+
+      - name: heating
+        data_tests:
+          - unique
+          - not_null

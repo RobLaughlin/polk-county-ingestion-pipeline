@@ -1,0 +1,4 @@
+id,analysis_quality,description
+1,Good,Used by the assessor for internal market analysis.
+2,Bad,Not used by the assessor for internal market analysis.
+3,Other,Value not in this list.

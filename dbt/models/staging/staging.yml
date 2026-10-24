@@ -4,6 +4,10 @@ models:
       contract:
         enforced: true
 
+    constraints:
+      - type: primary_key
+        columns: [book, pg]
+
     data_tests:
       # Ensure (book, pg) is a unique compound key
       - dbt_utils.unique_combination_of_columns:
@@ -43,11 +47,20 @@ models:
         data_type: string
         constraints:
           - type: not_null
+          - type: foreign_key
+            to: ref('stg_parcels')
+            to_columns: [dp]
+
         data_tests:
           - not_null
           - dbt_expectations.expect_column_value_lengths_to_equal:
               arguments:
                 value: 14
+
+          - relationships:
+              arguments:
+                to: ref('stg_parcels')
+                field: dp
 
       - name: sale_date
         data_type: date
@@ -349,6 +362,7 @@ models:
         data_type: string
         constraints:
           - type: not_null
+          - type: primary_key
 
         data_tests:
           - unique

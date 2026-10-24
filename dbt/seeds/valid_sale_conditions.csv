@@ -1,0 +1,43 @@
+id,quality1,quality2,quality,description
+0,true,false,Arms Length,No condition.
+0,false,true,No Code,No second condition.
+1,true,true,Quit Claim,The seller transfers whatever interest they have by quit claim deed.
+2,true,true,Government or Exempt,Sale to or by a government or tax-exempt body.
+4,true,true,Partial Interest,Only part of the ownership changed hands. Usable if the separate declarations for every interest are added up.
+5,true,true,Life Estate,
+7,true,true,Corporate Merger or Reorganization,
+8,true,true,Timeshares or COOPs,
+9,true,true,Adjoining or Non-Res Adjacent Land,Purchase of adjoining land.
+10,true,true,Assemblage,Two or more parcels combined.
+12,true,true,"Foreclosure, Forfeiture, Sheriff/Tax Sale, Default",
+13,true,true,Utility or Railroad,
+14,true,true,"Exchange, Trade, Gift, Estate Transfer",Includes 1031 exchanges.
+15,true,true,Change in Classification,
+16,true,true,Prior Improvement or Disimprovement,"The property changed by more than 20% between January 1 and the sale date, e.g. a house built since the assessment."
+17,true,true,Family,Sale between related parties.
+18,true,true,Court Order,
+21,true,true,Unplatted,Lot still assessed as unplatted land.
+22,true,true,Prior Year Contract,Fulfils a contract from a prior year.
+23,true,true,Contract Assumption,
+24,true,true,Auction,Non-agricultural auction.
+25,true,true,Partial Assessment,New construction that wasn't finished on January 1.
+26,true,true,Split,Parcel split or division.
+27,true,true,Two Assessors,Property spans two assessing jurisdictions.
+28,true,true,Dual Classification,
+29,true,true,Landlord to Tenant,Includes sale-leasebacks.
+30,true,true,Conveyance,Corrects or modifies an earlier conveyance.
+32,true,true,Cemetery,
+34,true,true,Vacant Lot,
+35,true,true,Vacant Building,Vacant at least a year. Doesn't apply to residential.
+36,true,true,Prior Year,The instrument's year is already closed for data entry.
+37,true,true,Easements,
+38,true,true,No Consideration,
+40,true,true,Land without Leased Building,
+41,true,true,Leased Building without Land,
+42,true,true,Secure Debt,
+44,true,true,Mobile Home no Real Estate Assmt,
+45,true,true,Relocation,Sale involving a relocation company.
+46,true,true,Under 10000,"Price of $10,000 or less."
+47,true,true,Section 42,Section 42 affordable housing.
+48,true,true,Minimum Assmt=Assmt,Property under a minimum assessment agreement.
+50,true,true,Other,Abnormal sale with no fitting code.

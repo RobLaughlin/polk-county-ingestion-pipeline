@@ -1,0 +1,279 @@
+models:
+  - name: dim_grades
+    config:
+      contract:
+        enforced: true
+
+    columns:
+      - name: id
+        data_type: int64
+        constraints:
+          - type: not_null
+          - type: primary_key
+
+      - name: grade
+        data_type: string
+        constraints:
+          - type: not_null
+
+      - name: description
+        data_type: string
+
+  - name: dim_conditions
+    config:
+      contract:
+        enforced: true
+
+    columns:
+      - name: id
+        data_type: int64
+        constraints:
+          - type: not_null
+          - type: primary_key
+
+      - name: condition
+        data_type: string
+        constraints:
+          - type: not_null
+
+      - name: description
+        data_type: string
+
+  - name: dim_instruments
+    config:
+      contract:
+        enforced: true
+
+    columns:
+      - name: id
+        data_type: int64
+        constraints:
+          - type: not_null
+          - type: primary_key
+
+      - name: instrument
+        data_type: string
+        constraints:
+          - type: not_null
+
+      - name: description
+        data_type: string
+
+  - name: dim_analysis_qualities
+    config:
+      contract:
+        enforced: true
+
+    columns:
+      - name: id
+        data_type: int64
+        constraints:
+          - type: not_null
+          - type: primary_key
+
+      - name: analysis_quality
+        data_type: string
+        constraints:
+          - type: not_null
+
+      - name: description
+        data_type: string
+
+  - name: dim_school_districts
+    config:
+      contract:
+        enforced: true
+
+    columns:
+      - name: id
+        data_type: int64
+        constraints:
+          - type: not_null
+          - type: primary_key
+
+      - name: school_district
+        data_type: string
+        constraints:
+          - type: not_null
+
+  - name: dim_occupancies
+    config:
+      contract:
+        enforced: true
+
+    columns:
+      - name: id
+        data_type: int64
+        constraints:
+          - type: not_null
+          - type: primary_key
+
+      - name: occupancy
+        data_type: string
+        constraints:
+          - type: not_null
+
+  - name: dim_residence_types
+    config:
+      contract:
+        enforced: true
+
+    columns:
+      - name: id
+        data_type: int64
+        constraints:
+          - type: not_null
+          - type: primary_key
+
+      - name: residence_type
+        data_type: string
+        constraints:
+          - type: not_null
+
+  - name: dim_bldg_styles
+    config:
+      contract:
+        enforced: true
+
+    columns:
+      - name: id
+        data_type: int64
+        constraints:
+          - type: not_null
+          - type: primary_key
+
+      - name: bldg_style
+        data_type: string
+        constraints:
+          - type: not_null
+
+  - name: dim_exterior_wall_types
+    config:
+      contract:
+        enforced: true
+
+    columns:
+      - name: id
+        data_type: int64
+        constraints:
+          - type: not_null
+          - type: primary_key
+
+      - name: exterior_wall_type
+        data_type: string
+        constraints:
+          - type: not_null
+
+  - name: dim_roof_types
+    config:
+      contract:
+        enforced: true
+
+    columns:
+      - name: id
+        data_type: int64
+        constraints:
+          - type: not_null
+          - type: primary_key
+
+      - name: roof_type
+        data_type: string
+        constraints:
+          - type: not_null
+
+  - name: dim_roof_materials
+    config:
+      contract:
+        enforced: true
+
+    columns:
+      - name: id
+        data_type: int64
+        constraints:
+          - type: not_null
+          - type: primary_key
+
+      - name: roof_material
+        data_type: string
+        constraints:
+          - type: not_null
+
+  - name: dim_foundations
+    config:
+      contract:
+        enforced: true
+
+    columns:
+      - name: id
+        data_type: int64
+        constraints:
+          - type: not_null
+          - type: primary_key
+
+      - name: foundation
+        data_type: string
+        constraints:
+          - type: not_null
+
+  - name: dim_heating_types
+    config:
+      contract:
+        enforced: true
+
+    columns:
+      - name: id
+        data_type: int64
+        constraints:
+          - type: not_null
+          - type: primary_key
+
+      - name: heating
+        data_type: string
+        constraints:
+          - type: not_null
+
+  - name: dim_quality1_conditions
+    config:
+      contract:
+        enforced: true
+
+    columns:
+      - name: id
+        data_type: int64
+        constraints:
+          - type: not_null
+          - type: primary_key
+
+        data_tests:
+          - unique
+
+      - name: quality
+        data_type: string
+        constraints:
+          - type: not_null
+
+      - name: description
+        data_type: string
+
+  - name: dim_quality2_conditions
+    config:
+      contract:
+        enforced: true
+
+    columns:
+      - name: id
+        data_type: int64
+        constraints:
+          - type: not_null
+          - type: primary_key
+
+        data_tests:
+          - unique
+
+      - name: quality
+        data_type: string
+        constraints:
+          - type: not_null
+
+      - name: description
+        data_type: string

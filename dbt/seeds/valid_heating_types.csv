@@ -1,0 +1,10 @@
+id,heating
+1,Electric Forced Air
+2,Floor Wall
+3,Gas Forced Air
+4,Geo-Thermal
+5,Gravity Hot Air
+6,Heat Pump
+7,No Heat
+8,Steam Heated Water
+9,Other
