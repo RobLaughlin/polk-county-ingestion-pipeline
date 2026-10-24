@@ -7,6 +7,7 @@ models:
     constraints:
       - type: primary_key
         columns: [book, pg]
+        warn_unenforced: false
 
     data_tests:
       # Ensure (book, pg) is a unique compound key
@@ -199,6 +200,7 @@ models:
           - type: foreign_key
             to: ref('dim_instruments')
             to_columns: [id]
+            warn_unenforced: false
 
       - name: quality1_id
         data_type: int64
@@ -206,6 +208,7 @@ models:
           - type: foreign_key
             to: ref('dim_quality1_conditions')
             to_columns: [id]
+            warn_unenforced: false
 
       - name: quality2_id
         data_type: int64
@@ -213,6 +216,7 @@ models:
           - type: foreign_key
             to: ref('dim_quality2_conditions')
             to_columns: [id]
+            warn_unenforced: false
 
       - name: analysis_quality_id
         data_type: int64
@@ -220,6 +224,7 @@ models:
           - type: foreign_key
             to: ref('dim_analysis_qualities')
             to_columns: [id]
+            warn_unenforced: false
 
       - name: occupancy_id
         data_type: int64
@@ -227,6 +232,7 @@ models:
           - type: foreign_key
             to: ref('dim_occupancies')
             to_columns: [id]
+            warn_unenforced: false
 
       - name: residence_type_id
         data_type: int64
@@ -234,6 +240,7 @@ models:
           - type: foreign_key
             to: ref('dim_residence_types')
             to_columns: [id]
+            warn_unenforced: false
 
       - name: bldg_style_id
         data_type: int64
@@ -241,6 +248,7 @@ models:
           - type: foreign_key
             to: ref('dim_bldg_styles')
             to_columns: [id]
+            warn_unenforced: false
 
       - name: exterior_wall_type_id
         data_type: int64
@@ -248,6 +256,7 @@ models:
           - type: foreign_key
             to: ref('dim_exterior_wall_types')
             to_columns: [id]
+            warn_unenforced: false
 
       - name: roof_type_id
         data_type: int64
@@ -255,6 +264,7 @@ models:
           - type: foreign_key
             to: ref('dim_roof_types')
             to_columns: [id]
+            warn_unenforced: false
 
       - name: roof_material_id
         data_type: int64
@@ -262,6 +272,7 @@ models:
           - type: foreign_key
             to: ref('dim_roof_materials')
             to_columns: [id]
+            warn_unenforced: false
 
       - name: foundation_id
         data_type: int64
@@ -269,6 +280,7 @@ models:
           - type: foreign_key
             to: ref('dim_foundations')
             to_columns: [id]
+            warn_unenforced: false
 
       - name: heating_id
         data_type: int64
@@ -276,6 +288,7 @@ models:
           - type: foreign_key
             to: ref('dim_heating_types')
             to_columns: [id]
+            warn_unenforced: false
 
       - name: fin_bsmt_qual1_id
         data_type: int64
@@ -283,6 +296,7 @@ models:
           - type: foreign_key
             to: ref('dim_basement_qualities')
             to_columns: [id]
+            warn_unenforced: false
 
       - name: fin_bsmt_qual2_id
         data_type: int64
@@ -290,6 +304,7 @@ models:
           - type: foreign_key
             to: ref('dim_basement_qualities')
             to_columns: [id]
+            warn_unenforced: false
 
       - name: condition_id
         data_type: int64
@@ -297,6 +312,7 @@ models:
           - type: foreign_key
             to: ref('dim_conditions')
             to_columns: [id]
+            warn_unenforced: false
 
       - name: grade_id
         data_type: int64
@@ -304,6 +320,7 @@ models:
           - type: foreign_key
             to: ref('dim_grades')
             to_columns: [id]
+            warn_unenforced: false
 
       - name: grade_adjustment
         data_type: int64
@@ -323,6 +340,7 @@ models:
         constraints:
           - type: not_null
           - type: primary_key
+            warn_unenforced: false
 
         data_tests:
           - unique
@@ -357,3 +375,4 @@ models:
           - type: foreign_key
             to: ref('dim_school_districts')
             to_columns: [id]
+            warn_unenforced: false

@@ -10,6 +10,7 @@ models:
         constraints:
           - type: not_null
           - type: primary_key
+            warn_unenforced: false
 
       - name: grade
         data_type: string
@@ -30,6 +31,7 @@ models:
         constraints:
           - type: not_null
           - type: primary_key
+            warn_unenforced: false
 
       - name: condition
         data_type: string
@@ -50,6 +52,7 @@ models:
         constraints:
           - type: not_null
           - type: primary_key
+            warn_unenforced: false
 
       - name: instrument
         data_type: string
@@ -70,6 +73,7 @@ models:
         constraints:
           - type: not_null
           - type: primary_key
+            warn_unenforced: false
 
       - name: analysis_quality
         data_type: string
@@ -90,6 +94,7 @@ models:
         constraints:
           - type: not_null
           - type: primary_key
+            warn_unenforced: false
 
       - name: school_district
         data_type: string
@@ -107,6 +112,7 @@ models:
         constraints:
           - type: not_null
           - type: primary_key
+            warn_unenforced: false
 
       - name: occupancy
         data_type: string
@@ -124,6 +130,7 @@ models:
         constraints:
           - type: not_null
           - type: primary_key
+            warn_unenforced: false
 
       - name: residence_type
         data_type: string
@@ -141,6 +148,7 @@ models:
         constraints:
           - type: not_null
           - type: primary_key
+            warn_unenforced: false
 
       - name: bldg_style
         data_type: string
@@ -158,6 +166,7 @@ models:
         constraints:
           - type: not_null
           - type: primary_key
+            warn_unenforced: false
 
       - name: exterior_wall_type
         data_type: string
@@ -175,6 +184,7 @@ models:
         constraints:
           - type: not_null
           - type: primary_key
+            warn_unenforced: false
 
       - name: roof_type
         data_type: string
@@ -192,6 +202,7 @@ models:
         constraints:
           - type: not_null
           - type: primary_key
+            warn_unenforced: false
 
       - name: roof_material
         data_type: string
@@ -209,6 +220,7 @@ models:
         constraints:
           - type: not_null
           - type: primary_key
+            warn_unenforced: false
 
       - name: foundation
         data_type: string
@@ -226,6 +238,7 @@ models:
         constraints:
           - type: not_null
           - type: primary_key
+            warn_unenforced: false
 
       - name: basement_quality
         data_type: string
@@ -243,6 +256,7 @@ models:
         constraints:
           - type: not_null
           - type: primary_key
+            warn_unenforced: false
 
       - name: heating
         data_type: string
@@ -260,6 +274,7 @@ models:
         constraints:
           - type: not_null
           - type: primary_key
+            warn_unenforced: false
 
         data_tests:
           - unique
@@ -283,6 +298,7 @@ models:
         constraints:
           - type: not_null
           - type: primary_key
+            warn_unenforced: false
 
         data_tests:
           - unique
@@ -309,6 +325,7 @@ models:
         constraints:
           - type: not_null
           - type: primary_key
+            warn_unenforced: false
         data_tests:
           - unique
 
@@ -320,6 +337,7 @@ models:
           - type: foreign_key
             to: ref('dim_parcels')
             to_columns: [dp]
+            warn_unenforced: false
         data_tests:
           - relationships:
               arguments:
@@ -333,6 +351,7 @@ models:
           - type: foreign_key
             to: ref('dim_occupancies')
             to_columns: [id]
+            warn_unenforced: false
 
       - name: residence_type_id
         data_type: int64
@@ -340,6 +359,7 @@ models:
           - type: foreign_key
             to: ref('dim_residence_types')
             to_columns: [id]
+            warn_unenforced: false
 
       - name: bldg_style_id
         data_type: int64
@@ -347,6 +367,7 @@ models:
           - type: foreign_key
             to: ref('dim_bldg_styles')
             to_columns: [id]
+            warn_unenforced: false
 
       - name: exterior_wall_type_id
         data_type: int64
@@ -354,6 +375,7 @@ models:
           - type: foreign_key
             to: ref('dim_exterior_wall_types')
             to_columns: [id]
+            warn_unenforced: false
 
       - name: roof_type_id
         data_type: int64
@@ -361,6 +383,7 @@ models:
           - type: foreign_key
             to: ref('dim_roof_types')
             to_columns: [id]
+            warn_unenforced: false
 
       - name: roof_material_id
         data_type: int64
@@ -368,6 +391,7 @@ models:
           - type: foreign_key
             to: ref('dim_roof_materials')
             to_columns: [id]
+            warn_unenforced: false
 
       - name: foundation_id
         data_type: int64
@@ -375,6 +399,7 @@ models:
           - type: foreign_key
             to: ref('dim_foundations')
             to_columns: [id]
+            warn_unenforced: false
 
       - name: heating_id
         data_type: int64
@@ -382,6 +407,7 @@ models:
           - type: foreign_key
             to: ref('dim_heating_types')
             to_columns: [id]
+            warn_unenforced: false
 
       - name: fin_bsmt_qual1_id
         description: "Finish quality of the first finished basement area."
@@ -390,6 +416,7 @@ models:
           - type: foreign_key
             to: ref('dim_basement_qualities')
             to_columns: [id]
+            warn_unenforced: false
 
       - name: fin_bsmt_qual2_id
         description: "Finish quality of the second finished basement area."
@@ -398,6 +425,7 @@ models:
           - type: foreign_key
             to: ref('dim_basement_qualities')
             to_columns: [id]
+            warn_unenforced: false
 
       # Grade and condition
       - name: grade_id
@@ -407,6 +435,7 @@ models:
           - type: foreign_key
             to: ref('dim_grades')
             to_columns: [id]
+            warn_unenforced: false
 
       - name: grade_adjustment
         description: "Adjustment to the grade, e.g. -5 for '4-05'. 0 means none."
@@ -418,6 +447,7 @@ models:
           - type: foreign_key
             to: ref('dim_conditions')
             to_columns: [id]
+            warn_unenforced: false
 
       # Units and percentages
       - name: families
@@ -484,6 +514,7 @@ models:
         constraints:
           - type: not_null
           - type: primary_key
+            warn_unenforced: false
         data_tests:
           - unique
 
@@ -524,6 +555,7 @@ models:
           - type: foreign_key
             to: ref('dim_school_districts')
             to_columns: [id]
+            warn_unenforced: false
 
   - name: dim_dates
     description: "One row per calendar day, from 1990-01-01 to the end of the current year."
@@ -537,6 +569,7 @@ models:
         constraints:
           - type: not_null
           - type: primary_key
+            warn_unenforced: false
         data_tests:
           - unique
 

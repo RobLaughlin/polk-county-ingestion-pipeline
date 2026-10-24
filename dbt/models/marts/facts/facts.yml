@@ -8,6 +8,7 @@ models:
     constraints:
       - type: primary_key
         columns: [book, pg]
+        warn_unenforced: false
 
     data_tests:
       # Ensure (book, pg) is a unique compound key
@@ -39,6 +40,7 @@ models:
           - type: foreign_key
             to: ref('dim_parcels')
             to_columns: [dp]
+            warn_unenforced: false
         data_tests:
           - relationships:
               arguments:
@@ -52,6 +54,7 @@ models:
           - type: foreign_key
             to: ref('dim_buildings')
             to_columns: [building_id]
+            warn_unenforced: false
         data_tests:
           - relationships:
               arguments:
@@ -67,6 +70,7 @@ models:
           - type: foreign_key
             to: ref('dim_dates')
             to_columns: [date_day]
+            warn_unenforced: false
         data_tests:
           - relationships:
               arguments:
@@ -103,6 +107,7 @@ models:
           - type: foreign_key
             to: ref('dim_instruments')
             to_columns: [id]
+            warn_unenforced: false
 
       - name: quality1_id
         description: "First sale condition code."
@@ -111,6 +116,7 @@ models:
           - type: foreign_key
             to: ref('dim_quality1_conditions')
             to_columns: [id]
+            warn_unenforced: false
 
       - name: quality2_id
         description: "Second sale condition code."
@@ -119,6 +125,7 @@ models:
           - type: foreign_key
             to: ref('dim_quality2_conditions')
             to_columns: [id]
+            warn_unenforced: false
 
       - name: analysis_quality_id
         data_type: int64
@@ -126,6 +133,7 @@ models:
           - type: foreign_key
             to: ref('dim_analysis_qualities')
             to_columns: [id]
+            warn_unenforced: false
 
       # Assessed values
       - name: land_full_assessment_dollars

@@ -7,6 +7,7 @@ models:
     constraints:
       - type: primary_key
         columns: [book, pg]
+        warn_unenforced: false
 
     data_tests:
       # Ensure (book, pg) is a unique compound key
@@ -50,6 +51,7 @@ models:
           - type: foreign_key
             to: ref('stg_parcels')
             to_columns: [dp]
+            warn_unenforced: false
 
         data_tests:
           - not_null
@@ -363,6 +365,7 @@ models:
         constraints:
           - type: not_null
           - type: primary_key
+            warn_unenforced: false
 
         data_tests:
           - unique
