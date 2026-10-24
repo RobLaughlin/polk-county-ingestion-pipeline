@@ -5,7 +5,22 @@
     )
 }}
 
--- One row per calendar day, from the first year of the sales export to the end of this year.
+-- One row per calendar day, from the earliest to the latest sale or entry date.
+-- Days with no sales are included, so time series show them as zero.
+-- Built from int_sales, not fct_sales, because fct_sales references this model.
+WITH all_dates AS (
+    SELECT sale_date AS date_day FROM {{ ref('int_sales') }}
+    UNION ALL
+    SELECT initial_entry_date FROM {{ ref('int_sales') }}
+),
+
+bounds AS (
+    SELECT
+        MIN(date_day) AS first_day,
+        MAX(date_day) AS last_day
+    FROM all_dates
+)
+
 SELECT
     date_day,
     EXTRACT(YEAR FROM date_day) AS year,
@@ -17,4 +32,4 @@ SELECT
     FORMAT_DATE('%A', date_day) AS day_of_week_name,
     EXTRACT(ISOWEEK FROM date_day) AS iso_week,
     EXTRACT(DAYOFWEEK FROM date_day) IN (1, 7) AS is_weekend
-FROM UNNEST(GENERATE_DATE_ARRAY(DATE '1990-01-01', LAST_DAY(CURRENT_DATE(), YEAR))) AS date_day
+FROM bounds, UNNEST(GENERATE_DATE_ARRAY(first_day, last_day)) AS date_day

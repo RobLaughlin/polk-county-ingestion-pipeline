@@ -24,7 +24,6 @@ models:
             expression: "yr = EXTRACT(YEAR FROM sale_date)"
           config:
             severity: warn
-            store_failures: true
 
       - dbt_utils.expression_is_true:
           name: stg_sale_data__total_full_is_land_plus_bldg
@@ -32,7 +31,6 @@ models:
             expression: "total_full = land_full + bldg_full"
           config:
             severity: warn
-            store_failures: true
 
       - dbt_utils.expression_is_true:
           name: stg_sale_data__total_living_area_is_sum_of_floors
@@ -40,7 +38,6 @@ models:
             expression: "total_living_area = main_living_area + upper_living_area + fin_attic_area"
           config:
             severity: warn
-            store_failures: true
 
     columns:
       # District parcels must be not null and have exactly 14 characters
@@ -64,6 +61,7 @@ models:
                 to: ref('stg_parcels')
                 field: dp
 
+      # Dates are always YYYY-MM-DD once cast; the raw format is checked on the source.
       - name: sale_date
         data_type: date
         constraints:
@@ -257,7 +255,6 @@ models:
                 max_value: 9999
               config:
                 severity: warn
-                store_failures: true
 
       - name: year_remodel
         data_type: int64
@@ -269,7 +266,6 @@ models:
                 max_value: 9999
               config:
                 severity: warn
-                store_failures: true
 
       - name: eff_year_built
         data_type: int64
@@ -281,7 +277,6 @@ models:
                 max_value: 9999
               config:
                 severity: warn
-                store_failures: true
 
       - name: condition
         data_type: string
@@ -311,7 +306,6 @@ models:
                 max_value: 9999
               config:
                 severity: warn
-                store_failures: true
 
       - name: detached_structs
         data_type: string
@@ -326,7 +320,6 @@ models:
               name: stg_sale_data__yr_not_null
               config:
                 severity: warn
-                store_failures: true
           - dbt_utils.accepted_range:
               name: stg_sale_data__yr_is_4_digits
               arguments:
@@ -334,7 +327,6 @@ models:
                 max_value: 9999
               config:
                 severity: warn
-                store_failures: true
 
   - name: stg_parcels
     config:
@@ -349,7 +341,6 @@ models:
             expression: "REGEXP_CONTAINS(gp, r'^[0-9]{12}$')"
           config:
             severity: warn
-            store_failures: true
 
       - dbt_utils.expression_is_true:
           name: stg_parcels__zip_is_5_digits
@@ -357,7 +348,6 @@ models:
             expression: "REGEXP_CONTAINS(zip, r'^[0-9]{5}$')"
           config:
             severity: warn
-            store_failures: true
 
     columns:
       - name: dp
@@ -389,7 +379,6 @@ models:
               name: stg_parcels__jurisdiction_not_null
               config:
                 severity: warn
-                store_failures: true
 
       - name: zip
         data_type: string
@@ -411,7 +400,6 @@ models:
               name: stg_parcels__school_district_not_null
               config:
                 severity: warn
-                store_failures: true
 
       - name: platname
         data_type: string

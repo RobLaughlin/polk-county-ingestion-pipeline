@@ -11,5 +11,26 @@ sources:
         config:
           freshness:
             warn_after: {count: 90, period: day}
+
+        # Date strings must be YYYY-MM-DD before staging casts them to DATE.
+        # This file isn't in a folder mapped in dbt_project.yml, so each test sets its own audit config.
+        data_tests:
+          - dbt_utils.expression_is_true:
+              name: sales_raw__sale_date_is_yyyy_mm_dd
+              arguments:
+                expression: "REGEXP_CONTAINS(sale_date, r'^[0-9]{4}-[0-9]{2}-[0-9]{2}$')"
+              config:
+                severity: warn
+                store_failures: true
+                schema: staging_audit
+
+          - dbt_utils.expression_is_true:
+              name: sales_raw__initial_entry_date_is_yyyy_mm_dd
+              arguments:
+                expression: "REGEXP_CONTAINS(initial_entry_date, r'^[0-9]{4}-[0-9]{2}-[0-9]{2}$')"
+              config:
+                severity: warn
+                store_failures: true
+                schema: staging_audit
       - name: __RAW_LOGS_TABLE_ID__
 

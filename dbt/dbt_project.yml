@@ -21,18 +21,22 @@ models:
       facts:
         +schema: marts_facts
 
-# Stored test failures go to an audit dataset next to the models they test.
+# Every model test stores its failing rows in an audit dataset next to the models it tests.
 data_tests:
   polk_county:
     staging:
       +schema: staging_audit
+      +store_failures: true
     intermediate:
       +schema: intermediate_audit
+      +store_failures: true
     marts:
       dims:
         +schema: marts_dims_audit
+        +store_failures: true
       facts:
         +schema: marts_facts_audit
+        +store_failures: true
 
 seeds:
   polk_county:

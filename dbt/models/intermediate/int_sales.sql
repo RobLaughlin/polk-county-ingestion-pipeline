@@ -17,9 +17,18 @@ WITH coded AS (
             condition, grade
         )
         REPLACE (
-            -- Set totals to NULL if they doesn't equal their parts
-            IF(sales.total_living_area = sales.main_living_area + sales.upper_living_area + sales.fin_attic_area, sales.total_living_area, NULL) AS total_living_area,
-            IF(sales.total_full = sales.land_full + sales.bldg_full, sales.total_full, NULL) AS total_full
+            -- Totals become NULL when every part is present and they don't add up.
+            -- With a missing part the comparison is NULL, so the total is kept.
+            IF(sales.total_full != sales.land_full + sales.bldg_full, NULL, sales.total_full) AS total_full,
+            IF(sales.total_living_area != sales.main_living_area + sales.upper_living_area + sales.fin_attic_area, NULL, sales.total_living_area) AS total_living_area,
+            IF(sales.fin_bsmt_area_tot != sales.fin_bsmt_area1 + sales.fin_bsmt_area2, NULL, sales.fin_bsmt_area_tot) AS fin_bsmt_area_tot,
+
+            -- Years that aren't 4 digits (e.g. the 0 placeholders) become NULL
+            IF(sales.year_built BETWEEN 1000 AND 9999, sales.year_built, NULL) AS year_built,
+            IF(sales.year_remodel BETWEEN 1000 AND 9999, sales.year_remodel, NULL) AS year_remodel,
+            IF(sales.eff_year_built BETWEEN 1000 AND 9999, sales.eff_year_built, NULL) AS eff_year_built,
+            IF(sales.condo_year_built BETWEEN 1000 AND 9999, sales.condo_year_built, NULL) AS condo_year_built,
+            IF(sales.yr BETWEEN 1000 AND 9999, sales.yr, NULL) AS yr
         ),
 
         {{ lookup_id('sales.instrument', 'dim_instruments', 'instrument') }} AS instrument_id,

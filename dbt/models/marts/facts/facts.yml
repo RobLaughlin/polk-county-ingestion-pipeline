@@ -18,6 +18,22 @@ models:
               - book
               - pg
 
+      # The same total checks as staging; int_sales sets totals that don't add up to NULL.
+      - dbt_utils.expression_is_true:
+          name: fct_sales__total_full_is_land_plus_bldg
+          arguments:
+            expression: "total_full_assessment_dollars = land_full_assessment_dollars + bldg_full_assessment_dollars"
+
+      - dbt_utils.expression_is_true:
+          name: fct_sales__total_living_area_is_sum_of_floors
+          arguments:
+            expression: "total_living_area_sf = main_living_area_sf + upper_living_area_sf + fin_attic_area_sf"
+
+      - dbt_utils.expression_is_true:
+          name: fct_sales__fin_bsmt_area_total_is_sum_of_areas
+          arguments:
+            expression: "fin_bsmt_area_total_sf = fin_bsmt_area1_sf + fin_bsmt_area2_sf"
+
     columns:
       # Keys
       - name: book
@@ -46,6 +62,9 @@ models:
               arguments:
                 to: ref('dim_parcels')
                 field: dp
+          - dbt_expectations.expect_column_value_lengths_to_equal:
+              arguments:
+                value: 14
 
       - name: building_id
         description: "The building version as it was at this sale. NULL when the sale has no building data."
@@ -80,6 +99,16 @@ models:
       - name: initial_entry_date
         description: "Probably the date the assessor first entered the sale."
         data_type: date
+        constraints:
+          - type: foreign_key
+            to: ref('dim_dates')
+            to_columns: [date_day]
+            warn_unenforced: false
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_dates')
+                field: date_day
 
       - name: price_dollars
         description: "Price paid for the real property, in whole dollars."
@@ -108,6 +137,11 @@ models:
             to: ref('dim_instruments')
             to_columns: [id]
             warn_unenforced: false
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_instruments')
+                field: id
 
       - name: quality1_id
         description: "First sale condition code."
@@ -117,6 +151,11 @@ models:
             to: ref('dim_quality1_conditions')
             to_columns: [id]
             warn_unenforced: false
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_quality1_conditions')
+                field: id
 
       - name: quality2_id
         description: "Second sale condition code."
@@ -126,6 +165,11 @@ models:
             to: ref('dim_quality2_conditions')
             to_columns: [id]
             warn_unenforced: false
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_quality2_conditions')
+                field: id
 
       - name: analysis_quality_id
         data_type: int64
@@ -134,6 +178,11 @@ models:
             to: ref('dim_analysis_qualities')
             to_columns: [id]
             warn_unenforced: false
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_analysis_qualities')
+                field: id
 
       # Assessed values
       - name: land_full_assessment_dollars
