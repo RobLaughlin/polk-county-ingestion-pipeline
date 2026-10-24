@@ -12,23 +12,7 @@ models:
               - book
               - pg
 
-      # Format checks use dbt_utils.expression_is_true so store_failures keeps the whole failing row.
-      - dbt_utils.expression_is_true:
-          name: stg_sale_data__gp_is_12_digits
-          arguments:
-            expression: "REGEXP_CONTAINS(gp, r'^[0-9]{12}$')"
-          config:
-            severity: warn
-            store_failures: true
-
-      - dbt_utils.expression_is_true:
-          name: stg_sale_data__zip_is_5_digits
-          arguments:
-            expression: "REGEXP_CONTAINS(zip, r'^[0-9]{5}$')"
-          config:
-            severity: warn
-            store_failures: true
-
+      # Checks use dbt_utils.expression_is_true so store_failures keeps the whole failing row.
       - dbt_utils.expression_is_true:
           name: stg_sale_data__yr_matches_sale_date
           arguments:
@@ -54,21 +38,6 @@ models:
             store_failures: true
 
     columns:
-      - name: jurisdiction
-        data_type: string
-        data_tests:
-          - not_null:
-              name: stg_sale_data__jurisdiction_not_null
-              config:
-                severity: warn
-                store_failures: true
-
-      - name: nbhd
-        data_type: string
-
-      - name: pocket
-        data_type: string
-
       # District parcels must be not null and have exactly 14 characters
       - name: dp
         data_type: string
@@ -79,9 +48,6 @@ models:
           - dbt_expectations.expect_column_value_lengths_to_equal:
               arguments:
                 value: 14
-
-      - name: gp
-        data_type: string
 
       - name: sale_date
         data_type: date
@@ -109,12 +75,6 @@ models:
           - type: not_null
         data_tests:
           - not_null
-
-      - name: address
-        data_type: string
-
-      - name: zip
-        data_type: string
 
       - name: seller
         data_type: string
@@ -341,21 +301,6 @@ models:
       - name: detached_structs
         data_type: string
 
-      - name: platname
-        data_type: string
-
-      - name: legal_all_parcels
-        data_type: string
-
-      - name: school_district
-        data_type: string
-        data_tests:
-          - not_null:
-              name: stg_sale_data__school_district_not_null
-              config:
-                severity: warn
-                store_failures: true
-
       - name: initial_entry_date
         data_type: date
 
@@ -375,3 +320,84 @@ models:
               config:
                 severity: warn
                 store_failures: true
+
+  - name: stg_parcels
+    config:
+      contract:
+        enforced: true
+
+    data_tests:
+      # Format checks use dbt_utils.expression_is_true so store_failures keeps the whole failing row.
+      - dbt_utils.expression_is_true:
+          name: stg_parcels__gp_is_12_digits
+          arguments:
+            expression: "REGEXP_CONTAINS(gp, r'^[0-9]{12}$')"
+          config:
+            severity: warn
+            store_failures: true
+
+      - dbt_utils.expression_is_true:
+          name: stg_parcels__zip_is_5_digits
+          arguments:
+            expression: "REGEXP_CONTAINS(zip, r'^[0-9]{5}$')"
+          config:
+            severity: warn
+            store_failures: true
+
+    columns:
+      - name: dp
+        data_type: string
+        constraints:
+          - type: not_null
+
+        data_tests:
+          - unique
+          - dbt_expectations.expect_column_value_lengths_to_equal:
+              arguments:
+                value: 14
+
+      - name: gp
+        data_type: string
+
+        data_tests:
+          - dbt_expectations.expect_column_value_lengths_to_equal:
+              arguments:
+                value: 12
+
+      - name: jurisdiction
+        data_type: string
+
+        data_tests:
+          - not_null:
+              name: stg_parcels__jurisdiction_not_null
+              config:
+                severity: warn
+                store_failures: true
+
+      - name: zip
+        data_type: string
+
+      - name: nbhd
+        data_type: string
+
+      - name: pocket
+        data_type: string
+
+      - name: address
+        data_type: string
+
+      - name: school_district
+        data_type: string
+
+        data_tests:
+          - not_null:
+              name: stg_parcels__school_district_not_null
+              config:
+                severity: warn
+                store_failures: true
+
+      - name: platname
+        data_type: string
+
+      - name: parcel_descriptions
+        data_type: string

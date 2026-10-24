@@ -1,26 +1,30 @@
 {{
     config(
         materialized='table',
-        tags=['intermediate']
+        tags=['staging']
     )
 }}
 
+-- One row per district parcel, using the values from its most recent sale.
+-- Strings are trimmed on both sides, and empty strings become NULL.
+-- sale_date, book and pg are strings in raw, so they're cast before sorting.
 WITH duplicates AS (
     SELECT
-        dp,
+        NULLIF(TRIM(dp), '') AS dp,
         NULLIF(TRIM(gp), '') AS gp,
         NULLIF(TRIM(jurisdiction), '') AS jurisdiction,
         NULLIF(TRIM(nbhd), '') AS nbhd,
         NULLIF(TRIM(pocket), '') AS pocket,
         NULLIF(TRIM(school_district), '') AS school_district,
-
-        -- Set zip to NULL if invalid
-        IF(REGEXP_CONTAINS(zip, r'^[0-9]{5}$'), zip, NULL) AS zip,
-
+        NULLIF(TRIM(zip), '') AS zip,
         NULLIF(TRIM(address), '') AS address,
-        NULLIF(TRIM(platname), '') AS platname,        
-        ROW_NUMBER() OVER (PARTITION BY dp ORDER BY sale_date DESC, book DESC, pg DESC) AS priority
-    FROM {{ ref('stg_sale_data') }}
+        NULLIF(TRIM(platname), '') AS platname,
+        NULLIF(TRIM(legal_all_parcels), '') AS parcel_descriptions,
+        ROW_NUMBER() OVER (
+            PARTITION BY NULLIF(TRIM(dp), '')
+            ORDER BY CAST(sale_date AS DATE) DESC, CAST(book AS INT64) DESC, CAST(pg AS INT64) DESC
+        ) AS priority
+    FROM {{ source('raw', 'sales_raw') }}
 )
 SELECT
     dp,
@@ -32,6 +36,7 @@ SELECT
     ANY_VALUE(address HAVING MIN priority) AS address,
     ANY_VALUE(school_district HAVING MIN priority) AS school_district,
     ANY_VALUE(platname HAVING MIN priority) AS platname,
+    ANY_VALUE(parcel_descriptions HAVING MIN priority) AS parcel_descriptions
 FROM duplicates
 GROUP BY dp
 ORDER BY dp
