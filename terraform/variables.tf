@@ -43,9 +43,3 @@ variable "raw_ingest_source_url" {
   description = "The source URL for where to pull the raw CSV sales data"
   default     = "https://www.assess.co.polk.ia.us/info/web/exports/res/sales/polk"
 }
-
-variable "transform_dataset_name" {
-  type        = string
-  description = "Identifier for the GCP BQ dataset to store the transformed data"
-  default     = "polk_county_dataset_ingest_data"
-}

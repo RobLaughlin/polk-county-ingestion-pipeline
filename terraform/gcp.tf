@@ -107,12 +107,27 @@ resource "google_bigquery_table" "sales_raw_logs" {
   ]
 }
 
-resource "google_bigquery_dataset" "transform" {
-  dataset_id                  = "${var.transform_dataset_name}_${random_id.ingest_suffix.hex}"
-  friendly_name               = "Transformed Sales Data"
-  description                 = "Polk County staging, intermediate, and mart models managed by dbt"
-  location                    = google_bigquery_dataset.raw.location
-  default_table_expiration_ms = null
+locals {
+  # One dataset per dbt folder. The names must match the +schema settings in dbt/dbt_project.yml.
+  dbt_datasets = {
+    seeds              = "Lookup tables loaded from dbt seeds"
+    staging            = "dbt staging models: typed and cleaned raw sales data"
+    staging_audit      = "Failing rows stored by staging tests"
+    intermediate       = "dbt intermediate models"
+    intermediate_audit = "Failing rows stored by intermediate tests"
+    marts_dims         = "Dimension tables"
+    marts_dims_audit   = "Failing rows stored by dimension tests"
+    marts_facts        = "Fact tables"
+    marts_facts_audit  = "Failing rows stored by fact tests"
+  }
+}
+
+# Terraform creates and destroys the datasets; dbt creates and replaces the tables inside them.
+resource "google_bigquery_dataset" "dbt" {
+  for_each    = local.dbt_datasets
+  dataset_id  = each.key
+  description = each.value
+  location    = google_bigquery_dataset.raw.location
 
   depends_on = [
     google_project_service.bigquery_api,

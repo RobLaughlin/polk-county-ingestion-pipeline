@@ -1,9 +1,12 @@
 # Polk County dbt scaffold
 
-- `models/staging/`: initial cleanup models and the template for the `raw.sales_raw` source declaration.
-- `models/intermediate/`: reusable transformations between staging and marts, when you add them.
-- `models/marts/`: analytical models you build from staging models.
-- `seeds/`: small reference CSVs loaded with `dbt seed`.
+- `models/sources.yml.example`: the template for the `raw.sales_raw` source declaration.
+- `models/staging/`: typed, trimmed copies of the raw sales data (`stg_sale_data`, `stg_parcels`).
+- `models/intermediate/`: cleanup and coding between staging and marts (`int_sales`, `int_parcels`).
+- `models/marts/dims/`: dimension tables, including the `dim_*` code lookups built from the seeds.
+- `models/marts/facts/`: fact tables (`fct_sales`).
+- `seeds/`: the `valid_*` lookup CSVs loaded with `dbt seed`.
+- `macros/`: shared SQL, such as `lookup_id` and `building_id`.
 - `analyses/`: SQL compiled by dbt but not materialized as tables or views.
 
 The `.gitkeep` files retain the empty folders in Git.
@@ -25,41 +28,56 @@ change. The script reads Terraform outputs once and writes:
 
 - `ingestion/outputs.json`: the existing ingestion configuration.
 - `dbt/outputs.json`: the same Terraform output snapshot for reference.
-- `dbt/profiles.yml`: the BigQuery connection profile with concrete project and
-  transform dataset IDs.
-- `dbt/models/staging/terraform_sources.yml`: the raw source with its concrete
-  project and dataset IDs.
+- `dbt/profiles.yml`: the BigQuery connection profile with the concrete project ID
+  and default dataset.
+- `dbt/models/sources.yml`: the raw source with its concrete project and dataset
+  IDs.
 
 The last three files are generated and Git-ignored. dbt reads the generated YAML;
 it does not automatically read `outputs.json`. Project/dataset environment variables
 are no longer needed for this configuration.
 
-Set `transform_dataset_name` in your local `terraform/terraform.tfvars` to choose
-the transformation dataset. Terraform creates that exact dataset ID and exports
-`gcp_bigquery_transform_id`; the renderer puts it in the dbt profile's `dataset`
-field. Apply Terraform before saving outputs, since adding a variable/output to the
-configuration alone does not update the outputs stored in Terraform state.
+### Datasets
 
-All models under `models/` use this shared destination by default, including staging,
-intermediate, marts, and dev/preview models. Folders organize SQL; no per-layer
-`+schema` overrides are needed. dbt's standard custom-schema behavior would create
-additional dataset names if you added those overrides. The `raw.sales_raw` source
-continues to use `gcp_bigquery_raw_ingest_id`, independently of the model destination.
-Terraform owns the datasets; dbt owns the transformed tables and views.
+Terraform creates every BigQuery dataset, and dbt creates and replaces the tables
+inside them. Each dbt folder builds into its own dataset:
+
+| Folder | Dataset | Stored test failures |
+|---|---|---|
+| `seeds/` | `seeds` | |
+| `models/staging/` | `staging` | `staging_audit` |
+| `models/intermediate/` | `intermediate` | `intermediate_audit` |
+| `models/marts/dims/` | `marts_dims` | `marts_dims_audit` |
+| `models/marts/facts/` | `marts_facts` | `marts_facts_audit` |
+
+The `+schema` settings in `dbt_project.yml` map folders to datasets, and
+`macros/generate_schema_name.sql` makes dbt use those names as they are instead of
+prefixing them with the profile's dataset. The datasets themselves are the
+`dbt_datasets` map in `terraform/gcp.tf`. To add one, add the name in both places,
+then run `terraform apply` before `dbt build`.
+
+The profile's `dataset`, from the `gcp_bigquery_transform_id` output, is `staging`.
+It only receives models that have no `+schema` folder mapping. The `raw.sales_raw`
+source uses `gcp_bigquery_raw_ingest_id`, independently of the model datasets.
+Apply Terraform before saving outputs, since changing an output in the configuration
+alone does not update the outputs stored in Terraform state.
+
+`terraform destroy` deletes every dataset along with its tables. A full rebuild is
+`terraform apply`, `scripts/save_outputs.sh`, the ingestion, then `dbt build`.
 
 Edit `profiles.yml.example` to change threads or location. Edit
-`models/staging/sources.yml.example` to change the raw source declaration or add
+`models/sources.yml.example` to change the raw source declaration or add
 source documentation/tests. Keep `__GCP_PROJECT_ID__`, `__RAW_DATASET_ID__`, and
 `__TRANSFORM_DATASET_ID__` unquoted: the exporter replaces them with safely quoted
 Terraform values. Re-run `save_outputs.sh` after editing either template; edits to
 generated files are overwritten.
 
-Changing the target dataset makes `ref()` point to models in the new destination;
-it does not move existing tables from an earlier target. Rebuild your ready models
-in the transform dataset before querying them. For example:
+Changing a folder's dataset makes `ref()` point to models in the new dataset; it
+does not move existing tables. Rebuild the moved models before querying them, then
+delete the old copies, since dbt never drops tables. For example:
 
 ```bash
-dbt run --project-dir dbt --profiles-dir dbt --select sales_preview
+dbt build --project-dir dbt --profiles-dir dbt --select fct_sales
 ```
 
 The exporter validates required output values and renders both templates before
@@ -78,20 +96,26 @@ no credential override, dbt discovers:
 
 Credentials are not embedded in the generated files. `GOOGLE_APPLICATION_CREDENTIALS`
 takes precedence over the default path; unset a stale override when using local ADC.
-The transformation dataset is separate from the raw source dataset. Both currently
-use the `US` location.
+The raw source dataset and the dbt datasets all use the `US` location.
 
-## Start a model
+## Add a model
 
-Create `models/staging/stg_sales.sql` when ready:
+The layers build on each other: `raw.sales_raw` → staging → intermediate → marts.
+To add a model:
 
-```sql
-select *
-from {{ source('raw', 'sales_raw') }}
+1. Put the SQL file in the folder for its layer. The folder decides its dataset
+   (see [Datasets](#datasets)).
+2. Add an entry for it in that folder's YAML file (`staging.yml`, `intermediate.yml`,
+   `dims.yml` or `facts.yml`). The existing models use enforced contracts, so list
+   every column with its `data_type`, plus any keys and tests.
+3. Build it, along with everything downstream of it, from the repository root:
+
+```bash
+dbt build --project-dir dbt --profiles-dir dbt --select my_model+
 ```
 
-Then run `dbt build --project-dir dbt --profiles-dir dbt` from the repository root.
-Select the models you have finished writing when building the project.
+Run `dbt build --project-dir dbt --profiles-dir dbt` with no selection to rebuild
+the whole project, including the seeds.
 
 For the existing Python development container, mount this `dbt/` directory, install
 the `dbt-bigquery` adapter with uv, and make ADC available inside the container.

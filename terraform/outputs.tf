@@ -19,8 +19,9 @@ output "gcp_bigquery_sales_raw_logs_table_name" {
 }
 
 output "gcp_bigquery_transform_id" {
-  value       = google_bigquery_dataset.transform.dataset_id
-  description = "The GCP BigQuery dataset ID for dbt staging, intermediate, and mart models"
+  # dbt's default dataset in profiles.yml, for any model without a +schema folder mapping
+  value       = google_bigquery_dataset.dbt["staging"].dataset_id
+  description = "The GCP BigQuery dataset ID used as dbt's default dataset in profiles.yml"
 }
 
 output "gcp_bucket_raw_ingest_id" {

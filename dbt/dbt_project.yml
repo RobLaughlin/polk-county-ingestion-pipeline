@@ -6,3 +6,34 @@ profile: polk_county
 model-paths: ["models"]
 seed-paths: ["seeds"]
 analysis-paths: ["analyses"]
+
+# Each folder builds into its own BigQuery dataset (see macros/generate_schema_name.sql).
+# Terraform creates these datasets (dbt_datasets in terraform/gcp.tf), so add new names in both places.
+models:
+  polk_county:
+    staging:
+      +schema: staging
+    intermediate:
+      +schema: intermediate
+    marts:
+      dims:
+        +schema: marts_dims
+      facts:
+        +schema: marts_facts
+
+# Stored test failures go to an audit dataset next to the models they test.
+data_tests:
+  polk_county:
+    staging:
+      +schema: staging_audit
+    intermediate:
+      +schema: intermediate_audit
+    marts:
+      dims:
+        +schema: marts_dims_audit
+      facts:
+        +schema: marts_facts_audit
+
+seeds:
+  polk_county:
+    +schema: seeds

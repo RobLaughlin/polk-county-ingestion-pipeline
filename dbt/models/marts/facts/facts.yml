@@ -1,0 +1,240 @@
+models:
+  - name: fct_sales
+    description: "One row per recorded sale document (book and page), with the measurements of the property as it was sold."
+    config:
+      contract:
+        enforced: true
+
+    constraints:
+      - type: primary_key
+        columns: [book, pg]
+
+    data_tests:
+      # Ensure (book, pg) is a unique compound key
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - book
+              - pg
+
+    columns:
+      # Keys
+      - name: book
+        description: "Recorder's book number."
+        data_type: int64
+        constraints:
+          - type: not_null
+
+      - name: pg
+        description: "Recorder's page number within the book."
+        data_type: int64
+        constraints:
+          - type: not_null
+
+      - name: dp
+        description: "District/parcel number of the parcel sold."
+        data_type: string
+        constraints:
+          - type: not_null
+          - type: foreign_key
+            to: ref('dim_parcels')
+            to_columns: [dp]
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_parcels')
+                field: dp
+
+      - name: building_id
+        description: "The building version as it was at this sale. NULL when the sale has no building data."
+        data_type: string
+        constraints:
+          - type: foreign_key
+            to: ref('dim_buildings')
+            to_columns: [building_id]
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_buildings')
+                field: building_id
+
+      # Sale
+      - name: sale_date
+        description: "Date the deed or contract was signed."
+        data_type: date
+        constraints:
+          - type: not_null
+          - type: foreign_key
+            to: ref('dim_dates')
+            to_columns: [date_day]
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_dates')
+                field: date_day
+
+      - name: initial_entry_date
+        description: "Probably the date the assessor first entered the sale."
+        data_type: date
+
+      - name: price_dollars
+        description: "Price paid for the real property, in whole dollars."
+        data_type: int64
+        constraints:
+          - type: not_null
+
+      - name: seller
+        data_type: string
+
+      - name: buyer
+        data_type: string
+
+      - name: dps
+        description: "Every parcel in the sale, in short form."
+        data_type: string
+
+      - name: gps
+        description: "Every geoparcel in the sale."
+        data_type: string
+
+      - name: instrument_id
+        data_type: int64
+        constraints:
+          - type: foreign_key
+            to: ref('dim_instruments')
+            to_columns: [id]
+
+      - name: quality1_id
+        description: "First sale condition code."
+        data_type: int64
+        constraints:
+          - type: foreign_key
+            to: ref('dim_quality1_conditions')
+            to_columns: [id]
+
+      - name: quality2_id
+        description: "Second sale condition code."
+        data_type: int64
+        constraints:
+          - type: foreign_key
+            to: ref('dim_quality2_conditions')
+            to_columns: [id]
+
+      - name: analysis_quality_id
+        data_type: int64
+        constraints:
+          - type: foreign_key
+            to: ref('dim_analysis_qualities')
+            to_columns: [id]
+
+      # Assessed values
+      - name: land_full_assessment_dollars
+        data_type: int64
+
+      - name: bldg_full_assessment_dollars
+        data_type: int64
+
+      - name: total_full_assessment_dollars
+        description: "NULL when it doesn't equal land plus building."
+        data_type: int64
+
+      # Rooms and fixtures
+      - name: rooms
+        data_type: int64
+
+      - name: bathrooms
+        data_type: int64
+
+      - name: bedrooms
+        data_type: int64
+
+      - name: toilet_rooms
+        description: "Half baths."
+        data_type: int64
+
+      - name: extra_fixtures
+        data_type: int64
+
+      - name: whirlpools
+        data_type: int64
+
+      - name: hottubs
+        data_type: int64
+
+      - name: saunas
+        data_type: int64
+
+      - name: fireplaces
+        data_type: int64
+
+      # Land
+      - name: land_sf
+        data_type: numeric(38, 9)
+
+      - name: land_acres
+        data_type: numeric(38, 9)
+
+      # Areas (sq ft)
+      - name: main_living_area_sf
+        data_type: numeric(38, 9)
+
+      - name: upper_living_area_sf
+        data_type: numeric(38, 9)
+
+      - name: fin_attic_area_sf
+        data_type: numeric(38, 9)
+
+      - name: total_living_area_sf
+        description: "NULL when it doesn't equal main + upper + finished attic."
+        data_type: numeric(38, 9)
+
+      - name: unfin_attic_area_sf
+        data_type: numeric(38, 9)
+
+      - name: att_garage_area_sf
+        data_type: numeric(38, 9)
+
+      - name: open_porch_area_sf
+        data_type: numeric(38, 9)
+
+      - name: enclose_porch_area_sf
+        data_type: numeric(38, 9)
+
+      - name: patio_area_sf
+        data_type: numeric(38, 9)
+
+      - name: deck_area_sf
+        data_type: numeric(38, 9)
+
+      - name: canopy_area_sf
+        data_type: numeric(38, 9)
+
+      - name: veneer_area_sf
+        data_type: numeric(38, 9)
+
+      - name: carport_area_sf
+        data_type: numeric(38, 9)
+
+      - name: condo_fin_liv_area_sf
+        data_type: numeric(38, 9)
+
+      # Basement
+      - name: basement_area_sf
+        data_type: numeric(38, 9)
+
+      - name: fin_bsmt_area_total_sf
+        data_type: numeric(38, 9)
+
+      - name: fin_bsmt_area1_sf
+        data_type: numeric(38, 9)
+
+      - name: fin_bsmt_area2_sf
+        data_type: numeric(38, 9)
+
+      - name: bsmt_walkout_ft
+        description: "Length of fully exposed basement wall, in linear feet."
+        data_type: numeric(38, 9)
+
+      - name: bsmt_garage_stalls
+        description: "Number of garage stalls in the basement."
+        data_type: int64
