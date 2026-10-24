@@ -257,3 +257,21 @@ seeds:
         data_tests:
           - unique
           - not_null
+
+  # Finish quality of a finished basement area, used by fin_bsmt_qual1 and fin_bsmt_qual2
+  - name: valid_basement_qualities
+    config:
+      column_types:
+        id: int64
+        basement_quality: string
+
+    columns:
+      - name: id
+        data_tests:
+          - unique
+          - not_null
+
+      - name: basement_quality
+        data_tests:
+          - unique
+          - not_null

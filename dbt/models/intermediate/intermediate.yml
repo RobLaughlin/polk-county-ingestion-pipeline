@@ -130,14 +130,8 @@ models:
       - name: fin_bsmt_area1
         data_type: numeric(38, 9)
 
-      - name: fin_bsmt_qual1
-        data_type: string
-
       - name: fin_bsmt_area2
         data_type: numeric(38, 9)
-
-      - name: fin_bsmt_qual2
-        data_type: string
 
       - name: bathrooms
         data_type: int64
@@ -283,6 +277,20 @@ models:
             to: ref('dim_heating_types')
             to_columns: [id]
 
+      - name: fin_bsmt_qual1_id
+        data_type: int64
+        constraints:
+          - type: foreign_key
+            to: ref('dim_basement_qualities')
+            to_columns: [id]
+
+      - name: fin_bsmt_qual2_id
+        data_type: int64
+        constraints:
+          - type: foreign_key
+            to: ref('dim_basement_qualities')
+            to_columns: [id]
+
       - name: condition_id
         data_type: int64
         constraints:
@@ -299,6 +307,10 @@ models:
 
       - name: grade_adjustment
         data_type: int64
+
+      # Hash of dp + the building_columns() macro; NULL when the sale has no building data
+      - name: building_id
+        data_type: string
 
   - name: int_parcels
     config:

@@ -215,6 +215,23 @@ models:
         constraints:
           - type: not_null
 
+  - name: dim_basement_qualities
+    config:
+      contract:
+        enforced: true
+
+    columns:
+      - name: id
+        data_type: int64
+        constraints:
+          - type: not_null
+          - type: primary_key
+
+      - name: basement_quality
+        data_type: string
+        constraints:
+          - type: not_null
+
   - name: dim_heating_types
     config:
       contract:
@@ -277,3 +294,521 @@ models:
 
       - name: description
         data_type: string
+
+# Star schema
+  - name: fct_sales
+    description: "One row per recorded sale document (book and page), with the measurements of the property as it was sold."
+    config:
+      contract:
+        enforced: true
+
+    constraints:
+      - type: primary_key
+        columns: [book, pg]
+
+    data_tests:
+      # Ensure (book, pg) is a unique compound key
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - book
+              - pg
+
+    columns:
+      # Keys
+      - name: book
+        description: "Recorder's book number."
+        data_type: int64
+        constraints:
+          - type: not_null
+
+      - name: pg
+        description: "Recorder's page number within the book."
+        data_type: int64
+        constraints:
+          - type: not_null
+
+      - name: dp
+        description: "District/parcel number of the parcel sold."
+        data_type: string
+        constraints:
+          - type: not_null
+          - type: foreign_key
+            to: ref('dim_parcels')
+            to_columns: [dp]
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_parcels')
+                field: dp
+
+      - name: building_id
+        description: "The building version as it was at this sale. NULL when the sale has no building data."
+        data_type: string
+        constraints:
+          - type: foreign_key
+            to: ref('dim_buildings')
+            to_columns: [building_id]
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_buildings')
+                field: building_id
+
+      # Sale
+      - name: sale_date
+        description: "Date the deed or contract was signed."
+        data_type: date
+        constraints:
+          - type: not_null
+          - type: foreign_key
+            to: ref('dim_dates')
+            to_columns: [date_day]
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_dates')
+                field: date_day
+
+      - name: initial_entry_date
+        description: "Probably the date the assessor first entered the sale."
+        data_type: date
+
+      - name: price_dollars
+        description: "Price paid for the real property, in whole dollars."
+        data_type: int64
+        constraints:
+          - type: not_null
+
+      - name: seller
+        data_type: string
+
+      - name: buyer
+        data_type: string
+
+      - name: dps
+        description: "Every parcel in the sale, in short form."
+        data_type: string
+
+      - name: gps
+        description: "Every geoparcel in the sale."
+        data_type: string
+
+      - name: instrument_id
+        data_type: int64
+        constraints:
+          - type: foreign_key
+            to: ref('dim_instruments')
+            to_columns: [id]
+
+      - name: quality1_id
+        description: "First sale condition code."
+        data_type: int64
+        constraints:
+          - type: foreign_key
+            to: ref('dim_quality1_conditions')
+            to_columns: [id]
+
+      - name: quality2_id
+        description: "Second sale condition code."
+        data_type: int64
+        constraints:
+          - type: foreign_key
+            to: ref('dim_quality2_conditions')
+            to_columns: [id]
+
+      - name: analysis_quality_id
+        data_type: int64
+        constraints:
+          - type: foreign_key
+            to: ref('dim_analysis_qualities')
+            to_columns: [id]
+
+      # Assessed values
+      - name: land_full_assessment_dollars
+        data_type: int64
+
+      - name: bldg_full_assessment_dollars
+        data_type: int64
+
+      - name: total_full_assessment_dollars
+        description: "NULL when it doesn't equal land plus building."
+        data_type: int64
+
+      # Rooms and fixtures
+      - name: rooms
+        data_type: int64
+
+      - name: bathrooms
+        data_type: int64
+
+      - name: bedrooms
+        data_type: int64
+
+      - name: toilet_rooms
+        description: "Half baths."
+        data_type: int64
+
+      - name: extra_fixtures
+        data_type: int64
+
+      - name: whirlpools
+        data_type: int64
+
+      - name: hottubs
+        data_type: int64
+
+      - name: saunas
+        data_type: int64
+
+      - name: fireplaces
+        data_type: int64
+
+      # Land
+      - name: land_sf
+        data_type: numeric(38, 9)
+
+      - name: land_acres
+        data_type: numeric(38, 9)
+
+      # Areas (sq ft)
+      - name: main_living_area_sf
+        data_type: numeric(38, 9)
+
+      - name: upper_living_area_sf
+        data_type: numeric(38, 9)
+
+      - name: fin_attic_area_sf
+        data_type: numeric(38, 9)
+
+      - name: total_living_area_sf
+        description: "NULL when it doesn't equal main + upper + finished attic."
+        data_type: numeric(38, 9)
+
+      - name: unfin_attic_area_sf
+        data_type: numeric(38, 9)
+
+      - name: att_garage_area_sf
+        data_type: numeric(38, 9)
+
+      - name: open_porch_area_sf
+        data_type: numeric(38, 9)
+
+      - name: enclose_porch_area_sf
+        data_type: numeric(38, 9)
+
+      - name: patio_area_sf
+        data_type: numeric(38, 9)
+
+      - name: deck_area_sf
+        data_type: numeric(38, 9)
+
+      - name: canopy_area_sf
+        data_type: numeric(38, 9)
+
+      - name: veneer_area_sf
+        data_type: numeric(38, 9)
+
+      - name: carport_area_sf
+        data_type: numeric(38, 9)
+
+      - name: condo_fin_liv_area_sf
+        data_type: numeric(38, 9)
+
+      # Basement
+      - name: basement_area_sf
+        data_type: numeric(38, 9)
+
+      - name: fin_bsmt_area_total_sf
+        data_type: numeric(38, 9)
+
+      - name: fin_bsmt_area1_sf
+        data_type: numeric(38, 9)
+
+      - name: fin_bsmt_area2_sf
+        data_type: numeric(38, 9)
+
+      - name: bsmt_walkout_ft
+        description: "Length of fully exposed basement wall, in linear feet."
+        data_type: numeric(38, 9)
+
+      - name: bsmt_garage_stalls
+        description: "Number of garage stalls in the basement."
+        data_type: int64
+
+  - name: dim_buildings
+    description: "One row per version of the building on a parcel. A new version starts when any building column changes between sales."
+    config:
+      contract:
+        enforced: true
+
+    columns:
+      # Keys
+      - name: building_id
+        description: "Hash of dp and every building column (see the building_columns macro)."
+        data_type: string
+        constraints:
+          - type: not_null
+          - type: primary_key
+        data_tests:
+          - unique
+
+      - name: dp
+        description: "District/parcel number the building is on."
+        data_type: string
+        constraints:
+          - type: not_null
+          - type: foreign_key
+            to: ref('dim_parcels')
+            to_columns: [dp]
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_parcels')
+                field: dp
+
+      # Codes
+      - name: occupancy_id
+        data_type: int64
+        constraints:
+          - type: foreign_key
+            to: ref('dim_occupancies')
+            to_columns: [id]
+
+      - name: residence_type_id
+        data_type: int64
+        constraints:
+          - type: foreign_key
+            to: ref('dim_residence_types')
+            to_columns: [id]
+
+      - name: bldg_style_id
+        data_type: int64
+        constraints:
+          - type: foreign_key
+            to: ref('dim_bldg_styles')
+            to_columns: [id]
+
+      - name: exterior_wall_type_id
+        data_type: int64
+        constraints:
+          - type: foreign_key
+            to: ref('dim_exterior_wall_types')
+            to_columns: [id]
+
+      - name: roof_type_id
+        data_type: int64
+        constraints:
+          - type: foreign_key
+            to: ref('dim_roof_types')
+            to_columns: [id]
+
+      - name: roof_material_id
+        data_type: int64
+        constraints:
+          - type: foreign_key
+            to: ref('dim_roof_materials')
+            to_columns: [id]
+
+      - name: foundation_id
+        data_type: int64
+        constraints:
+          - type: foreign_key
+            to: ref('dim_foundations')
+            to_columns: [id]
+
+      - name: heating_id
+        data_type: int64
+        constraints:
+          - type: foreign_key
+            to: ref('dim_heating_types')
+            to_columns: [id]
+
+      - name: fin_bsmt_qual1_id
+        description: "Finish quality of the first finished basement area."
+        data_type: int64
+        constraints:
+          - type: foreign_key
+            to: ref('dim_basement_qualities')
+            to_columns: [id]
+
+      - name: fin_bsmt_qual2_id
+        description: "Finish quality of the second finished basement area."
+        data_type: int64
+        constraints:
+          - type: foreign_key
+            to: ref('dim_basement_qualities')
+            to_columns: [id]
+
+      # Grade and condition
+      - name: grade_id
+        description: "Construction quality grade, 0 (Executive) to 6 (Sub-standard)."
+        data_type: int64
+        constraints:
+          - type: foreign_key
+            to: ref('dim_grades')
+            to_columns: [id]
+
+      - name: grade_adjustment
+        description: "Adjustment to the grade, e.g. -5 for '4-05'. 0 means none."
+        data_type: int64
+
+      - name: condition_id
+        data_type: int64
+        constraints:
+          - type: foreign_key
+            to: ref('dim_conditions')
+            to_columns: [id]
+
+      # Units and percentages
+      - name: families
+        description: "Number of living units in the dwelling."
+        data_type: numeric(38, 9)
+
+      - name: brick_pct
+        description: "Percent of the exterior that is full-height brick."
+        data_type: numeric(38, 9)
+
+      - name: air_conditioning_pct
+        description: "Percent of the living area with central air."
+        data_type: numeric(38, 9)
+
+      - name: completed_pct
+        description: "How far along an unfinished dwelling is. NULL for finished homes."
+        data_type: numeric(38, 9)
+
+      - name: garage_brick_pct
+        description: "Percent of the attached garage exterior that is brick."
+        data_type: numeric(38, 9)
+
+      # Years
+      - name: year_built
+        data_type: int64
+
+      - name: eff_year_built
+        description: "Year built, adjusted for updates."
+        data_type: int64
+
+      - name: year_remodel
+        data_type: int64
+
+      - name: condo_year_built
+        data_type: int64
+
+      - name: detached_structs
+        description: "Detached structures as CODE/size pairs, e.g. 'BBK/1584 SHD/120'."
+        data_type: string
+
+      # When this version was seen
+      - name: first_sale_date
+        description: "Date of the first sale with this version."
+        data_type: date
+        constraints:
+          - type: not_null
+
+      - name: last_sale_date
+        description: "Date of the last sale with this version."
+        data_type: date
+        constraints:
+          - type: not_null
+
+  - name: dim_parcels
+    description: "One row per district parcel, with its location as of its most recent sale."
+    config:
+      contract:
+        enforced: true
+
+    columns:
+      - name: dp
+        description: "District/parcel number: the 14-digit property ID."
+        data_type: string
+        constraints:
+          - type: not_null
+          - type: primary_key
+        data_tests:
+          - unique
+
+      - name: gp
+        description: "Geoparcel number."
+        data_type: string
+
+      - name: jurisdiction
+        description: "City or township."
+        data_type: string
+
+      - name: zip
+        description: "NULL when it isn't a 5-digit zip."
+        data_type: string
+
+      - name: nbhd
+        description: "Assessor neighborhood code."
+        data_type: string
+
+      - name: pocket
+        description: "Sub-area of the neighborhood."
+        data_type: string
+
+      - name: address
+        data_type: string
+
+      - name: platname
+        description: "Recorded plat (subdivision) name."
+        data_type: string
+
+      - name: parcel_descriptions
+        description: "Legal description of every parcel in the latest sale."
+        data_type: string
+
+      - name: school_district_id
+        data_type: int64
+        constraints:
+          - type: foreign_key
+            to: ref('dim_school_districts')
+            to_columns: [id]
+
+  - name: dim_dates
+    description: "One row per calendar day, from 1990-01-01 to the end of the current year."
+    config:
+      contract:
+        enforced: true
+
+    columns:
+      - name: date_day
+        data_type: date
+        constraints:
+          - type: not_null
+          - type: primary_key
+        data_tests:
+          - unique
+
+      - name: year
+        data_type: int64
+
+      - name: quarter
+        data_type: int64
+
+      - name: month
+        data_type: int64
+
+      - name: month_name
+        description: "e.g. 'January'."
+        data_type: string
+
+      - name: day_of_month
+        data_type: int64
+
+      - name: day_of_week
+        description: "1 = Sunday through 7 = Saturday."
+        data_type: int64
+
+      - name: day_of_week_name
+        description: "e.g. 'Monday'."
+        data_type: string
+
+      - name: iso_week
+        description: "ISO 8601 week number."
+        data_type: int64
+
+      - name: is_weekend
+        description: "TRUE on Saturday and Sunday."
+        data_type: bool
