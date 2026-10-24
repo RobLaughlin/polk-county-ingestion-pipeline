@@ -7,4 +7,4 @@ polk_county:
       project: __GCP_PROJECT_ID__
       dataset: __TRANSFORM_DATASET_ID__
       location: US
-      threads: 1
+      threads: 4
