@@ -1,5 +1,6 @@
 
 import json
+import sys
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from datetime import datetime
@@ -10,7 +11,6 @@ from google.cloud import bigquery
 import hashlib
 import requests
 import base64
-import io
 from logger import Logger
 
 DEFAULT_GCP_CREDENTIALS_PATH = Path('~/.config/gcloud/application_default_credentials.json').expanduser()
@@ -19,8 +19,11 @@ OUTPUTS_FILE_NAME = 'outputs.json'
 MIN_YEAR = 1990
 MAX_YEAR = datetime.now().year
 
-# Number of seconds to wait per try
+# Number of seconds to wait before each retry
 RETRIES = [5, 25, 60]
+
+# Seconds each try waits to connect, or for more data, before it fails
+DEFAULT_TIMEOUT_SECONDS = 300
 
 # Number of yearly files downloaded and checked at the same time
 MAX_NUM_THREADS = 8
@@ -72,34 +75,33 @@ def get_gcp_file_blob(bucket, file_path):
 
 def download_csv_file(url, retries):
     """
-        Return CSV string of the requested CSV file if download is a success. 
+        Return CSV string of the requested CSV file if download is a success.
         Returns None otherwise.
+
+        Tries once, then once more after each wait in retries.
     """
-    r = 0
-   
-    while (r < len(retries)):
+    waits = [0] + retries
+
+    for retry, wait_seconds in enumerate(waits):
+        sleep(wait_seconds)
         try:
-            ingest_logger.log('DOWNLOADING', url, "", f"Retry: {r}")
-            response = requests.get(url)
+            ingest_logger.log('DOWNLOADING', url, "", f"Retry: {retry}")
+            response = requests.get(url, timeout=DEFAULT_TIMEOUT_SECONDS)
             # Ensure the download was successful
             response.raise_for_status()
 
-            csv_file = io.StringIO(response.text)
-            csv_string = csv_file.getvalue()
-            ingest_logger.log('DOWNLOADED', url, "", f"Retry: {r}")
-            return csv_string
-        except:
-            ingest_logger.log('DOWNLOAD FAILED', url, "", f"Failed on retry: {r}")
-            sleep(retries[r])
-            r += 1
-    
+            ingest_logger.log('DOWNLOADED', url, "", f"Retry: {retry}")
+            return response.text
+        except requests.RequestException as error:
+            ingest_logger.log('DOWNLOAD FAILED', url, "", f"Failed on retry {retry}: {error}")
+
     return None
 
 def ingest(source_url, filename, bucket_name, retries):
     """
         Ingests polk county sales data into the provided GCP bucket.
 
-        Returns whether to refresh the bigquery table.
+        Returns whether the file was downloaded, so the bucket now holds its latest copy.
     """
 
     bucket = get_bucket(bucket_name)
@@ -128,7 +130,7 @@ def ingest(source_url, filename, bucket_name, retries):
         ingest_logger.log('CHECKING HASHES', source, dest, f"Source hash: {downloaded_md5_hash}, GCP hash: {gcp_file.md5_hash}")
         if downloaded_md5_hash == gcp_file.md5_hash:
             ingest_logger.log('SKIP INGEST', source, dest, "file hashes were equal")
-            return False
+            return True
         else:
             ingest_logger.log('UPDATING FILE', source, dest, "Updating file in GCS bucket")
             gcp_file.upload_from_string(
@@ -156,15 +158,33 @@ def ingest_years(source_url, bucket_name, years, retries):
     """
         Ingests each year's CSV, up to MAX_NUM_THREADS at a time.
 
-        Returns whether any file was new or changed, so the bigquery table needs a refresh.
+        Returns the filenames that failed to download.
     """
+    filenames = [f"{year}.csv" for year in years]
+
     with ThreadPoolExecutor(max_workers=MAX_NUM_THREADS) as executor:
-        futures = [
-            executor.submit(ingest, source_url, f"{year}.csv", bucket_name, retries)
-            for year in years
-        ]
+        futures = {
+            filename: executor.submit(ingest, source_url, filename, bucket_name, retries)
+            for filename in filenames
+        }
         # result() waits for each thread and re-raises any error it hit.
-        return any([future.result() for future in futures])
+        return [filename for filename, future in futures.items() if not future.result()]
+
+def raw_sales_is_stale(project_id, dataset_id, bucket_name, sales_table_name):
+    """
+        Returns whether the raw sales table needs a reload: it's empty, or a CSV in the
+        bucket changed after the table was last loaded.
+
+        Checking this instead of only this run's uploads means a failed or missed load
+        is retried on the next run.
+    """
+    client = bigquery.Client(project=project_id)
+    table = client.get_table(f"{project_id}.{dataset_id}.{sales_table_name}")
+    if table.num_rows == 0:
+        return True
+
+    csv_files = [blob for blob in get_bucket(bucket_name).list_blobs() if blob.name.endswith(".csv")]
+    return any(blob.updated > table.modified for blob in csv_files)
 
 def load_raw_sales(project_id, dataset_id, bucket_name, headers, sales_table_name):
     client = bigquery.Client(project=project_id)
@@ -238,14 +258,21 @@ def main():
     gcp_ingest_table_name = outputs['gcp_bigquery_sales_raw_table_name']['value']
     gcp_ingest_logs_table_name = outputs['gcp_bigquery_sales_raw_logs_table_name']['value']
 
-    # Ingest yearly csv data. Reload BigQuery if any year's file was new or changed.
+    # Ingest yearly csv data, then reload BigQuery if the bucket has newer files than the table.
+    # The run's log is always uploaded, even when a step fails.
     years = range(MIN_YEAR, MAX_YEAR + 1)
-    should_refresh = ingest_years(source_url, gcp_bucket_name, years, RETRIES)
+    try:
+        failed_files = ingest_years(source_url, gcp_bucket_name, years, RETRIES)
+        if failed_files:
+            ingest_logger.log('INGEST INCOMPLETE', "", "", f"Failed to download: {', '.join(failed_files)}")
 
-    if should_refresh:
-        load_raw_sales(gcp_project_id, gcp_dataset_id, gcp_bucket_name, HEADERS, gcp_ingest_table_name)
+        if raw_sales_is_stale(gcp_project_id, gcp_dataset_id, gcp_bucket_name, gcp_ingest_table_name):
+            load_raw_sales(gcp_project_id, gcp_dataset_id, gcp_bucket_name, HEADERS, gcp_ingest_table_name)
+    finally:
+        load_raw_log_data(gcp_project_id, gcp_dataset_id, gcp_ingest_logs_table_name, ingest_logger)
 
-    load_raw_log_data(gcp_project_id, gcp_dataset_id, gcp_ingest_logs_table_name, ingest_logger)
+    if failed_files:
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
