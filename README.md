@@ -27,7 +27,6 @@ the Python ingestion job, built with uv.
   dbt model's BigQuery scan before it runs, and the dbt models: staging, intermediate
   cleanup, and the star schema, with key and relationship tests.
 - Planned: concurrent downloads and an ingestion log table in BigQuery.
-- Known issue: the reload decision checks only the latest year's file.
 
 The finished pipeline will also be submitted as the final project for Harvard's CS50
 Introduction to Databases with SQL.

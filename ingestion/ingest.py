@@ -229,11 +229,12 @@ def main():
     
     
 
-    # Ingest yearly csv data
+    # Ingest yearly csv data. Reload BigQuery if any year's file was new or changed.
     should_refresh = False
     for y in range(MIN_YEAR, MAX_YEAR + 1):
         filename = f"{y}.csv"
-        should_refresh = ingest(source_url, filename, bucket, RETRIES) or False
+        if ingest(source_url, filename, bucket, RETRIES):
+            should_refresh = True
 
     if should_refresh:
         load_raw_sales(gcp_project_id, gcp_dataset_id, bucket, HEADERS, gcp_ingest_table_name)
