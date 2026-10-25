@@ -22,11 +22,11 @@ the Python ingestion job, built with uv.
 
 ## Status
 
-- Done: infrastructure, ingestion with change detection, the raw BigQuery load, dbt
+- Done: infrastructure, concurrent ingestion with change detection, the raw BigQuery load, dbt
   connection settings generated from Terraform outputs, a dry-run script that estimates a
   dbt model's BigQuery scan before it runs, and the dbt models: staging, intermediate
   cleanup, and the star schema, with key and relationship tests.
-- Planned: concurrent downloads and an ingestion log table in BigQuery.
+- Planned: an ingestion log table in BigQuery.
 
 The finished pipeline will also be submitted as the final project for Harvard's CS50
 Introduction to Databases with SQL.
@@ -48,7 +48,7 @@ Introduction to Databases with SQL.
 4. `cd` into the `terraform` directory, set your `terraform.tfvars` variables using the `terraform.tfvars.example` template, and run `terraform init`.
 5. Run `terraform plan` and if everything looks good to you, run `terraform apply` to create the GCP infrastructure. Infrastructure can be destroyed with `terraform destroy`. You can also use `terraform show` to show the current terraform state.
 6. Run `./scripts/save_outputs.sh` to export Terraform outputs for ingestion and generate the local dbt profile and raw-source configuration.
-7. Run `./scripts/ingest.sh` to run the ingestion script. It first runs `./scripts/build_image.sh`, which builds the ingestion image if it isn't built yet, and `./scripts/ingest.sh` then runs `./scripts/run_container.sh`, which starts the ingestion container if it isn't running. Both can also be run on their own. Since an existing image is never rebuilt, run `docker compose build` after editing `docker/Dockerfile`. Stop the container with `docker compose down`.
+7. Run `./scripts/ingest.sh` to run the ingestion script, which handles up to 8 yearly files at a time (`MAX_NUM_THREADS` in `ingestion/ingest.py`). It first runs `./scripts/build_image.sh`, which builds the ingestion image if it isn't built yet, and `./scripts/ingest.sh` then runs `./scripts/run_container.sh`, which starts the ingestion container if it isn't running. Both can also be run on their own. Since an existing image is never rebuilt, run `docker compose build` after editing `docker/Dockerfile`. Stop the container with `docker compose down`.
 8. `cd` into the `dbt` directory and run `dbt deps` to install the dbt packages, then `dbt build` to load the seeds and build and test every model. Rows that fail a test are saved in the matching `_audit` dataset.
 9. After editing a model, rebuild it and everything that uses it with `dbt build --select my_model+`. This doesn't rebuild the models it reads from, so if you edited more than one, run `dbt build`.
 10. Run `dbt docs generate && dbt docs serve` from the `dbt` directory to view the data descriptions: every model and column, where each column comes from, and the lineage from the raw table to the marts, in your browser.

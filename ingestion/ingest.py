@@ -1,5 +1,6 @@
 
 import json
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from datetime import datetime
 from time import sleep
@@ -20,6 +21,9 @@ MAX_YEAR = datetime.now().year
 
 # Number of seconds to wait per try
 RETRIES = [5, 25, 60]
+
+# Number of yearly files downloaded and checked at the same time
+MAX_NUM_THREADS = 8
 
 HEADERS = [
     'jurisdiction', 'nbhd', 'pocket', 'dp', 'gp', 'sale_date', 'book', 'pg', 'instrument', 'price', 'address', 'zip', 'seller', 'buyer', 'land_full', 'bldg_full', 'total_full', 'quality1', 'quality2', 'analysis_quality', 'dps', 'gps', 'land_sf', 'land_acres', 'occupancy', 'residence_type', 'bldg_style', 'exterior_wall_type', 'percent_brick', 'roof_type', 'roof_material', 'main_living_area', 'upper_living_area', 'fin_attic_area', 'total_living_area', 'unfin_attic_area', 'foundation', 'basement_area', 'fin_bsmt_area_tot', 'bsmt_walkout', 'bsmt_gar_capacity', 'att_garage_area', 'garage_brick', 'open_porch_area', 'enclose_porch_area', 'patio_area', 'deck_area', 'canopy_area', 'veneer_area', 'carport_area', 'fin_bsmt_area1', 'fin_bsmt_qual1', 'fin_bsmt_area2', 'fin_bsmt_qual2', 'bathrooms', 'toilet_rooms', 'extra_fixtures', 'whirlpools', 'hottubs', 'saunas', 'fireplaces', 'bedrooms', 'rooms', 'families', 'year_built', 'year_remodel', 'eff_year_built', 'condition', 'grade', 'heating', 'air_conditioning', 'percent_complete', 'condo_fin_liv_area', 'condo_year_built', 'detached_structs', 'platname', 'legal_all_parcels', 'school_district', 'initial_entry_date', 'yr'
@@ -51,23 +55,19 @@ def parse_outputs_json():
     
     return None
 
-def get_gcp_file_blob(bucket_name, file_path):
-    """Get blob of gcp file. Returns none is file doesn't exist."""
+def get_bucket(bucket_name):
+    """
+        Get a GCP bucket with its own storage client.
 
-    # 1. Initialize the Google Cloud Storage client
+        Each ingest thread gets its own client, because the HTTP session inside a client
+        isn't guaranteed to be thread-safe.
+    """
     credentials, project_id = google.auth.default()
     storage_client = storage.Client(credentials=credentials, project=project_id)
-    
-    # 2. Get a reference to the bucket
-    bucket = storage_client.bucket(bucket_name)
-    
-    # 3. Create a blob object representing the file path (object name)
-    blob = bucket.blob(file_path)
-    
-    # 4. Check if the blob exists in the cloud bucket
-    if not blob.exists():
-        return None
-    
+    return storage_client.bucket(bucket_name)
+
+def get_gcp_file_blob(bucket, file_path):
+    """Get blob of gcp file. Returns none if file doesn't exist."""
     return bucket.get_blob(file_path)
 
 def download_csv_file(url, retries):
@@ -95,13 +95,14 @@ def download_csv_file(url, retries):
     
     return None
 
-def ingest(source_url, filename, bucket, retries):
+def ingest(source_url, filename, bucket_name, retries):
     """
         Ingests polk county sales data into the provided GCP bucket.
 
         Returns whether to refresh the bigquery table.
     """
 
+    bucket = get_bucket(bucket_name)
     source = f"{source_url}/{filename}"
     dest =f"gs://{bucket.name}/{filename}"
 
@@ -120,7 +121,7 @@ def ingest(source_url, filename, bucket, retries):
     ingest_logger.log('ENCODED SOURCE', source, "", f"Encoded: {downloaded_md5_hash}")
 
     ingest_logger.log('CHECKING FILE EXISTANCE', "", dest, f"Checking if {filename} is in GCP bucket: {bucket.name}...")
-    gcp_file = get_gcp_file_blob(bucket.name, filename)
+    gcp_file = get_gcp_file_blob(bucket, filename)
     
     if gcp_file is not None:
         ingest_logger.log('FILE EXISTS', "", dest, f"File {filename} exists in {bucket.name}")
@@ -148,14 +149,28 @@ def ingest(source_url, filename, bucket, retries):
         )
         ingest_logger.log('FILE UPLOADED', source, dest, f"File uploaded to GCP bucket")
 
-    
+
     return True
 
-def load_raw_sales(project_id, dataset_id, bucket, headers, sales_table_name):
+def ingest_years(source_url, bucket_name, years, retries):
+    """
+        Ingests each year's CSV, up to MAX_NUM_THREADS at a time.
+
+        Returns whether any file was new or changed, so the bigquery table needs a refresh.
+    """
+    with ThreadPoolExecutor(max_workers=MAX_NUM_THREADS) as executor:
+        futures = [
+            executor.submit(ingest, source_url, f"{year}.csv", bucket_name, retries)
+            for year in years
+        ]
+        # result() waits for each thread and re-raises any error it hit.
+        return any([future.result() for future in futures])
+
+def load_raw_sales(project_id, dataset_id, bucket_name, headers, sales_table_name):
     client = bigquery.Client(project=project_id)
 
     table_id = f"{project_id}.{dataset_id}.{sales_table_name}"
-    source_uri = f"gs://{bucket.name}/*.csv"
+    source_uri = f"gs://{bucket_name}/*.csv"
 
     ingest_logger.log('PULLING CSV DATA INTO TABLE', source_uri, table_id)
     config = bigquery.LoadJobConfig(
@@ -222,22 +237,13 @@ def main():
     gcp_dataset_id = outputs["gcp_bigquery_raw_ingest_id"]['value']
     gcp_ingest_table_name = outputs['gcp_bigquery_sales_raw_table_name']['value']
     gcp_ingest_logs_table_name = outputs['gcp_bigquery_sales_raw_logs_table_name']['value']
-    storage_client = storage.Client()
-    
-    # Get the bucket
-    bucket = storage_client.bucket(gcp_bucket_name)
-    
-    
 
     # Ingest yearly csv data. Reload BigQuery if any year's file was new or changed.
-    should_refresh = False
-    for y in range(MIN_YEAR, MAX_YEAR + 1):
-        filename = f"{y}.csv"
-        if ingest(source_url, filename, bucket, RETRIES):
-            should_refresh = True
+    years = range(MIN_YEAR, MAX_YEAR + 1)
+    should_refresh = ingest_years(source_url, gcp_bucket_name, years, RETRIES)
 
     if should_refresh:
-        load_raw_sales(gcp_project_id, gcp_dataset_id, bucket, HEADERS, gcp_ingest_table_name)
+        load_raw_sales(gcp_project_id, gcp_dataset_id, gcp_bucket_name, HEADERS, gcp_ingest_table_name)
 
     load_raw_log_data(gcp_project_id, gcp_dataset_id, gcp_ingest_logs_table_name, ingest_logger)
 
