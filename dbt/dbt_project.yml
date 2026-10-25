@@ -1,3 +1,14 @@
+# Turns the Polk County Assessor's residential sales export (raw.sales_raw) into a star schema:
+#
+#   raw.sales_raw -> staging -> intermediate -> marts (dims and facts)
+#
+# - staging: typed, trimmed copies of the raw table (stg_sale_data, stg_parcels).
+# - intermediate: cleanup and coding (int_sales, int_parcels).
+# - marts: fct_sales and its dimensions, including the code lookups built from seeds/.
+#
+# Each folder's YAML describes its models and every column: what it means, what that model or an
+# earlier one did to it, and its source page. Staging also keeps each column's source in meta.
+# View them with: dbt docs generate && dbt docs serve
 name: polk_county
 version: "1.0.0"
 config-version: 2
@@ -11,6 +22,10 @@ analysis-paths: ["analyses"]
 # Terraform creates these datasets (dbt_datasets in terraform/gcp.tf), so add new names in both places.
 models:
   polk_county:
+    # Copy model and column descriptions onto the BigQuery tables and columns.
+    +persist_docs:
+      relation: true
+      columns: true
     staging:
       +schema: staging
     intermediate:
@@ -38,6 +53,10 @@ data_tests:
         +schema: marts_facts_audit
         +store_failures: true
 
+# The valid_* code lists, loaded by dbt seed. The dim_* lookups in marts/dims select from them.
 seeds:
   polk_county:
+    +persist_docs:
+      relation: true
+      columns: true
     +schema: seeds

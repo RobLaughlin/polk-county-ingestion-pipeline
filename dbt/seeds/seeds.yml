@@ -1,5 +1,7 @@
 seeds:
-  # Sale condition codes from the data dictionary. Code 0 is named differently in each column,
+  # Sale condition codes from the assessor's sale table page
+  # (https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale).
+  # Code 0 is named differently in each column,
   # so it has one row for quality1 ('Arms Length') and one for quality2 ('No Code').
   - name: valid_sale_conditions
     config:

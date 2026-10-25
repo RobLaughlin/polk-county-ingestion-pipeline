@@ -2,7 +2,10 @@ version: 2
 
 sources:
   - name: raw
-    description: "The raw source data ingested from the Polk County Ingestion Pipeline"
+    description: >-
+      The Polk County Assessor's residential sales export, one CSV per year, loaded by the ingestion job.
+
+      Source: https://www.assess.co.polk.ia.us/info/web/exports/res/sales/polk/
     database: __GCP_PROJECT_ID__
     schema: __RAW_DATASET_ID__
     tables:

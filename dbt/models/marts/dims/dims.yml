@@ -1,11 +1,15 @@
 models:
   - name: dim_grades
+    description: >-
+      Construction quality grades, from the valid_grades seed: 0 (Executive) to 6 (Sub-
+      standard), plus 7 for Other. int_sales takes the first digit of grade as grade_id.
     config:
       contract:
         enforced: true
 
     columns:
       - name: id
+        description: "Base grade number, 0 (Executive) to 6 (Sub-standard); 7 is Other. int_sales stores it in grade_id. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: int64
         constraints:
           - type: not_null
@@ -15,20 +19,26 @@ models:
           - unique
 
       - name: grade
+        description: "Construction quality grade and its adjustment: 4-05 is grade 4 (Average) with a -05 adjustment. Grades run from 0 (Executive) to 6 (Sub-standard) and scale the replacement costs in the Iowa Real Property Appraisal Manual. | The grade's name, e.g. Average; the raw grade holds only its number. Other is the catch-all for a digit with no row of its own. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: string
         constraints:
           - type: not_null
 
       - name: description
+        description: "The adjustments this grade can take. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: string
 
   - name: dim_conditions
+    description: >-
+      Physical condition ratings, from the valid_conditions seed. int_sales looks up condition
+      here, and names not in the list get the Other id.
     config:
       contract:
         enforced: true
 
     columns:
       - name: id
+        description: "Id of the value. int_sales stores it in condition_id. | (added in dbt)"
         data_type: int64
         constraints:
           - type: not_null
@@ -38,20 +48,26 @@ models:
           - unique
 
       - name: condition
+        description: "Physical condition, from Excellent (fully revitalized) through Normal (minor deferred maintenance) to Very Poor (uninhabitable). | One row per value. Other is the catch-all for values not in the list. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: string
         constraints:
           - type: not_null
 
       - name: description
+        description: "What the value means, from the assessor's definitions. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: string
 
   - name: dim_instruments
+    description: >-
+      Document types (Deed or Contract), from the valid_instruments seed. int_sales looks up
+      instrument here, and names not in the list get the Other id.
     config:
       contract:
         enforced: true
 
     columns:
       - name: id
+        description: "Id of the value. int_sales stores it in instrument_id. | (added in dbt)"
         data_type: int64
         constraints:
           - type: not_null
@@ -61,20 +77,27 @@ models:
           - unique
 
       - name: instrument
+        description: "Document type: Deed or Contract. Neither the assessor nor the Iowa Department of Revenue uses contract sales for analysis. | One row per value. Other is the catch-all for values not in the list. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
         data_type: string
         constraints:
           - type: not_null
 
       - name: description
+        description: "What the value means, from the assessor's definitions. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
         data_type: string
 
   - name: dim_analysis_qualities
+    description: >-
+      Whether the assessor uses a sale in its market analysis (Good or Bad), from the
+      valid_analysis_qualities seed. int_sales looks up analysis_quality here, and names not in
+      the list get the Other id.
     config:
       contract:
         enforced: true
 
     columns:
       - name: id
+        description: "Id of the value. int_sales stores it in analysis_quality_id. | (added in dbt)"
         data_type: int64
         constraints:
           - type: not_null
@@ -84,20 +107,26 @@ models:
           - unique
 
       - name: analysis_quality
+        description: "Whether the assessor uses the sale in its own market analysis, such as comparable sales: Good means used and Bad means not used. | One row per value. Other is the catch-all for values not in the list. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
         data_type: string
         constraints:
           - type: not_null
 
       - name: description
+        description: "What the value means, from the assessor's definitions. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
         data_type: string
 
   - name: dim_school_districts
+    description: >-
+      School districts, from the valid_school_districts seed. int_parcels looks up
+      school_district here, and names not in the list get the Other id.
     config:
       contract:
         enforced: true
 
     columns:
       - name: id
+        description: "Id of the value. int_parcels stores it in school_district_id. | (added in dbt)"
         data_type: int64
         constraints:
           - type: not_null
@@ -107,17 +136,22 @@ models:
           - unique
 
       - name: school_district
+        description: "School district the parcel is in, e.g. Ankeny. | One row per value. Other is the catch-all for values not in the list. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=parcel"
         data_type: string
         constraints:
           - type: not_null
 
   - name: dim_occupancies
+    description: >-
+      Kinds of dwelling, from the valid_occupancies seed. int_sales looks up occupancy here, and
+      names not in the list get the Other id.
     config:
       contract:
         enforced: true
 
     columns:
       - name: id
+        description: "Id of the value. int_sales stores it in occupancy_id. | (added in dbt)"
         data_type: int64
         constraints:
           - type: not_null
@@ -127,17 +161,22 @@ models:
           - unique
 
       - name: occupancy
+        description: "Kind of dwelling, e.g. Single Family, Townhouse or Condominium. | One row per value. Other is the catch-all for values not in the list. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: string
         constraints:
           - type: not_null
 
   - name: dim_residence_types
+    description: >-
+      Story counts and attic types, from the valid_residence_types seed. int_sales looks up
+      residence_type here, and names not in the list get the Other id.
     config:
       contract:
         enforced: true
 
     columns:
       - name: id
+        description: "Id of the value. int_sales stores it in residence_type_id. | (added in dbt)"
         data_type: int64
         constraints:
           - type: not_null
@@ -147,17 +186,22 @@ models:
           - unique
 
       - name: residence_type
+        description: "Number of stories and type of attic, e.g. 1 Story, 1.5 Stories or Split Foyer. | One row per value. Other is the catch-all for values not in the list. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: string
         constraints:
           - type: not_null
 
   - name: dim_bldg_styles
+    description: >-
+      Architectural styles, from the valid_bldg_styles seed. int_sales looks up bldg_style here,
+      and names not in the list get the Other id.
     config:
       contract:
         enforced: true
 
     columns:
       - name: id
+        description: "Id of the value. int_sales stores it in bldg_style_id. | (added in dbt)"
         data_type: int64
         constraints:
           - type: not_null
@@ -167,17 +211,22 @@ models:
           - unique
 
       - name: bldg_style
+        description: "Architectural style, e.g. Conventional, Ranch or Cape Cod. | One row per value. Other is the catch-all for values not in the list. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: string
         constraints:
           - type: not_null
 
   - name: dim_exterior_wall_types
+    description: >-
+      Exterior wall materials, from the valid_exterior_wall_types seed. int_sales looks up
+      exterior_wall_type here, and names not in the list get the Other id.
     config:
       contract:
         enforced: true
 
     columns:
       - name: id
+        description: "Id of the value. int_sales stores it in exterior_wall_type_id. | (added in dbt)"
         data_type: int64
         constraints:
           - type: not_null
@@ -187,17 +236,22 @@ models:
           - unique
 
       - name: exterior_wall_type
+        description: "Main exterior wall material, e.g. Vinyl Siding, Brick or Wood Siding. | One row per value. Other is the catch-all for values not in the list. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: string
         constraints:
           - type: not_null
 
   - name: dim_roof_types
+    description: >-
+      Roof shapes, from the valid_roof_types seed. int_sales looks up roof_type here, and names
+      not in the list get the Other id.
     config:
       contract:
         enforced: true
 
     columns:
       - name: id
+        description: "Id of the value. int_sales stores it in roof_type_id. | (added in dbt)"
         data_type: int64
         constraints:
           - type: not_null
@@ -207,17 +261,22 @@ models:
           - unique
 
       - name: roof_type
+        description: "Roof shape: Gable, Hip, Flat, Gambrel, Mansard, Shed or Other. | One row per value. Other is the catch-all for values not in the list. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: string
         constraints:
           - type: not_null
 
   - name: dim_roof_materials
+    description: >-
+      Roof coverings, from the valid_roof_materials seed. int_sales looks up roof_material here,
+      and names not in the list get the Other id.
     config:
       contract:
         enforced: true
 
     columns:
       - name: id
+        description: "Id of the value. int_sales stores it in roof_material_id. | (added in dbt)"
         data_type: int64
         constraints:
           - type: not_null
@@ -227,17 +286,22 @@ models:
           - unique
 
       - name: roof_material
+        description: "Roof covering, e.g. Asphalt Shingle, Metal or Wood Shingle. | One row per value. Other is the catch-all for values not in the list. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: string
         constraints:
           - type: not_null
 
   - name: dim_foundations
+    description: >-
+      Foundation materials, from the valid_foundations seed. int_sales looks up foundation here,
+      and names not in the list get the Other id.
     config:
       contract:
         enforced: true
 
     columns:
       - name: id
+        description: "Id of the value. int_sales stores it in foundation_id. | (added in dbt)"
         data_type: int64
         constraints:
           - type: not_null
@@ -247,17 +311,23 @@ models:
           - unique
 
       - name: foundation
+        description: "Foundation material, e.g. Poured Concrete, Concrete Block or Brick. | One row per value. Other is the catch-all for values not in the list. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: string
         constraints:
           - type: not_null
 
   - name: dim_basement_qualities
+    description: >-
+      Finish qualities of finished basement areas, from the valid_basement_qualities seed.
+      int_sales looks up fin_bsmt_qual1 and fin_bsmt_qual2 here, and names not in the list get
+      the Other id.
     config:
       contract:
         enforced: true
 
     columns:
       - name: id
+        description: "Id of the value. int_sales stores it in fin_bsmt_qual1_id and fin_bsmt_qual2_id. | (added in dbt)"
         data_type: int64
         constraints:
           - type: not_null
@@ -267,17 +337,22 @@ models:
           - unique
 
       - name: basement_quality
+        description: "Finish quality of a finished basement area: Living Quarters, Average Plus, Average or Low. | One row per value. Other is the catch-all for values not in the list. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: string
         constraints:
           - type: not_null
 
   - name: dim_heating_types
+    description: >-
+      Heating systems, from the valid_heating_types seed. int_sales looks up heating here, and
+      names not in the list get the Other id.
     config:
       contract:
         enforced: true
 
     columns:
       - name: id
+        description: "Id of the value. int_sales stores it in heating_id. | (added in dbt)"
         data_type: int64
         constraints:
           - type: not_null
@@ -287,17 +362,23 @@ models:
           - unique
 
       - name: heating
+        description: "Heating system, e.g. Gas Forced Air, Heat Pump or Geo-Thermal. | One row per value. Other is the catch-all for values not in the list. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: string
         constraints:
           - type: not_null
 
   - name: dim_quality1_conditions
+    description: >-
+      Iowa Department of Revenue sale condition codes that can appear in quality1 (code 0 is
+      Arms Length, meaning no condition), from the valid_sale_conditions seed. int_sales looks
+      up quality1 here, and names not in the list get the Other id.
     config:
       contract:
         enforced: true
 
     columns:
       - name: id
+        description: "Iowa Department of Revenue sale condition code, e.g. 17 for Family. int_sales stores it in quality1_id. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
         data_type: int64
         constraints:
           - type: not_null
@@ -308,20 +389,27 @@ models:
           - unique
 
       - name: quality
+        description: "First Iowa Department of Revenue sale condition: the reason, if any, the sale isn't a normal market sale, e.g. Family or Foreclosure. Arms Length means no condition. | One row per value. Other is the catch-all for values not in the list. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
         data_type: string
         constraints:
           - type: not_null
 
       - name: description
+        description: "What the value means, from the assessor's definitions. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
         data_type: string
 
   - name: dim_quality2_conditions
+    description: >-
+      Iowa Department of Revenue sale condition codes that can appear in quality2 (code 0 is No
+      Code, meaning no second condition), from the valid_sale_conditions seed. int_sales looks
+      up quality2 here, and names not in the list get the Other id.
     config:
       contract:
         enforced: true
 
     columns:
       - name: id
+        description: "Iowa Department of Revenue sale condition code, e.g. 17 for Family. int_sales stores it in quality2_id. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
         data_type: int64
         constraints:
           - type: not_null
@@ -332,15 +420,21 @@ models:
           - unique
 
       - name: quality
+        description: "Second sale condition, for sales with two conditions. No Code means no second condition. | One row per value. Other is the catch-all for values not in the list. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
         data_type: string
         constraints:
           - type: not_null
 
       - name: description
+        description: "What the value means, from the assessor's definitions. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
         data_type: string
 
   - name: dim_buildings
-    description: "One row per version of the building on a parcel. A new version starts when any building column changes between sales."
+    description: >-
+      One row per version of a building on a parcel, from int_sales. A new version starts
+      whenever any building column changes between sales, such as after a remodel or a new
+      condition rating. Sales with no building data have no version. first_sale_date and
+      last_sale_date give the span of sales that saw each version.
     config:
       contract:
         enforced: true
@@ -348,7 +442,7 @@ models:
     columns:
       # Keys
       - name: building_id
-        description: "Hash of dp and every building column (see the building_columns macro)."
+        description: "The building version at this sale: a hash of dp and every building column (see the building_columns macro), so it changes whenever any of them changes. NULL when the sale has no building data. | (added in dbt)"
         data_type: string
         constraints:
           - type: not_null
@@ -358,7 +452,7 @@ models:
           - unique
 
       - name: dp
-        description: "District/parcel number the building is on."
+        description: "District/parcel number: the 14-digit property ID, e.g. 01000001000000. The first 3 digits are the district. Kept as text because leading zeros matter. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
         data_type: string
         constraints:
           - type: not_null
@@ -377,6 +471,7 @@ models:
 
       # Codes
       - name: occupancy_id
+        description: "Kind of dwelling, e.g. Single Family, Townhouse or Condominium. | Stored as its id in dim_occupancies (set in int_sales). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: int64
         constraints:
           - type: foreign_key
@@ -390,6 +485,7 @@ models:
                 field: id
 
       - name: residence_type_id
+        description: "Number of stories and type of attic, e.g. 1 Story, 1.5 Stories or Split Foyer. | Stored as its id in dim_residence_types (set in int_sales). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: int64
         constraints:
           - type: foreign_key
@@ -403,6 +499,7 @@ models:
                 field: id
 
       - name: bldg_style_id
+        description: "Architectural style, e.g. Conventional, Ranch or Cape Cod. | Stored as its id in dim_bldg_styles (set in int_sales). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: int64
         constraints:
           - type: foreign_key
@@ -416,6 +513,7 @@ models:
                 field: id
 
       - name: exterior_wall_type_id
+        description: "Main exterior wall material, e.g. Vinyl Siding, Brick or Wood Siding. | Stored as its id in dim_exterior_wall_types (set in int_sales). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: int64
         constraints:
           - type: foreign_key
@@ -429,6 +527,7 @@ models:
                 field: id
 
       - name: roof_type_id
+        description: "Roof shape: Gable, Hip, Flat, Gambrel, Mansard, Shed or Other. | Stored as its id in dim_roof_types (set in int_sales). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: int64
         constraints:
           - type: foreign_key
@@ -442,6 +541,7 @@ models:
                 field: id
 
       - name: roof_material_id
+        description: "Roof covering, e.g. Asphalt Shingle, Metal or Wood Shingle. | Stored as its id in dim_roof_materials (set in int_sales). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: int64
         constraints:
           - type: foreign_key
@@ -455,6 +555,7 @@ models:
                 field: id
 
       - name: foundation_id
+        description: "Foundation material, e.g. Poured Concrete, Concrete Block or Brick. | Stored as its id in dim_foundations (set in int_sales). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: int64
         constraints:
           - type: foreign_key
@@ -468,6 +569,7 @@ models:
                 field: id
 
       - name: heating_id
+        description: "Heating system, e.g. Gas Forced Air, Heat Pump or Geo-Thermal. | Stored as its id in dim_heating_types (set in int_sales). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: int64
         constraints:
           - type: foreign_key
@@ -481,7 +583,7 @@ models:
                 field: id
 
       - name: fin_bsmt_qual1_id
-        description: "Finish quality of the first finished basement area."
+        description: "Finish quality of the first finished basement area: Living Quarters, Average Plus, Average or Low. NULL when there's no finished basement. | Stored as its id in dim_basement_qualities (set in int_sales). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: int64
         constraints:
           - type: foreign_key
@@ -495,7 +597,7 @@ models:
                 field: id
 
       - name: fin_bsmt_qual2_id
-        description: "Finish quality of the second finished basement area."
+        description: "Finish quality of the second finished basement area, with the same values as the first. | Stored as its id in dim_basement_qualities (set in int_sales). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: int64
         constraints:
           - type: foreign_key
@@ -510,7 +612,7 @@ models:
 
       # Grade and condition
       - name: grade_id
-        description: "Construction quality grade, 0 (Executive) to 6 (Sub-standard)."
+        description: "Construction quality grade and its adjustment: 4-05 is grade 4 (Average) with a -05 adjustment. Grades run from 0 (Executive) to 6 (Sub-standard) and scale the replacement costs in the Iowa Real Property Appraisal Manual. | The base grade as its id in dim_grades. NULL when grade doesn't parse (set in int_sales). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: int64
         constraints:
           - type: foreign_key
@@ -524,10 +626,11 @@ models:
                 field: id
 
       - name: grade_adjustment
-        description: "Adjustment to the grade, e.g. -5 for '4-05'. 0 means none."
+        description: "Construction quality grade and its adjustment: 4-05 is grade 4 (Average) with a -05 adjustment. Grades run from 0 (Executive) to 6 (Sub-standard) and scale the replacement costs in the Iowa Real Property Appraisal Manual. | The adjustment part of grade as a number, e.g. -5 for 4-05, and 0 when there is none (set in int_sales). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: int64
 
       - name: condition_id
+        description: "Physical condition, from Excellent (fully revitalized) through Normal (minor deferred maintenance) to Very Poor (uninhabitable). | Stored as its id in dim_conditions (set in int_sales). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: int64
         constraints:
           - type: foreign_key
@@ -542,27 +645,28 @@ models:
 
       # Units and percentages
       - name: families
-        description: "Number of living units in the dwelling."
+        description: "Number of living units in the dwelling. 1 by default; 2 or 3 means extra units, and more than 3 is assessed as commercial. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: numeric(38, 9)
 
       - name: brick_pct
-        description: "Percent of the exterior that is full-height brick."
+        description: "Percent of the house exterior that is full-height brick, 0 to 100. Brick on only the front wall is counted in the veneer area instead. | Renamed from percent_brick. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: numeric(38, 9)
 
       - name: air_conditioning_pct
-        description: "Percent of the living area with central air."
+        description: "Percent of the living area cooled by central air, 0 to 100. | Renamed from air_conditioning. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: numeric(38, 9)
 
       - name: completed_pct
-        description: "How far along an unfinished dwelling is. NULL for finished homes."
+        description: "How far along an unfinished dwelling is, as a percent. Construction stages include Framing (30) and Painting (90). NULL for finished homes. | Renamed from percent_complete. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: numeric(38, 9)
 
       - name: garage_brick_pct
-        description: "Percent of the attached garage exterior that is brick."
+        description: "Percent of the attached garage exterior that is brick, 0 to 100. A percent, not an area. | Renamed from garage_brick. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: numeric(38, 9)
 
       # Years
       - name: year_built
+        description: "Year the house was originally built. | NULL when it isn't a 4-digit year (set in int_sales). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: int64
         data_tests:
           - dbt_utils.accepted_range:
@@ -572,7 +676,7 @@ models:
                 max_value: 9999
 
       - name: eff_year_built
-        description: "Year built, adjusted for updates."
+        description: "Effective year built: the house's age adjusted for updates, from the appraiser's calculator. | NULL when it isn't a 4-digit year (set in int_sales). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: int64
         data_tests:
           - dbt_utils.accepted_range:
@@ -582,6 +686,7 @@ models:
                 max_value: 9999
 
       - name: year_remodel
+        description: "Year of a major remodel. NULL when there hasn't been one. | NULL when it isn't a 4-digit year (set in int_sales). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: int64
         data_tests:
           - dbt_utils.accepted_range:
@@ -591,6 +696,7 @@ models:
                 max_value: 9999
 
       - name: condo_year_built
+        description: "Year the condo unit was built. Only filled for condominium units. | NULL when it isn't a 4-digit year (set in int_sales). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=condo_unit"
         data_type: int64
         data_tests:
           - dbt_utils.accepted_range:
@@ -600,12 +706,12 @@ models:
                 max_value: 9999
 
       - name: detached_structs
-        description: "Detached structures as CODE/size pairs, e.g. 'BBK/1584 SHD/120'."
+        description: "Detached structures on the parcel as CODE/size pairs, e.g. 'BBK/1584 SHD/120' for a bank barn and a shed; the size is probably square feet. Common codes: GAR Garage, SHD Shed, PTC Concrete Patio, SWR Outdoor Pool, DEC Deck. | (the CODE/size format is inferred from data; the source page lists the codes) | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=detached"
         data_type: string
 
       # When this version was seen
       - name: first_sale_date
-        description: "Date of the first sale with this version."
+        description: "Date of the first sale that saw this building version. | (added in dbt)"
         data_type: date
         constraints:
           - type: not_null
@@ -620,7 +726,7 @@ models:
                 field: date_day
 
       - name: last_sale_date
-        description: "Date of the last sale with this version."
+        description: "Date of the last sale that saw this building version. | (added in dbt)"
         data_type: date
         constraints:
           - type: not_null
@@ -635,14 +741,16 @@ models:
                 field: date_day
 
   - name: dim_parcels
-    description: "One row per district parcel, with its location as of its most recent sale."
+    description: >-
+      One row per district parcel, from int_parcels, with its location as of its most recent
+      sale.
     config:
       contract:
         enforced: true
 
     columns:
       - name: dp
-        description: "District/parcel number: the 14-digit property ID."
+        description: "District/parcel number: the 14-digit property ID, e.g. 01000001000000. The first 3 digits are the district. Kept as text because leading zeros matter. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
         data_type: string
         constraints:
           - type: not_null
@@ -652,37 +760,39 @@ models:
           - unique
 
       - name: gp
-        description: "Geoparcel number."
+        description: "Geoparcel number, 12 digits, e.g. 802434255001. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=xysall"
         data_type: string
 
       - name: jurisdiction
-        description: "City or township."
+        description: "City or township the parcel is in, e.g. ANKENY or ALLEN TWNSHP. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=districts"
         data_type: string
 
       - name: zip
-        description: "NULL when it isn't a 5-digit zip."
+        description: "Zip code of the property sold. | NULL when it isn't 5 digits (set in int_parcels). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
         data_type: string
 
       - name: nbhd
-        description: "Assessor neighborhood code."
+        description: "Assessor neighborhood code, 4 characters, e.g. AK02. nbhd and pocket together identify a neighborhood. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=nbhds"
         data_type: string
 
       - name: pocket
-        description: "Sub-area of the neighborhood."
+        description: "Sub-area of the neighborhood, 2 characters, e.g. G3. nbhd and pocket together identify a neighborhood. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=nbhds"
         data_type: string
 
       - name: address
+        description: "Street address of the property sold. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
         data_type: string
 
       - name: platname
-        description: "Recorded plat (subdivision) name."
+        description: "Name of the recorded plat (subdivision) the parcel is in, e.g. WHITE BIRCH PLAT 1. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=plats"
         data_type: string
 
       - name: parcel_descriptions
-        description: "Legal description of every parcel in the latest sale."
+        description: "Legal description of every parcel in the sale, one 'gp: description' entry per parcel, e.g. '282223251001: LT 8 EAST POLK PLAT 2'. | (inferred from data; the source page only labels the field) | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=legal"
         data_type: string
 
       - name: school_district_id
+        description: "School district the parcel is in, e.g. Ankeny. | Stored as its id in dim_school_districts (set in int_parcels). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=parcel"
         data_type: int64
         constraints:
           - type: foreign_key
@@ -696,13 +806,17 @@ models:
                 field: id
 
   - name: dim_dates
-    description: "One row per calendar day, from the earliest to the latest sale or entry date."
+    description: >-
+      One row per calendar day, from the earliest to the latest sale or entry date in int_sales,
+      with no gaps. Days with no sales are included, so time series show them as zero. Built in
+      dbt; there's no source table.
     config:
       contract:
         enforced: true
 
     columns:
       - name: date_day
+        description: "Calendar day. Every date column in the marts joins here. | (added in dbt)"
         data_type: date
         constraints:
           - type: not_null
@@ -717,33 +831,37 @@ models:
                 datepart: day
 
       - name: year
+        description: "Calendar year. | (added in dbt)"
         data_type: int64
 
       - name: quarter
+        description: "Quarter of the year, 1 to 4. | (added in dbt)"
         data_type: int64
 
       - name: month
+        description: "Month number, 1 to 12. | (added in dbt)"
         data_type: int64
 
       - name: month_name
-        description: "e.g. 'January'."
+        description: "Month name, e.g. January. | (added in dbt)"
         data_type: string
 
       - name: day_of_month
+        description: "Day of the month, 1 to 31. | (added in dbt)"
         data_type: int64
 
       - name: day_of_week
-        description: "1 = Sunday through 7 = Saturday."
+        description: "Day of the week, 1 = Sunday through 7 = Saturday. | (added in dbt)"
         data_type: int64
 
       - name: day_of_week_name
-        description: "e.g. 'Monday'."
+        description: "Day name, e.g. Monday. | (added in dbt)"
         data_type: string
 
       - name: iso_week
-        description: "ISO 8601 week number."
+        description: "ISO 8601 week number, 1 to 53. | (added in dbt)"
         data_type: int64
 
       - name: is_weekend
-        description: "TRUE on Saturday and Sunday."
+        description: "TRUE on Saturday and Sunday. | (added in dbt)"
         data_type: bool

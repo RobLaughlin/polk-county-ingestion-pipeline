@@ -1,5 +1,10 @@
 models:
   - name: stg_sale_data
+    description: >-
+      One row per recorded sale document (book and page), from raw.sales_raw. Every string is
+      trimmed and blanks become NULL. Numbers and dates are cast strictly, so a value that can't
+      be cast fails the build instead of becoming NULL. The parcel's location columns are in
+      stg_parcels.
     config:
       contract:
         enforced: true
@@ -42,6 +47,12 @@ models:
     columns:
       # District parcels must be not null and have exactly 14 characters
       - name: dp
+        description: "District/parcel number: the 14-digit property ID, e.g. 01000001000000. The first 3 digits are the district. Kept as text because leading zeros matter. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
+        config:
+          meta:
+            source_table: rsale
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale
+            inferred: false
         data_type: string
         constraints:
           - type: not_null
@@ -63,6 +74,12 @@ models:
 
       # Dates are always YYYY-MM-DD once cast; the raw format is checked on the source.
       - name: sale_date
+        description: "Date the parties signed the deed or contract, as entered from the Declaration of Value. This is the signing date, not the recording date. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
+        config:
+          meta:
+            source_table: rsale
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale
+            inferred: false
         data_type: date
         constraints:
           - type: not_null
@@ -70,19 +87,43 @@ models:
           - not_null
 
       - name: book
+        description: "Recorder's book number for the recorded document. Book numbers rise over time. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
+        config:
+          meta:
+            source_table: rsale
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale
+            inferred: false
         data_type: int64
         constraints:
           - type: not_null
 
       - name: pg
+        description: "Recorder's page number within the book. Together, book and pg identify one recorded document. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
+        config:
+          meta:
+            source_table: rsale
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale
+            inferred: false
         data_type: int64
         constraints:
           - type: not_null
 
       - name: instrument
+        description: "Document type: Deed or Contract. Neither the assessor nor the Iowa Department of Revenue uses contract sales for analysis. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
+        config:
+          meta:
+            source_table: rsale
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale
+            inferred: false
         data_type: string
 
       - name: price
+        description: "Price paid for the real property only (the total paid minus any personal property), in whole dollars. Token prices such as 0, 1 or 10 are common on non-market transfers. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
+        config:
+          meta:
+            source_table: rsale
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale
+            inferred: false
         data_type: int64
         constraints:
           - type: not_null
@@ -90,162 +131,476 @@ models:
           - not_null
 
       - name: seller
+        description: "Seller (grantor). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
+        config:
+          meta:
+            source_table: rsale
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale
+            inferred: false
         data_type: string
 
       - name: buyer
+        description: "Buyer (grantee). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
+        config:
+          meta:
+            source_table: rsale
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale
+            inferred: false
         data_type: string
 
       - name: land_full
+        description: "Full assessed value of the land at the time of sale, in whole dollars. The value is as of January 1 of that assessment year, including Board of Review changes. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
+        config:
+          meta:
+            source_table: rsale
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale
+            inferred: false
         data_type: int64
 
       - name: bldg_full
+        description: "Full assessed value of the buildings at the time of sale, in whole dollars, as of January 1 of that assessment year. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
+        config:
+          meta:
+            source_table: rsale
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale
+            inferred: false
         data_type: int64
 
       - name: total_full
+        description: "Full assessed value of the land and buildings together at the time of sale, in whole dollars. It should equal land plus buildings. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
+        config:
+          meta:
+            source_table: rsale
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale
+            inferred: false
         data_type: int64
 
       - name: quality1
+        description: "First Iowa Department of Revenue sale condition: the reason, if any, the sale isn't a normal market sale, e.g. Family or Foreclosure. Arms Length means no condition. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
+        config:
+          meta:
+            source_table: rsale
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale
+            inferred: false
         data_type: string
 
       - name: quality2
+        description: "Second sale condition, for sales with two conditions. No Code means no second condition. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
+        config:
+          meta:
+            source_table: rsale
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale
+            inferred: false
         data_type: string
 
       - name: analysis_quality
+        description: "Whether the assessor uses the sale in its own market analysis, such as comparable sales: Good means used and Bad means not used. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
+        config:
+          meta:
+            source_table: rsale
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale
+            inferred: false
         data_type: string
 
       - name: dps
+        description: "Every parcel in the sale, in short form: the district, then the parcel parts without leading zeros, so 18101588000000 becomes 181/1588. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
+        config:
+          meta:
+            source_table: rsale
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale
+            inferred: false
         data_type: string
 
       - name: gps
+        description: "Every geoparcel in the sale: the same as gp for a one-parcel sale, otherwise a comma-separated list. | (inferred from data)"
+        config:
+          meta:
+            inferred: true
         data_type: string
 
       - name: land_sf
+        description: "Land area in square feet. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=slandtotal"
+        config:
+          meta:
+            source_table: slandtotal
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=slandtotal
+            inferred: false
         data_type: numeric(38, 9)
 
       - name: land_acres
+        description: "Land area in acres, to 3 decimal places. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=slandtotal"
+        config:
+          meta:
+            source_table: slandtotal
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=slandtotal
+            inferred: false
         data_type: numeric(38, 9)
 
       - name: occupancy
+        description: "Kind of dwelling, e.g. Single Family, Townhouse or Condominium. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        config:
+          meta:
+            source_table: residence
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence
+            inferred: false
         data_type: string
 
       - name: residence_type
+        description: "Number of stories and type of attic, e.g. 1 Story, 1.5 Stories or Split Foyer. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        config:
+          meta:
+            source_table: residence
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence
+            inferred: false
         data_type: string
 
       - name: bldg_style
+        description: "Architectural style, e.g. Conventional, Ranch or Cape Cod. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        config:
+          meta:
+            source_table: residence
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence
+            inferred: false
         data_type: string
 
       - name: exterior_wall_type
+        description: "Main exterior wall material, e.g. Vinyl Siding, Brick or Wood Siding. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        config:
+          meta:
+            source_table: residence
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence
+            inferred: false
         data_type: string
 
       - name: percent_brick
+        description: "Percent of the house exterior that is full-height brick, 0 to 100. Brick on only the front wall is counted in the veneer area instead. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        config:
+          meta:
+            source_table: residence
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence
+            inferred: false
         data_type: numeric(38, 9)
 
       - name: roof_type
+        description: "Roof shape: Gable, Hip, Flat, Gambrel, Mansard, Shed or Other. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        config:
+          meta:
+            source_table: residence
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence
+            inferred: false
         data_type: string
 
       - name: roof_material
+        description: "Roof covering, e.g. Asphalt Shingle, Metal or Wood Shingle. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        config:
+          meta:
+            source_table: residence
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence
+            inferred: false
         data_type: string
 
       - name: main_living_area
+        description: "Finished living area on the main floor, in square feet, measured from the building sketch. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        config:
+          meta:
+            source_table: residence
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence
+            inferred: false
         data_type: numeric(38, 9)
 
       - name: upper_living_area
+        description: "Finished living area above the main floor, in square feet. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        config:
+          meta:
+            source_table: residence
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence
+            inferred: false
         data_type: numeric(38, 9)
 
       - name: fin_attic_area
+        description: "Finished attic area, in square feet. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        config:
+          meta:
+            source_table: residence
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence
+            inferred: false
         data_type: numeric(38, 9)
 
       - name: total_living_area
+        description: "Main floor, upper floors and finished attic together, in square feet, measured on exterior dimensions to ANSI standards. It should equal the sum of those three areas. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        config:
+          meta:
+            source_table: residence
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence
+            inferred: false
         data_type: numeric(38, 9)
 
       - name: unfin_attic_area
+        description: "Unfinished attic reached by stairs and used for storage, in square feet. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        config:
+          meta:
+            source_table: residence
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence
+            inferred: false
         data_type: numeric(38, 9)
 
       - name: foundation
+        description: "Foundation material, e.g. Poured Concrete, Concrete Block or Brick. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        config:
+          meta:
+            source_table: residence
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence
+            inferred: false
         data_type: string
 
       - name: basement_area
+        description: "Total basement area, finished or not, in square feet. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        config:
+          meta:
+            source_table: residence
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence
+            inferred: false
         data_type: numeric(38, 9)
 
       - name: fin_bsmt_area_tot
+        description: "Total finished basement area, in square feet. It should equal the first and second finished areas added together. | (inferred from data)"
+        config:
+          meta:
+            inferred: true
         data_type: numeric(38, 9)
 
       - name: bsmt_walkout
+        description: "Length of walkout (fully exposed) basement wall, in linear feet. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        config:
+          meta:
+            source_table: residence
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence
+            inferred: false
         data_type: numeric(38, 9)
 
       - name: bsmt_gar_capacity
+        description: "Number of garage stalls in the basement. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        config:
+          meta:
+            source_table: residence
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence
+            inferred: false
         data_type: int64
 
       - name: att_garage_area
+        description: "Attached garage area, in square feet. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        config:
+          meta:
+            source_table: residence
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence
+            inferred: false
         data_type: numeric(38, 9)
 
       - name: garage_brick
+        description: "Percent of the attached garage exterior that is brick, 0 to 100. A percent, not an area. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        config:
+          meta:
+            source_table: residence
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence
+            inferred: false
         data_type: numeric(38, 9)
 
       - name: open_porch_area
+        description: "Open or screened porch area, in square feet. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        config:
+          meta:
+            source_table: residence
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence
+            inferred: false
         data_type: numeric(38, 9)
 
       - name: enclose_porch_area
+        description: "Three-season porch or breezeway area, in square feet. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        config:
+          meta:
+            source_table: residence
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence
+            inferred: false
         data_type: numeric(38, 9)
 
       - name: patio_area
+        description: "Patio area, in square feet. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        config:
+          meta:
+            source_table: residence
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence
+            inferred: false
         data_type: numeric(38, 9)
 
       - name: deck_area
+        description: "Wood deck area, in square feet. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        config:
+          meta:
+            source_table: residence
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence
+            inferred: false
         data_type: numeric(38, 9)
 
       - name: canopy_area
+        description: "Metal canopy area, in square feet. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        config:
+          meta:
+            source_table: residence
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence
+            inferred: false
         data_type: numeric(38, 9)
 
       - name: veneer_area
+        description: "Area of brick on the front wall or part of a wall, in square feet. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        config:
+          meta:
+            source_table: residence
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence
+            inferred: false
         data_type: numeric(38, 9)
 
       - name: carport_area
+        description: "Carport area, in square feet. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        config:
+          meta:
+            source_table: residence
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence
+            inferred: false
         data_type: numeric(38, 9)
 
       - name: fin_bsmt_area1
+        description: "First finished basement area, in square feet. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        config:
+          meta:
+            source_table: residence
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence
+            inferred: false
         data_type: numeric(38, 9)
 
       - name: fin_bsmt_qual1
+        description: "Finish quality of the first finished basement area: Living Quarters, Average Plus, Average or Low. NULL when there's no finished basement. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        config:
+          meta:
+            source_table: residence
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence
+            inferred: false
         data_type: string
 
       - name: fin_bsmt_area2
+        description: "Second finished basement area, in square feet. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        config:
+          meta:
+            source_table: residence
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence
+            inferred: false
         data_type: numeric(38, 9)
 
       - name: fin_bsmt_qual2
+        description: "Finish quality of the second finished basement area, with the same values as the first. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        config:
+          meta:
+            source_table: residence
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence
+            inferred: false
         data_type: string
 
       - name: bathrooms
+        description: "Full bathrooms. A three-quarter bath counts as full. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        config:
+          meta:
+            source_table: residence
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence
+            inferred: false
         data_type: int64
 
       - name: toilet_rooms
+        description: "Half baths (a toilet and sink). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        config:
+          meta:
+            source_table: residence
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence
+            inferred: false
         data_type: int64
 
       - name: extra_fixtures
+        description: "Plumbing fixtures beyond the standard ones. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        config:
+          meta:
+            source_table: residence
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence
+            inferred: false
         data_type: int64
 
       - name: whirlpools
+        description: "Built-in whirlpool tubs. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        config:
+          meta:
+            source_table: residence
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence
+            inferred: false
         data_type: int64
 
       - name: hottubs
+        description: "Built-in hot tubs. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        config:
+          meta:
+            source_table: residence
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence
+            inferred: false
         data_type: int64
 
       - name: saunas
+        description: "Built-in saunas. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        config:
+          meta:
+            source_table: residence
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence
+            inferred: false
         data_type: int64
 
       - name: fireplaces
+        description: "Wood or gas fireplaces. Stoves and electric fireplaces aren't counted. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        config:
+          meta:
+            source_table: residence
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence
+            inferred: false
         data_type: int64
 
       - name: bedrooms
+        description: "Bedrooms above the basement, each at least 80 sq ft with a closet. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        config:
+          meta:
+            source_table: residence
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence
+            inferred: false
         data_type: int64
 
       - name: rooms
+        description: "Total number of rooms. The assessor records it but doesn't use it in valuation. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        config:
+          meta:
+            source_table: residence
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence
+            inferred: false
         data_type: int64
 
       - name: families
+        description: "Number of living units in the dwelling. 1 by default; 2 or 3 means extra units, and more than 3 is assessed as commercial. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        config:
+          meta:
+            source_table: residence
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence
+            inferred: false
         data_type: numeric(38, 9)
 
       - name: year_built
+        description: "Year the house was originally built. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        config:
+          meta:
+            source_table: residence
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence
+            inferred: false
         data_type: int64
         data_tests:
           - dbt_utils.accepted_range:
@@ -257,6 +612,12 @@ models:
                 severity: warn
 
       - name: year_remodel
+        description: "Year of a major remodel. NULL when there hasn't been one. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        config:
+          meta:
+            source_table: residence
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence
+            inferred: false
         data_type: int64
         data_tests:
           - dbt_utils.accepted_range:
@@ -268,6 +629,12 @@ models:
                 severity: warn
 
       - name: eff_year_built
+        description: "Effective year built: the house's age adjusted for updates, from the appraiser's calculator. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        config:
+          meta:
+            source_table: residence
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence
+            inferred: false
         data_type: int64
         data_tests:
           - dbt_utils.accepted_range:
@@ -279,24 +646,66 @@ models:
                 severity: warn
 
       - name: condition
+        description: "Physical condition, from Excellent (fully revitalized) through Normal (minor deferred maintenance) to Very Poor (uninhabitable). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        config:
+          meta:
+            source_table: residence
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence
+            inferred: false
         data_type: string
 
       - name: grade
+        description: "Construction quality grade and its adjustment: 4-05 is grade 4 (Average) with a -05 adjustment. Grades run from 0 (Executive) to 6 (Sub-standard) and scale the replacement costs in the Iowa Real Property Appraisal Manual. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        config:
+          meta:
+            source_table: residence
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence
+            inferred: false
         data_type: string
 
       - name: heating
+        description: "Heating system, e.g. Gas Forced Air, Heat Pump or Geo-Thermal. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        config:
+          meta:
+            source_table: residence
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence
+            inferred: false
         data_type: string
 
       - name: air_conditioning
+        description: "Percent of the living area cooled by central air, 0 to 100. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        config:
+          meta:
+            source_table: residence
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence
+            inferred: false
         data_type: numeric(38, 9)
 
       - name: percent_complete
+        description: "How far along an unfinished dwelling is, as a percent. Construction stages include Framing (30) and Painting (90). NULL for finished homes. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        config:
+          meta:
+            source_table: residence
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence
+            inferred: false
         data_type: numeric(38, 9)
 
       - name: condo_fin_liv_area
+        description: "Finished living area of the condo unit, in square feet. Only filled for condominium units. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=condo_unit"
+        config:
+          meta:
+            source_table: condo_unit
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=condo_unit
+            inferred: false
         data_type: numeric(38, 9)
 
       - name: condo_year_built
+        description: "Year the condo unit was built. Only filled for condominium units. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=condo_unit"
+        config:
+          meta:
+            source_table: condo_unit
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=condo_unit
+            inferred: false
         data_type: int64
         data_tests:
           - dbt_utils.accepted_range:
@@ -308,12 +717,26 @@ models:
                 severity: warn
 
       - name: detached_structs
+        description: "Detached structures on the parcel as CODE/size pairs, e.g. 'BBK/1584 SHD/120' for a bank barn and a shed; the size is probably square feet. Common codes: GAR Garage, SHD Shed, PTC Concrete Patio, SWR Outdoor Pool, DEC Deck. | (the CODE/size format is inferred from data; the source page lists the codes) | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=detached"
+        config:
+          meta:
+            source_table: detached
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=detached
+            inferred: true
         data_type: string
 
       - name: initial_entry_date
+        description: "Probably the date the sale was first entered into the assessor's system. It's usually a few days after sale_date. | (inferred from data)"
+        config:
+          meta:
+            inferred: true
         data_type: date
 
       - name: yr
+        description: "Year of the sale. It always equals the year of sale_date. | (inferred from data)"
+        config:
+          meta:
+            inferred: true
         data_type: int64
         data_tests:
           - not_null:
@@ -329,6 +752,10 @@ models:
                 severity: warn
 
   - name: stg_parcels
+    description: >-
+      One row per district parcel (dp), from raw.sales_raw. Each column takes its value from the
+      parcel's most recent sale: the latest sale_date, then the highest book and page. Strings
+      are trimmed and blanks become NULL.
     config:
       contract:
         enforced: true
@@ -351,6 +778,12 @@ models:
 
     columns:
       - name: dp
+        description: "District/parcel number: the 14-digit property ID, e.g. 01000001000000. The first 3 digits are the district. Kept as text because leading zeros matter. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
+        config:
+          meta:
+            source_table: rsale
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale
+            inferred: false
         data_type: string
         constraints:
           - type: not_null
@@ -364,6 +797,12 @@ models:
                 value: 14
 
       - name: gp
+        description: "Geoparcel number, 12 digits, e.g. 802434255001. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=xysall"
+        config:
+          meta:
+            source_table: xysall
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=xysall
+            inferred: false
         data_type: string
 
         data_tests:
@@ -372,6 +811,12 @@ models:
                 value: 12
 
       - name: jurisdiction
+        description: "City or township the parcel is in, e.g. ANKENY or ALLEN TWNSHP. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=districts"
+        config:
+          meta:
+            source_table: districts
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=districts
+            inferred: false
         data_type: string
 
         data_tests:
@@ -381,18 +826,48 @@ models:
                 severity: warn
 
       - name: zip
+        description: "Zip code of the property sold. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
+        config:
+          meta:
+            source_table: rsale
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale
+            inferred: false
         data_type: string
 
       - name: nbhd
+        description: "Assessor neighborhood code, 4 characters, e.g. AK02. nbhd and pocket together identify a neighborhood. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=nbhds"
+        config:
+          meta:
+            source_table: nbhds
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=nbhds
+            inferred: false
         data_type: string
 
       - name: pocket
+        description: "Sub-area of the neighborhood, 2 characters, e.g. G3. nbhd and pocket together identify a neighborhood. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=nbhds"
+        config:
+          meta:
+            source_table: nbhds
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=nbhds
+            inferred: false
         data_type: string
 
       - name: address
+        description: "Street address of the property sold. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
+        config:
+          meta:
+            source_table: rsale
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale
+            inferred: false
         data_type: string
 
       - name: school_district
+        description: "School district the parcel is in, e.g. Ankeny. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=parcel"
+        config:
+          meta:
+            source_table: parcel
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=parcel
+            inferred: false
         data_type: string
 
         data_tests:
@@ -402,7 +877,19 @@ models:
                 severity: warn
 
       - name: platname
+        description: "Name of the recorded plat (subdivision) the parcel is in, e.g. WHITE BIRCH PLAT 1. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=plats"
+        config:
+          meta:
+            source_table: plats
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=plats
+            inferred: false
         data_type: string
 
       - name: parcel_descriptions
+        description: "Legal description of every parcel in the sale, one 'gp: description' entry per parcel, e.g. '282223251001: LT 8 EAST POLK PLAT 2'. | Renamed from legal_all_parcels. | (inferred from data; the source page only labels the field) | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=legal"
+        config:
+          meta:
+            source_table: legal
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=legal
+            inferred: true
         data_type: string
