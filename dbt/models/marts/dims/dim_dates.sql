@@ -7,7 +7,7 @@
 
 -- One row per calendar day, from the earliest to the latest sale or entry date.
 -- Days with no sales are included, so time series show them as zero.
--- Built from int_sales, not fct_sales, because fct_sales references this model.
+-- Built from int_sales, not fct_sales_groups, because fct_sales_groups references this model.
 WITH all_dates AS (
     SELECT sale_date AS date_day FROM {{ ref('int_sales') }}
     UNION ALL

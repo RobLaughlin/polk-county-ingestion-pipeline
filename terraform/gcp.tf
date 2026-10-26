@@ -119,6 +119,8 @@ locals {
     marts_dims_audit   = "Failing rows stored by dimension tests"
     marts_facts        = "Fact tables"
     marts_facts_audit  = "Failing rows stored by fact tests"
+    marts_bridge       = "Bridge tables from parcel groups to their parcels"
+    marts_bridge_audit = "Failing rows stored by bridge tests"
   }
 }
 

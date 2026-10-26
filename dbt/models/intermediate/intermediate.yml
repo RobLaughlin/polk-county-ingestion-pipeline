@@ -5,7 +5,8 @@ models:
       digits become NULL, and so do totals that don't equal the sum of their parts. Each coded
       name, such as occupancy or roof_type, is replaced by its id in the matching dim_* lookup.
       grade is split into grade_id and grade_adjustment, and each sale gets the building_id of
-      its building version.
+      its building version. dp_group_id and gp_group_id key the parcels in dps and gps into the
+      bridge_dp_groups and bridge_gp_groups marts.
     config:
       contract:
         enforced: true
@@ -534,11 +535,21 @@ models:
         description: "The building version at this sale: a hash of dp and every building column (see the building_columns macro), so it changes whenever any of them changes. NULL when the sale has no building data. | (added in dbt)"
         data_type: string
 
+      # Hashes of the sorted parcels in dps and gps (see the parcel_groups macros)
+      - name: dp_group_id
+        description: "The district parcels the sale lists in dps, as a group: join to bridge_dp_groups.group_id for one row per parcel. A hash of the sorted parcels (see the group_id macro), so sales that list the same parcels share a group. | (added in dbt)"
+        data_type: string
+
+      - name: gp_group_id
+        description: "The geoparcels the sale lists in gps, as a group: join to bridge_gp_groups.group_id for one row per geoparcel. A hash of the sorted geoparcels (see the group_id macro), so sales that list the same geoparcels share a group. NULL when gps is blank, as in about 1,700 sales from the 1990s. | (added in dbt)"
+        data_type: string
+
   - name: int_district_parcels
     description: >-
-      Cleans stg_district_parcels, still one row per district parcel. dp_short is computed from
-      dp, zip codes that aren't 5 digits become NULL, and school_district is replaced by its id
-      in dim_school_districts.
+      Cleans stg_district_parcels, still one row per district parcel, and adds the parcels only
+      ever listed in another sale's dps. Those have no sale of their own, so they have just dp
+      and dp_short. dp_short is computed from dp, zip codes that aren't 5 digits become NULL, and
+      school_district is replaced by its id in dim_school_districts.
     config:
       contract:
         enforced: true

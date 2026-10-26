@@ -17,8 +17,9 @@ the Python ingestion job, built with uv.
 3. It compares each file's MD5 hash with the copy in Cloud Storage and uploads only new or
    changed files.
 4. It then reloads the 80-column `sales_raw` table in BigQuery from every CSV in the bucket.
-5. dbt cleans the raw table and builds a star schema: `fct_sales` plus parcel, building,
-   date, and code dimensions. It tests each layer.
+5. dbt cleans the raw table and builds a star schema: `fct_sales_groups` (what each sale
+   covers as a whole) and `fct_sales_single` (the residence on its main parcel), plus parcel,
+   building, date, and code dimensions and the parcel group bridges. It tests each layer.
 
 ## Status
 

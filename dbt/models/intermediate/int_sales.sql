@@ -66,7 +66,11 @@ WITH coded AS (
 )
 
 -- building_id needs the coded columns above, so it's added here (see the building_id macro).
+-- The group IDs key the parcels the sale lists into bridge_dp_groups and bridge_gp_groups
+-- (see the parcel_groups macros). dps and gps stay, because the bridges are built from them.
 SELECT
     *,
-    {{ building_id() }} AS building_id
+    {{ building_id() }} AS building_id,
+    {{ group_id(listed_dps('dps')) }} AS dp_group_id,
+    {{ group_id(listed_gps('gps')) }} AS gp_group_id
 FROM coded

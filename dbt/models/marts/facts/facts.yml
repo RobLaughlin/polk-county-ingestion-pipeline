@@ -1,10 +1,12 @@
 models:
-  - name: fct_sales
+  - name: fct_sales_groups
     description: >-
-      One row per recorded sale document (book and page), from int_sales: the sale, the assessed
-      values, and the measurements of the property as it was sold. Columns are renamed with
-      their units (_dollars, _sf, _ft). Join building_id to dim_buildings, dp to
-      dim_district_parcels, the dates to dim_dates, and each *_id to its code lookup.
+      One row per recorded sale document (book and page), from int_sales: what the sale covers as
+      a whole. The price, assessed values, land and detached structures cover every parcel the
+      sale lists. Join dp_group_id to bridge_dp_groups and gp_group_id to bridge_gp_groups for
+      those parcels, the dates to dim_dates, and each *_id to its code lookup. The residence on dp
+      is in fct_sales_single, on the same book and pg. Columns are renamed with their units
+      (_dollars, _sf).
     config:
       contract:
         enforced: true
@@ -22,21 +24,11 @@ models:
               - book
               - pg
 
-      # The same total checks as staging; int_sales sets totals that don't add up to NULL.
+      # The same total check as staging; int_sales sets totals that don't add up to NULL.
       - dbt_utils.expression_is_true:
-          name: fct_sales__total_full_is_land_plus_bldg
+          name: fct_sales_groups__total_full_is_land_plus_bldg
           arguments:
             expression: "total_full_assessment_dollars = land_full_assessment_dollars + bldg_full_assessment_dollars"
-
-      - dbt_utils.expression_is_true:
-          name: fct_sales__total_living_area_is_sum_of_floors
-          arguments:
-            expression: "total_living_area_sf = main_living_area_sf + upper_living_area_sf + fin_attic_area_sf"
-
-      - dbt_utils.expression_is_true:
-          name: fct_sales__fin_bsmt_area_total_is_sum_of_areas
-          arguments:
-            expression: "fin_bsmt_area_total_sf = fin_bsmt_area1_sf + fin_bsmt_area2_sf"
 
     columns:
       # Keys
@@ -52,37 +44,27 @@ models:
         constraints:
           - type: not_null
 
-      - name: dp
-        description: "District/parcel number: the 14-digit property ID, e.g. 01000001000000. The first 3 digits are the district. Kept as text because leading zeros matter. In a multi-parcel sale, the one parcel the sale is filed under; dps lists them all (inferred from data). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
+      - name: dp_group_id
+        description: "The district parcels the sale lists in dps, as a group: join to bridge_dp_groups.group_id for one row per parcel. A hash of the sorted parcels (see the group_id macro), so sales that list the same parcels share a group. | (added in dbt)"
         data_type: string
         constraints:
           - type: not_null
-          - type: foreign_key
-            to: ref('dim_district_parcels')
-            to_columns: [dp]
-            warn_unenforced: false
         data_tests:
+          # Not a foreign key: group_id repeats in the bridge, once per parcel
           - relationships:
               arguments:
-                to: ref('dim_district_parcels')
-                field: dp
-          - dbt_expectations.expect_column_value_lengths_to_equal:
-              arguments:
-                value: 14
+                to: ref('bridge_dp_groups')
+                field: group_id
 
-      - name: building_id
-        description: "The building version at this sale: a hash of dp and every building column (see the building_columns macro), so it changes whenever any of them changes. NULL when the sale has no building data. | (added in dbt)"
+      - name: gp_group_id
+        description: "The geoparcels the sale lists in gps, as a group: join to bridge_gp_groups.group_id for one row per geoparcel. A hash of the sorted geoparcels (see the group_id macro), so sales that list the same geoparcels share a group. NULL when gps is blank, as in about 1,700 sales from the 1990s. | (added in dbt)"
         data_type: string
-        constraints:
-          - type: foreign_key
-            to: ref('dim_buildings')
-            to_columns: [building_id]
-            warn_unenforced: false
         data_tests:
+          # Not a foreign key: group_id repeats in the bridge, once per geoparcel
           - relationships:
               arguments:
-                to: ref('dim_buildings')
-                field: building_id
+                to: ref('bridge_gp_groups')
+                field: group_id
 
       # Sale
       - name: sale_date
@@ -115,7 +97,7 @@ models:
                 field: date_day
 
       - name: price_dollars
-        description: "Price paid for the real property only (the total paid minus any personal property), in whole dollars. Token prices such as 0, 1 or 10 are common on non-market transfers. Covers every parcel in dps: it's the price of the whole recorded document. | Renamed from price. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
+        description: "Price paid for the real property only (the total paid minus any personal property), in whole dollars. Token prices such as 0, 1 or 10 are common on non-market transfers. Covers every parcel in the dp group: it's the price of the whole recorded document. | Renamed from price. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
         data_type: int64
         constraints:
           - type: not_null
@@ -126,14 +108,6 @@ models:
 
       - name: buyer
         description: "Buyer (grantee). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
-        data_type: string
-
-      - name: dps
-        description: "Every parcel in the sale, in short form: the district, then the parcel parts without leading zeros, so 18101588000000 becomes 181/1588. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
-        data_type: string
-
-      - name: gps
-        description: "Every geoparcel in the sale: the same as gp for a one-parcel sale, otherwise a comma-separated list. | (inferred from data)"
         data_type: string
 
       - name: instrument_id
@@ -194,16 +168,126 @@ models:
 
       # Assessed values
       - name: land_full_assessment_dollars
-        description: "Full assessed value of the land at the time of sale, in whole dollars. The value is as of January 1 of that assessment year, including Board of Review changes. Summed over every parcel in dps (inferred from data). | Renamed from land_full. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
+        description: "Full assessed value of the land at the time of sale, in whole dollars. The value is as of January 1 of that assessment year, including Board of Review changes. Summed over every parcel in the dp group (inferred from data). | Renamed from land_full. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
         data_type: int64
 
       - name: bldg_full_assessment_dollars
-        description: "Full assessed value of the buildings at the time of sale, in whole dollars, as of January 1 of that assessment year. Summed over every parcel in dps (inferred from data). | Renamed from bldg_full. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
+        description: "Full assessed value of the buildings at the time of sale, in whole dollars, as of January 1 of that assessment year. Summed over every parcel in the dp group (inferred from data). | Renamed from bldg_full. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
         data_type: int64
 
       - name: total_full_assessment_dollars
-        description: "Full assessed value of the land and buildings together at the time of sale, in whole dollars. It should equal land plus buildings. Summed over every parcel in dps (inferred from data). | Renamed from total_full. NULL when it doesn't equal land_full + bldg_full (set in int_sales). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
+        description: "Full assessed value of the land and buildings together at the time of sale, in whole dollars. It should equal land plus buildings. Summed over every parcel in the dp group (inferred from data). | Renamed from total_full. NULL when it doesn't equal land_full + bldg_full (set in int_sales). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
         data_type: int64
+
+      # Land
+      - name: land_sf
+        description: "Land area in square feet. Summed over every parcel in the dp group (inferred from data). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=slandtotal"
+        data_type: numeric(38, 9)
+
+      - name: land_acres
+        description: "Land area in acres, to 3 decimal places. Summed over every parcel in the dp group (inferred from data). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=slandtotal"
+        data_type: numeric(38, 9)
+
+      # Detached structures
+      - name: detached_structs
+        description: "Detached structures on the parcel as CODE/size pairs, e.g. 'BBK/1584 SHD/120' for a bank barn and a shed; the size is probably square feet. Common codes: GAR Garage, SHD Shed, PTC Concrete Patio, SWR Outdoor Pool, DEC Deck. Includes the structures on every parcel in the dp group (inferred from data). | (the CODE/size format is inferred from data; the source page lists the codes) | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=detached"
+        data_type: string
+
+  - name: fct_sales_single
+    description: >-
+      One row per recorded sale document (book and page), from int_sales: the measurements of the
+      residence on dp, the one parcel the sale is filed under, as it was sold. Join building_id to
+      dim_buildings and dp to dim_district_parcels. What the sale covers as a whole, such as the
+      price, is in fct_sales_groups, on the same book and pg. Columns are renamed with their units
+      (_sf, _ft).
+    config:
+      contract:
+        enforced: true
+
+    constraints:
+      - type: primary_key
+        columns: [book, pg]
+        warn_unenforced: false
+      # Only this direction is a foreign key: two models can't each reference the other
+      - type: foreign_key
+        columns: [book, pg]
+        to: ref('fct_sales_groups')
+        to_columns: [book, pg]
+        warn_unenforced: false
+
+    data_tests:
+      # Ensure (book, pg) is a unique compound key
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - book
+              - pg
+
+      # Both facts hold exactly the same sales
+      - dbt_utils.equality:
+          name: fct_sales_single__same_sales_as_fct_sales_groups
+          arguments:
+            compare_model: ref('fct_sales_groups')
+            compare_columns:
+              - book
+              - pg
+
+      # The same total checks as staging; int_sales sets totals that don't add up to NULL.
+      - dbt_utils.expression_is_true:
+          name: fct_sales_single__total_living_area_is_sum_of_floors
+          arguments:
+            expression: "total_living_area_sf = main_living_area_sf + upper_living_area_sf + fin_attic_area_sf"
+
+      - dbt_utils.expression_is_true:
+          name: fct_sales_single__fin_bsmt_area_total_is_sum_of_areas
+          arguments:
+            expression: "fin_bsmt_area_total_sf = fin_bsmt_area1_sf + fin_bsmt_area2_sf"
+
+    columns:
+      # Keys
+      - name: book
+        description: "Recorder's book number for the recorded document. Book numbers rise over time. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
+        data_type: int64
+        constraints:
+          - type: not_null
+
+      - name: pg
+        description: "Recorder's page number within the book. Together, book and pg identify one recorded document. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
+        data_type: int64
+        constraints:
+          - type: not_null
+
+      - name: dp
+        description: "District/parcel number: the 14-digit property ID, e.g. 01000001000000. The first 3 digits are the district. Kept as text because leading zeros matter. In a multi-parcel sale, the one parcel the sale is filed under; its dp group in fct_sales_groups lists them all (inferred from data). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
+        data_type: string
+        constraints:
+          - type: not_null
+          - type: foreign_key
+            to: ref('dim_district_parcels')
+            to_columns: [dp]
+            warn_unenforced: false
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_district_parcels')
+                field: dp
+          - dbt_expectations.expect_column_value_lengths_to_equal:
+              arguments:
+                value: 14
+
+      - name: building_id
+        description: "The building version at this sale: a hash of dp and every building column (see the building_columns macro), so it changes whenever any of them changes. NULL when the sale has no building data. | (added in dbt)"
+        data_type: string
+        constraints:
+          - type: foreign_key
+            to: ref('dim_buildings')
+            to_columns: [building_id]
+            warn_unenforced: false
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_buildings')
+                field: building_id
 
       # Rooms and fixtures
       - name: rooms
@@ -241,20 +325,6 @@ models:
       - name: fireplaces
         description: "Wood or gas fireplaces. Stoves and electric fireplaces aren't counted. Describes only the residence on dp (inferred from data). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: int64
-
-      # Land
-      - name: land_sf
-        description: "Land area in square feet. Summed over every parcel in dps (inferred from data). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=slandtotal"
-        data_type: numeric(38, 9)
-
-      - name: land_acres
-        description: "Land area in acres, to 3 decimal places. Summed over every parcel in dps (inferred from data). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=slandtotal"
-        data_type: numeric(38, 9)
-
-      # Detached structures
-      - name: detached_structs
-        description: "Detached structures on the parcel as CODE/size pairs, e.g. 'BBK/1584 SHD/120' for a bank barn and a shed; the size is probably square feet. Common codes: GAR Garage, SHD Shed, PTC Concrete Patio, SWR Outdoor Pool, DEC Deck. Includes the structures on every parcel in dps (inferred from data). | (the CODE/size format is inferred from data; the source page lists the codes) | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=detached"
-        data_type: string
 
       # Areas (sq ft)
       - name: main_living_area_sf

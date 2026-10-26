@@ -739,8 +739,9 @@ models:
   - name: dim_district_parcels
     description: >-
       One row per district parcel, from int_district_parcels, with its location as of its most
-      recent sale. dp_short is dp in the short form dps uses. Join gp to dim_geo_parcels for the
-      parcel's legal description.
+      recent sale. Parcels only listed in another sale's dps have just dp and dp_short. dp_short
+      is dp in the short form dps uses. Join gp to dim_geo_parcels for the parcel's legal
+      description.
     config:
       contract:
         enforced: true

@@ -5,32 +5,15 @@
     )
 }}
 
--- One row per recorded sale document, with the measurements of the property as it was sold.
--- Descriptive building data lives in dim_buildings (joined on building_id).
+-- One row per recorded sale document, with the measurements of the residence on dp as it was sold.
+-- Descriptive building data lives in dim_buildings (joined on building_id), and what the sale
+-- covers as a whole, such as price, is in fct_sales_groups, on the same book and pg.
 SELECT
     -- Keys
     book,
     pg,
     dp,
     building_id,
-
-    -- Sale
-    sale_date,
-    initial_entry_date,
-    price AS price_dollars,
-    seller,
-    buyer,
-    dps,
-    gps,
-    instrument_id,
-    quality1_id,
-    quality2_id,
-    analysis_quality_id,
-
-    -- Assessed values
-    land_full AS land_full_assessment_dollars,
-    bldg_full AS bldg_full_assessment_dollars,
-    total_full AS total_full_assessment_dollars,
 
     -- Rooms and fixtures
     rooms,
@@ -42,13 +25,6 @@ SELECT
     hottubs,
     saunas,
     fireplaces,
-
-    -- Land
-    land_sf,
-    land_acres,
-
-    -- Detached structures (every parcel in the sale)
-    detached_structs,
 
     -- Areas (sq ft)
     main_living_area AS main_living_area_sf,

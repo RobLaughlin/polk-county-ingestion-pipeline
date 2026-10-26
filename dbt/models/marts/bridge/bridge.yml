@@ -1,0 +1,91 @@
+models:
+  - name: bridge_dp_groups
+    description: >-
+      One row per district parcel in each dp group, from int_sales: the parcels a sale lists in
+      dps, in long form. Join fct_sales_groups.dp_group_id to group_id, then dp to
+      dim_district_parcels. Sales that list the same parcels share a group. Joining a fact through
+      this bridge repeats each of its values once per parcel, so don't sum them across parcels.
+    config:
+      contract:
+        enforced: true
+
+    constraints:
+      - type: primary_key
+        columns: [dp, group_id]
+        warn_unenforced: false
+
+    data_tests:
+      # Ensure (dp, group_id) is a unique compound key
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - dp
+              - group_id
+
+    columns:
+      - name: dp
+        description: "District/parcel number: the 14-digit property ID, e.g. 01000001000000. The first 3 digits are the district. Kept as text because leading zeros matter. | One of the parcels the sale lists in dps, converted from the short form (see the listed_dps macro). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
+        data_type: string
+        constraints:
+          - type: not_null
+          - type: foreign_key
+            to: ref('dim_district_parcels')
+            to_columns: [dp]
+            warn_unenforced: false
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_district_parcels')
+                field: dp
+
+      - name: group_id
+        description: "The dp group: a hash of its sorted parcels (see the group_id macro), the same key as fct_sales_groups.dp_group_id. | (added in dbt)"
+        data_type: string
+        constraints:
+          - type: not_null
+
+  - name: bridge_gp_groups
+    description: >-
+      One row per geoparcel in each gp group, from int_sales: the geoparcels a sale lists in gps.
+      Join fct_sales_groups.gp_group_id to group_id, then gp to dim_geo_parcels. Sales that list
+      the same geoparcels share a group, and sales with a blank gps have none. Joining a fact
+      through this bridge repeats each of its values once per geoparcel, so don't sum them across
+      geoparcels.
+    config:
+      contract:
+        enforced: true
+
+    constraints:
+      - type: primary_key
+        columns: [gp, group_id]
+        warn_unenforced: false
+
+    data_tests:
+      # Ensure (gp, group_id) is a unique compound key
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - gp
+              - group_id
+
+    columns:
+      - name: gp
+        description: "Geoparcel number, 12 digits, e.g. 802434255001. | One of the geoparcels the sale lists in gps (see the listed_gps macro). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=xysall"
+        data_type: string
+        constraints:
+          - type: not_null
+          - type: foreign_key
+            to: ref('dim_geo_parcels')
+            to_columns: [gp]
+            warn_unenforced: false
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_geo_parcels')
+                field: gp
+
+      - name: group_id
+        description: "The gp group: a hash of its sorted geoparcels (see the group_id macro), the same key as fct_sales_groups.gp_group_id. | (added in dbt)"
+        data_type: string
+        constraints:
+          - type: not_null
