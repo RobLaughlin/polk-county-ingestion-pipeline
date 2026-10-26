@@ -42,7 +42,7 @@ models:
     # Each *_id column references the id of a dim_* lookup in the marts. They can be NULL.
     columns:
       - name: dp
-        description: "District/parcel number: the 14-digit property ID, e.g. 01000001000000. The first 3 digits are the district. Kept as text because leading zeros matter. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
+        description: "District/parcel number: the 14-digit property ID, e.g. 01000001000000. The first 3 digits are the district. Kept as text because leading zeros matter. In a multi-parcel sale, the one parcel the sale is filed under; dps lists them all (inferred from data). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
         data_type: string
         constraints:
           - type: not_null
@@ -66,7 +66,7 @@ models:
           - type: not_null
 
       - name: price
-        description: "Price paid for the real property only (the total paid minus any personal property), in whole dollars. Token prices such as 0, 1 or 10 are common on non-market transfers. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
+        description: "Price paid for the real property only (the total paid minus any personal property), in whole dollars. Token prices such as 0, 1 or 10 are common on non-market transfers. Covers every parcel in dps: it's the price of the whole recorded document. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
         data_type: int64
         constraints:
           - type: not_null
@@ -80,15 +80,15 @@ models:
         data_type: string
 
       - name: land_full
-        description: "Full assessed value of the land at the time of sale, in whole dollars. The value is as of January 1 of that assessment year, including Board of Review changes. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
+        description: "Full assessed value of the land at the time of sale, in whole dollars. The value is as of January 1 of that assessment year, including Board of Review changes. Summed over every parcel in dps (inferred from data). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
         data_type: int64
 
       - name: bldg_full
-        description: "Full assessed value of the buildings at the time of sale, in whole dollars, as of January 1 of that assessment year. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
+        description: "Full assessed value of the buildings at the time of sale, in whole dollars, as of January 1 of that assessment year. Summed over every parcel in dps (inferred from data). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
         data_type: int64
 
       - name: total_full
-        description: "Full assessed value of the land and buildings together at the time of sale, in whole dollars. It should equal land plus buildings. | Set to NULL when it doesn't equal land_full + bldg_full. Kept when a part is missing. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
+        description: "Full assessed value of the land and buildings together at the time of sale, in whole dollars. It should equal land plus buildings. Summed over every parcel in dps (inferred from data). | Set to NULL when it doesn't equal land_full + bldg_full. Kept when a part is missing. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
         data_type: int64
 
       - name: dps
@@ -100,139 +100,139 @@ models:
         data_type: string
 
       - name: land_sf
-        description: "Land area in square feet. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=slandtotal"
+        description: "Land area in square feet. Summed over every parcel in dps (inferred from data). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=slandtotal"
         data_type: numeric(38, 9)
 
       - name: land_acres
-        description: "Land area in acres, to 3 decimal places. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=slandtotal"
+        description: "Land area in acres, to 3 decimal places. Summed over every parcel in dps (inferred from data). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=slandtotal"
         data_type: numeric(38, 9)
 
       - name: percent_brick
-        description: "Percent of the house exterior that is full-height brick, 0 to 100. Brick on only the front wall is counted in the veneer area instead. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        description: "Percent of the house exterior that is full-height brick, 0 to 100. Brick on only the front wall is counted in the veneer area instead. Describes only the residence on dp (inferred from data). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: numeric(38, 9)
 
       - name: main_living_area
-        description: "Finished living area on the main floor, in square feet, measured from the building sketch. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        description: "Finished living area on the main floor, in square feet, measured from the building sketch. Describes only the residence on dp (inferred from data). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: numeric(38, 9)
 
       - name: upper_living_area
-        description: "Finished living area above the main floor, in square feet. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        description: "Finished living area above the main floor, in square feet. Describes only the residence on dp (inferred from data). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: numeric(38, 9)
 
       - name: fin_attic_area
-        description: "Finished attic area, in square feet. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        description: "Finished attic area, in square feet. Describes only the residence on dp (inferred from data). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: numeric(38, 9)
 
       - name: total_living_area
-        description: "Main floor, upper floors and finished attic together, in square feet, measured on exterior dimensions to ANSI standards. It should equal the sum of those three areas. | Set to NULL when it doesn't equal main_living_area + upper_living_area + fin_attic_area. Kept when a part is missing. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        description: "Main floor, upper floors and finished attic together, in square feet, measured on exterior dimensions to ANSI standards. It should equal the sum of those three areas. Describes only the residence on dp (inferred from data). | Set to NULL when it doesn't equal main_living_area + upper_living_area + fin_attic_area. Kept when a part is missing. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: numeric(38, 9)
 
       - name: unfin_attic_area
-        description: "Unfinished attic reached by stairs and used for storage, in square feet. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        description: "Unfinished attic reached by stairs and used for storage, in square feet. Describes only the residence on dp (inferred from data). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: numeric(38, 9)
 
       - name: basement_area
-        description: "Total basement area, finished or not, in square feet. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        description: "Total basement area, finished or not, in square feet. Describes only the residence on dp (inferred from data). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: numeric(38, 9)
 
       - name: fin_bsmt_area_tot
-        description: "Total finished basement area, in square feet. It should equal the first and second finished areas added together. | Set to NULL when it doesn't equal fin_bsmt_area1 + fin_bsmt_area2. Kept when a part is missing. | (inferred from data)"
+        description: "Total finished basement area, in square feet. It should equal the first and second finished areas added together. Describes only the residence on dp (inferred from data). | Set to NULL when it doesn't equal fin_bsmt_area1 + fin_bsmt_area2. Kept when a part is missing. | (inferred from data)"
         data_type: numeric(38, 9)
 
       - name: bsmt_walkout
-        description: "Length of walkout (fully exposed) basement wall, in linear feet. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        description: "Length of walkout (fully exposed) basement wall, in linear feet. Describes only the residence on dp (inferred from data). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: numeric(38, 9)
 
       - name: bsmt_gar_capacity
-        description: "Number of garage stalls in the basement. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        description: "Number of garage stalls in the basement. Describes only the residence on dp (inferred from data). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: int64
 
       - name: att_garage_area
-        description: "Attached garage area, in square feet. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        description: "Attached garage area, in square feet. Describes only the residence on dp (inferred from data). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: numeric(38, 9)
 
       - name: garage_brick
-        description: "Percent of the attached garage exterior that is brick, 0 to 100. A percent, not an area. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        description: "Percent of the attached garage exterior that is brick, 0 to 100. A percent, not an area. Describes only the residence on dp (inferred from data). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: numeric(38, 9)
 
       - name: open_porch_area
-        description: "Open or screened porch area, in square feet. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        description: "Open or screened porch area, in square feet. Describes only the residence on dp (inferred from data). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: numeric(38, 9)
 
       - name: enclose_porch_area
-        description: "Three-season porch or breezeway area, in square feet. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        description: "Three-season porch or breezeway area, in square feet. Describes only the residence on dp (inferred from data). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: numeric(38, 9)
 
       - name: patio_area
-        description: "Patio area, in square feet. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        description: "Patio area, in square feet. Describes only the residence on dp (inferred from data). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: numeric(38, 9)
 
       - name: deck_area
-        description: "Wood deck area, in square feet. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        description: "Wood deck area, in square feet. Describes only the residence on dp (inferred from data). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: numeric(38, 9)
 
       - name: canopy_area
-        description: "Metal canopy area, in square feet. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        description: "Metal canopy area, in square feet. Describes only the residence on dp (inferred from data). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: numeric(38, 9)
 
       - name: veneer_area
-        description: "Area of brick on the front wall or part of a wall, in square feet. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        description: "Area of brick on the front wall or part of a wall, in square feet. Describes only the residence on dp (inferred from data). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: numeric(38, 9)
 
       - name: carport_area
-        description: "Carport area, in square feet. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        description: "Carport area, in square feet. Describes only the residence on dp (inferred from data). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: numeric(38, 9)
 
       - name: fin_bsmt_area1
-        description: "First finished basement area, in square feet. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        description: "First finished basement area, in square feet. Describes only the residence on dp (inferred from data). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: numeric(38, 9)
 
       - name: fin_bsmt_area2
-        description: "Second finished basement area, in square feet. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        description: "Second finished basement area, in square feet. Describes only the residence on dp (inferred from data). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: numeric(38, 9)
 
       - name: bathrooms
-        description: "Full bathrooms. A three-quarter bath counts as full. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        description: "Full bathrooms. A three-quarter bath counts as full. Describes only the residence on dp (inferred from data). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: int64
 
       - name: toilet_rooms
-        description: "Half baths (a toilet and sink). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        description: "Half baths (a toilet and sink). Describes only the residence on dp (inferred from data). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: int64
 
       - name: extra_fixtures
-        description: "Plumbing fixtures beyond the standard ones. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        description: "Plumbing fixtures beyond the standard ones. Describes only the residence on dp (inferred from data). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: int64
 
       - name: whirlpools
-        description: "Built-in whirlpool tubs. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        description: "Built-in whirlpool tubs. Describes only the residence on dp (inferred from data). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: int64
 
       - name: hottubs
-        description: "Built-in hot tubs. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        description: "Built-in hot tubs. Describes only the residence on dp (inferred from data). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: int64
 
       - name: saunas
-        description: "Built-in saunas. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        description: "Built-in saunas. Describes only the residence on dp (inferred from data). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: int64
 
       - name: fireplaces
-        description: "Wood or gas fireplaces. Stoves and electric fireplaces aren't counted. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        description: "Wood or gas fireplaces. Stoves and electric fireplaces aren't counted. Describes only the residence on dp (inferred from data). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: int64
 
       - name: bedrooms
-        description: "Bedrooms above the basement, each at least 80 sq ft with a closet. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        description: "Bedrooms above the basement, each at least 80 sq ft with a closet. Describes only the residence on dp (inferred from data). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: int64
 
       - name: rooms
-        description: "Total number of rooms. The assessor records it but doesn't use it in valuation. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        description: "Total number of rooms. The assessor records it but doesn't use it in valuation. Describes only the residence on dp (inferred from data). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: int64
 
       - name: families
-        description: "Number of living units in the dwelling. 1 by default; 2 or 3 means extra units, and more than 3 is assessed as commercial. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        description: "Number of living units in the dwelling. 1 by default; 2 or 3 means extra units, and more than 3 is assessed as commercial. Describes only the residence on dp (inferred from data). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: numeric(38, 9)
 
       - name: year_built
-        description: "Year the house was originally built. | Set to NULL when it isn't a 4-digit year, such as the 0 placeholders. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        description: "Year the house was originally built. Describes only the residence on dp (inferred from data). | Set to NULL when it isn't a 4-digit year, such as the 0 placeholders. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: int64
         data_tests:
           - dbt_utils.accepted_range:
@@ -242,7 +242,7 @@ models:
                 max_value: 9999
 
       - name: year_remodel
-        description: "Year of a major remodel. NULL when there hasn't been one. | Set to NULL when it isn't a 4-digit year, such as the 0 placeholders. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        description: "Year of a major remodel. NULL when there hasn't been one. Describes only the residence on dp (inferred from data). | Set to NULL when it isn't a 4-digit year, such as the 0 placeholders. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: int64
         data_tests:
           - dbt_utils.accepted_range:
@@ -252,7 +252,7 @@ models:
                 max_value: 9999
 
       - name: eff_year_built
-        description: "Effective year built: the house's age adjusted for updates, from the appraiser's calculator. | Set to NULL when it isn't a 4-digit year, such as the 0 placeholders. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        description: "Effective year built: the house's age adjusted for updates, from the appraiser's calculator. Describes only the residence on dp (inferred from data). | Set to NULL when it isn't a 4-digit year, such as the 0 placeholders. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: int64
         data_tests:
           - dbt_utils.accepted_range:
@@ -262,19 +262,19 @@ models:
                 max_value: 9999
 
       - name: air_conditioning
-        description: "Percent of the living area cooled by central air, 0 to 100. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        description: "Percent of the living area cooled by central air, 0 to 100. Describes only the residence on dp (inferred from data). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: numeric(38, 9)
 
       - name: percent_complete
-        description: "How far along an unfinished dwelling is, as a percent. Construction stages include Framing (30) and Painting (90). NULL for finished homes. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        description: "How far along an unfinished dwelling is, as a percent. Construction stages include Framing (30) and Painting (90). NULL for finished homes. Describes only the residence on dp (inferred from data). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: numeric(38, 9)
 
       - name: condo_fin_liv_area
-        description: "Finished living area of the condo unit, in square feet. Only filled for condominium units. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=condo_unit"
+        description: "Finished living area of the condo unit, in square feet. Only filled for condominium units. Describes only the residence on dp (inferred from data). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=condo_unit"
         data_type: numeric(38, 9)
 
       - name: condo_year_built
-        description: "Year the condo unit was built. Only filled for condominium units. | Set to NULL when it isn't a 4-digit year, such as the 0 placeholders. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=condo_unit"
+        description: "Year the condo unit was built. Only filled for condominium units. Describes only the residence on dp (inferred from data). | Set to NULL when it isn't a 4-digit year, such as the 0 placeholders. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=condo_unit"
         data_type: int64
         data_tests:
           - dbt_utils.accepted_range:
@@ -284,7 +284,7 @@ models:
                 max_value: 9999
 
       - name: detached_structs
-        description: "Detached structures on the parcel as CODE/size pairs, e.g. 'BBK/1584 SHD/120' for a bank barn and a shed; the size is probably square feet. Common codes: GAR Garage, SHD Shed, PTC Concrete Patio, SWR Outdoor Pool, DEC Deck. | (the CODE/size format is inferred from data; the source page lists the codes) | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=detached"
+        description: "Detached structures on the parcel as CODE/size pairs, e.g. 'BBK/1584 SHD/120' for a bank barn and a shed; the size is probably square feet. Common codes: GAR Garage, SHD Shed, PTC Concrete Patio, SWR Outdoor Pool, DEC Deck. Includes the structures on every parcel in dps (inferred from data). | (the CODE/size format is inferred from data; the source page lists the codes) | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=detached"
         data_type: string
 
       - name: initial_entry_date
@@ -358,7 +358,7 @@ models:
                 field: id
 
       - name: occupancy_id
-        description: "Kind of dwelling, e.g. Single Family, Townhouse or Condominium. | Replaces occupancy with its id in dim_occupancies. Names not in the list get the Other id. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        description: "Kind of dwelling, e.g. Single Family, Townhouse or Condominium. Describes only the residence on dp (inferred from data). | Replaces occupancy with its id in dim_occupancies. Names not in the list get the Other id. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: int64
         constraints:
           - type: foreign_key
@@ -372,7 +372,7 @@ models:
                 field: id
 
       - name: residence_type_id
-        description: "Number of stories and type of attic, e.g. 1 Story, 1.5 Stories or Split Foyer. | Replaces residence_type with its id in dim_residence_types. Names not in the list get the Other id. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        description: "Number of stories and type of attic, e.g. 1 Story, 1.5 Stories or Split Foyer. Describes only the residence on dp (inferred from data). | Replaces residence_type with its id in dim_residence_types. Names not in the list get the Other id. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: int64
         constraints:
           - type: foreign_key
@@ -386,7 +386,7 @@ models:
                 field: id
 
       - name: bldg_style_id
-        description: "Architectural style, e.g. Conventional, Ranch or Cape Cod. | Replaces bldg_style with its id in dim_bldg_styles. Names not in the list get the Other id. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        description: "Architectural style, e.g. Conventional, Ranch or Cape Cod. Describes only the residence on dp (inferred from data). | Replaces bldg_style with its id in dim_bldg_styles. Names not in the list get the Other id. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: int64
         constraints:
           - type: foreign_key
@@ -400,7 +400,7 @@ models:
                 field: id
 
       - name: exterior_wall_type_id
-        description: "Main exterior wall material, e.g. Vinyl Siding, Brick or Wood Siding. | Replaces exterior_wall_type with its id in dim_exterior_wall_types. Names not in the list get the Other id. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        description: "Main exterior wall material, e.g. Vinyl Siding, Brick or Wood Siding. Describes only the residence on dp (inferred from data). | Replaces exterior_wall_type with its id in dim_exterior_wall_types. Names not in the list get the Other id. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: int64
         constraints:
           - type: foreign_key
@@ -414,7 +414,7 @@ models:
                 field: id
 
       - name: roof_type_id
-        description: "Roof shape: Gable, Hip, Flat, Gambrel, Mansard, Shed or Other. | Replaces roof_type with its id in dim_roof_types. Names not in the list get the Other id. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        description: "Roof shape: Gable, Hip, Flat, Gambrel, Mansard, Shed or Other. Describes only the residence on dp (inferred from data). | Replaces roof_type with its id in dim_roof_types. Names not in the list get the Other id. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: int64
         constraints:
           - type: foreign_key
@@ -428,7 +428,7 @@ models:
                 field: id
 
       - name: roof_material_id
-        description: "Roof covering, e.g. Asphalt Shingle, Metal or Wood Shingle. | Replaces roof_material with its id in dim_roof_materials. Names not in the list get the Other id. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        description: "Roof covering, e.g. Asphalt Shingle, Metal or Wood Shingle. Describes only the residence on dp (inferred from data). | Replaces roof_material with its id in dim_roof_materials. Names not in the list get the Other id. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: int64
         constraints:
           - type: foreign_key
@@ -442,7 +442,7 @@ models:
                 field: id
 
       - name: foundation_id
-        description: "Foundation material, e.g. Poured Concrete, Concrete Block or Brick. | Replaces foundation with its id in dim_foundations. Names not in the list get the Other id. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        description: "Foundation material, e.g. Poured Concrete, Concrete Block or Brick. Describes only the residence on dp (inferred from data). | Replaces foundation with its id in dim_foundations. Names not in the list get the Other id. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: int64
         constraints:
           - type: foreign_key
@@ -456,7 +456,7 @@ models:
                 field: id
 
       - name: heating_id
-        description: "Heating system, e.g. Gas Forced Air, Heat Pump or Geo-Thermal. | Replaces heating with its id in dim_heating_types. Names not in the list get the Other id. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        description: "Heating system, e.g. Gas Forced Air, Heat Pump or Geo-Thermal. Describes only the residence on dp (inferred from data). | Replaces heating with its id in dim_heating_types. Names not in the list get the Other id. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: int64
         constraints:
           - type: foreign_key
@@ -470,7 +470,7 @@ models:
                 field: id
 
       - name: fin_bsmt_qual1_id
-        description: "Finish quality of the first finished basement area: Living Quarters, Average Plus, Average or Low. NULL when there's no finished basement. | Replaces fin_bsmt_qual1 with its id in dim_basement_qualities. Names not in the list get the Other id. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        description: "Finish quality of the first finished basement area: Living Quarters, Average Plus, Average or Low. NULL when there's no finished basement. Describes only the residence on dp (inferred from data). | Replaces fin_bsmt_qual1 with its id in dim_basement_qualities. Names not in the list get the Other id. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: int64
         constraints:
           - type: foreign_key
@@ -484,7 +484,7 @@ models:
                 field: id
 
       - name: fin_bsmt_qual2_id
-        description: "Finish quality of the second finished basement area, with the same values as the first. | Replaces fin_bsmt_qual2 with its id in dim_basement_qualities. Names not in the list get the Other id. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        description: "Finish quality of the second finished basement area, with the same values as the first. Describes only the residence on dp (inferred from data). | Replaces fin_bsmt_qual2 with its id in dim_basement_qualities. Names not in the list get the Other id. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: int64
         constraints:
           - type: foreign_key
@@ -498,7 +498,7 @@ models:
                 field: id
 
       - name: condition_id
-        description: "Physical condition, from Excellent (fully revitalized) through Normal (minor deferred maintenance) to Very Poor (uninhabitable). | Replaces condition with its id in dim_conditions. Names not in the list get the Other id. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        description: "Physical condition, from Excellent (fully revitalized) through Normal (minor deferred maintenance) to Very Poor (uninhabitable). Describes only the residence on dp (inferred from data). | Replaces condition with its id in dim_conditions. Names not in the list get the Other id. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: int64
         constraints:
           - type: foreign_key
@@ -512,7 +512,7 @@ models:
                 field: id
 
       - name: grade_id
-        description: "Construction quality grade and its adjustment: 4-05 is grade 4 (Average) with a -05 adjustment. Grades run from 0 (Executive) to 6 (Sub-standard) and scale the replacement costs in the Iowa Real Property Appraisal Manual. | The base grade (the first digit of grade) as its id in dim_grades; a digit with no row gets the Other id. NULL when grade isn't a digit with an optional adjustment, like 4-05 or 3. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        description: "Construction quality grade and its adjustment: 4-05 is grade 4 (Average) with a -05 adjustment. Grades run from 0 (Executive) to 6 (Sub-standard) and scale the replacement costs in the Iowa Real Property Appraisal Manual. Describes only the residence on dp (inferred from data). | The base grade (the first digit of grade) as its id in dim_grades; a digit with no row gets the Other id. NULL when grade isn't a digit with an optional adjustment, like 4-05 or 3. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: int64
         constraints:
           - type: foreign_key
@@ -526,7 +526,7 @@ models:
                 field: id
 
       - name: grade_adjustment
-        description: "Construction quality grade and its adjustment: 4-05 is grade 4 (Average) with a -05 adjustment. Grades run from 0 (Executive) to 6 (Sub-standard) and scale the replacement costs in the Iowa Real Property Appraisal Manual. | The adjustment part of grade as a number, e.g. -5 for 4-05, and 0 when there is none. NULL when grade_id is. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+        description: "Construction quality grade and its adjustment: 4-05 is grade 4 (Average) with a -05 adjustment. Grades run from 0 (Executive) to 6 (Sub-standard) and scale the replacement costs in the Iowa Real Property Appraisal Manual. Describes only the residence on dp (inferred from data). | The adjustment part of grade as a number, e.g. -5 for 4-05, and 0 when there is none. NULL when grade_id is. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: int64
 
       # Hash of dp + the building_columns() macro; NULL when the sale has no building data
