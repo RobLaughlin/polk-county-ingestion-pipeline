@@ -72,5 +72,6 @@ SELECT
     *,
     {{ building_id() }} AS building_id,
     {{ group_id(listed_dps('dps')) }} AS dp_group_id,
-    {{ group_id(listed_gps('gps')) }} AS gp_group_id
+    {{ group_id(listed_gps('gps')) }} AS gp_group_id,
+    ARRAY_LENGTH({{ listed_dps('dps') }}) AS dp_count
 FROM coded

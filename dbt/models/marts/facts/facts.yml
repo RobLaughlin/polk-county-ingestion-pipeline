@@ -66,6 +66,12 @@ models:
                 to: ref('bridge_gp_groups')
                 field: group_id
 
+      - name: dp_count
+        description: "Number of district parcels the sale lists in dps: 1 for a single-parcel sale. | (added in dbt)"
+        data_type: int64
+        constraints:
+          - type: not_null
+
       # Sale
       - name: sale_date
         description: "Date the parties signed the deed or contract, as entered from the Declaration of Value. This is the signing date, not the recording date. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"

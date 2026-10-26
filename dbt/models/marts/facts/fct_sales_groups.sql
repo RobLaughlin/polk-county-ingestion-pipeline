@@ -13,6 +13,7 @@ SELECT
     pg,
     dp_group_id,
     gp_group_id,
+    dp_count,
 
     -- Sale
     sale_date,
