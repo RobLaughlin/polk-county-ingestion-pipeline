@@ -47,6 +47,9 @@ SELECT
     land_sf,
     land_acres,
 
+    -- Detached structures (every parcel in the sale)
+    detached_structs,
+
     -- Areas (sq ft)
     main_living_area AS main_living_area_sf,
     upper_living_area AS upper_living_area_sf,

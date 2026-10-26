@@ -42,8 +42,6 @@ SELECT
     year_remodel,
     condo_year_built,
 
-    detached_structs,
-
     -- When this version was seen
     MIN(sale_date) AS first_sale_date,
     MAX(sale_date) AS last_sale_date

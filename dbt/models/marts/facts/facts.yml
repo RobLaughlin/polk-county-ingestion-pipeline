@@ -251,6 +251,11 @@ models:
         description: "Land area in acres, to 3 decimal places. Summed over every parcel in dps (inferred from data). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=slandtotal"
         data_type: numeric(38, 9)
 
+      # Detached structures
+      - name: detached_structs
+        description: "Detached structures on the parcel as CODE/size pairs, e.g. 'BBK/1584 SHD/120' for a bank barn and a shed; the size is probably square feet. Common codes: GAR Garage, SHD Shed, PTC Concrete Patio, SWR Outdoor Pool, DEC Deck. Includes the structures on every parcel in dps (inferred from data). | (the CODE/size format is inferred from data; the source page lists the codes) | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=detached"
+        data_type: string
+
       # Areas (sq ft)
       - name: main_living_area_sf
         description: "Finished living area on the main floor, in square feet, measured from the building sketch. Describes only the residence on dp (inferred from data). | Renamed from main_living_area. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"

@@ -1,4 +1,8 @@
-{# The columns that define a building version: what dim_buildings stores and building_id hashes. #}
+{#
+    The columns that define a building version: what dim_buildings stores and building_id hashes.
+    detached_structs isn't one: in a multi-parcel sale it lists the structures on every parcel,
+    so it's on fct_sales instead.
+#}
 
 {% macro building_columns() %}
     {{ return([
@@ -23,8 +27,7 @@
         'year_built',
         'year_remodel',
         'eff_year_built',
-        'condo_year_built',
-        'detached_structs'
+        'condo_year_built'
     ]) }}
 {% endmacro %}
 
