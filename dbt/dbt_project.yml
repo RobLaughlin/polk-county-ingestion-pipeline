@@ -2,8 +2,8 @@
 #
 #   raw.sales_raw -> staging -> intermediate -> marts (dims and facts)
 #
-# - staging: typed, trimmed copies of the raw table (stg_sale_data, stg_parcels).
-# - intermediate: cleanup and coding (int_sales, int_parcels).
+# - staging: typed, trimmed copies of the raw table (stg_sale_data, stg_district_parcels, stg_geo_parcels).
+# - intermediate: cleanup and coding (int_sales, int_district_parcels).
 # - marts: fct_sales and its dimensions, including the code lookups built from seeds/.
 #
 # Each folder's YAML describes its models and every column: what it means, what that model or an

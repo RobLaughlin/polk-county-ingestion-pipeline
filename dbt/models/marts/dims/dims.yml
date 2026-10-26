@@ -118,7 +118,7 @@ models:
 
   - name: dim_school_districts
     description: >-
-      School districts, from the valid_school_districts seed. int_parcels looks up
+      School districts, from the valid_school_districts seed. int_district_parcels looks up
       school_district here, and names not in the list get the Other id.
     config:
       contract:
@@ -126,7 +126,7 @@ models:
 
     columns:
       - name: id
-        description: "Id of the value. int_parcels stores it in school_district_id. | (added in dbt)"
+        description: "Id of the value. int_district_parcels stores it in school_district_id. | (added in dbt)"
         data_type: int64
         constraints:
           - type: not_null
@@ -457,13 +457,13 @@ models:
         constraints:
           - type: not_null
           - type: foreign_key
-            to: ref('dim_parcels')
+            to: ref('dim_district_parcels')
             to_columns: [dp]
             warn_unenforced: false
         data_tests:
           - relationships:
               arguments:
-                to: ref('dim_parcels')
+                to: ref('dim_district_parcels')
                 field: dp
           - dbt_expectations.expect_column_value_lengths_to_equal:
               arguments:
@@ -740,10 +740,11 @@ models:
                 to: ref('dim_dates')
                 field: date_day
 
-  - name: dim_parcels
+  - name: dim_district_parcels
     description: >-
-      One row per district parcel, from int_parcels, with its location as of its most recent
-      sale.
+      One row per district parcel, from int_district_parcels, with its location as of its most
+      recent sale. dp_short is dp in the short form dps uses. Join gp to dim_geo_parcels for the
+      parcel's legal description.
     config:
       contract:
         enforced: true
@@ -759,16 +760,32 @@ models:
         data_tests:
           - unique
 
-      - name: gp
-        description: "Geoparcel number, 12 digits, e.g. 802434255001. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=xysall"
+      - name: dp_short
+        description: "District/parcel number in the short form dps uses: the district, a slash, then the parcel parts without leading zeros, with trailing 0 parts left off, e.g. 18101588000000 is 181/1588 and 17000370000379 is 170/370-0-379. | Computed from dp (set in int_district_parcels). The trailing-zero rule is inferred from data. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
         data_type: string
+        constraints:
+          - type: not_null
+
+      - name: gp
+        description: "Geoparcel number, 12 digits, e.g. 802434255001. Its legal description is in dim_geo_parcels. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=xysall"
+        data_type: string
+        constraints:
+          - type: foreign_key
+            to: ref('dim_geo_parcels')
+            to_columns: [gp]
+            warn_unenforced: false
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_geo_parcels')
+                field: gp
 
       - name: jurisdiction
         description: "City or township the parcel is in, e.g. ANKENY or ALLEN TWNSHP. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=districts"
         data_type: string
 
       - name: zip
-        description: "Zip code of the property sold. | NULL when it isn't 5 digits (set in int_parcels). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
+        description: "Zip code of the property sold. | NULL when it isn't 5 digits (set in int_district_parcels). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
         data_type: string
 
       - name: nbhd
@@ -787,12 +804,8 @@ models:
         description: "Name of the recorded plat (subdivision) the parcel is in, e.g. WHITE BIRCH PLAT 1. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=plats"
         data_type: string
 
-      - name: parcel_descriptions
-        description: "Legal description of every parcel in the sale, one 'gp: description' entry per parcel, e.g. '282223251001: LT 8 EAST POLK PLAT 2'. | (inferred from data; the source page only labels the field) | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=legal"
-        data_type: string
-
       - name: school_district_id
-        description: "School district the parcel is in, e.g. Ankeny. | Stored as its id in dim_school_districts (set in int_parcels). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=parcel"
+        description: "School district the parcel is in, e.g. Ankeny. | Stored as its id in dim_school_districts (set in int_district_parcels). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=parcel"
         data_type: int64
         constraints:
           - type: foreign_key
@@ -804,6 +817,30 @@ models:
               arguments:
                 to: ref('dim_school_districts')
                 field: id
+
+  - name: dim_geo_parcels
+    description: >-
+      One row per geoparcel named anywhere in the export, from stg_geo_parcels, with the
+      parcel's legal description from the most recent sale that lists it. dim_district_parcels
+      joins to it on gp.
+    config:
+      contract:
+        enforced: true
+
+    columns:
+      - name: gp
+        description: "Geoparcel number, 12 digits, e.g. 802434255001. | Every gp named in gp, gps or legal_all_parcels, once each (set in stg_geo_parcels). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=xysall"
+        data_type: string
+        constraints:
+          - type: not_null
+          - type: primary_key
+            warn_unenforced: false
+        data_tests:
+          - unique
+
+      - name: parcel_description
+        description: "Legal description of the parcel, e.g. 'LT 8 EAST POLK PLAT 2'. NULL when no sale's legal_all_parcels lists the parcel. | Split from legal_all_parcels: the text after 'gp:' in the parcel's entry, from the most recent sale that lists it (set in stg_geo_parcels). | (inferred from data; the source page only labels the field) | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=legal"
+        data_type: string
 
   - name: dim_dates
     description: >-

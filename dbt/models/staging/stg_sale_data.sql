@@ -7,7 +7,7 @@
 
 -- Strict CASTs: a value that can't be cast fails the build instead of becoming NULL.
 -- Strings are trimmed on both sides, and empty strings become NULL.
--- Parcel columns (gp, jurisdiction, nbhd, pocket, zip, address, ...) live in stg_parcels.
+-- Parcel columns (gp, jurisdiction, nbhd, pocket, zip, address, ...) live in stg_district_parcels.
 SELECT
     NULLIF(TRIM(dp), '') AS dp,
     CAST(sale_date AS DATE) AS sale_date,

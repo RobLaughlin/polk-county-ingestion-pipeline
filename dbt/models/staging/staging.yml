@@ -4,7 +4,7 @@ models:
       One row per recorded sale document (book and page), from raw.sales_raw. Every string is
       trimmed and blanks become NULL. Numbers and dates are cast strictly, so a value that can't
       be cast fails the build instead of becoming NULL. The parcel's location columns are in
-      stg_parcels.
+      stg_district_parcels.
     config:
       contract:
         enforced: true
@@ -57,7 +57,7 @@ models:
         constraints:
           - type: not_null
           - type: foreign_key
-            to: ref('stg_parcels')
+            to: ref('stg_district_parcels')
             to_columns: [dp]
             warn_unenforced: false
 
@@ -69,7 +69,7 @@ models:
 
           - relationships:
               arguments:
-                to: ref('stg_parcels')
+                to: ref('stg_district_parcels')
                 field: dp
 
       # Dates are always YYYY-MM-DD once cast; the raw format is checked on the source.
@@ -751,11 +751,11 @@ models:
               config:
                 severity: warn
 
-  - name: stg_parcels
+  - name: stg_district_parcels
     description: >-
       One row per district parcel (dp), from raw.sales_raw. Each column takes its value from the
       parcel's most recent sale: the latest sale_date, then the highest book and page. Strings
-      are trimmed and blanks become NULL.
+      are trimmed and blanks become NULL. Legal descriptions are in stg_geo_parcels, by gp.
     config:
       contract:
         enforced: true
@@ -763,14 +763,14 @@ models:
     data_tests:
       # Format checks use dbt_utils.expression_is_true so store_failures keeps the whole failing row.
       - dbt_utils.expression_is_true:
-          name: stg_parcels__gp_is_12_digits
+          name: stg_district_parcels__gp_is_12_digits
           arguments:
             expression: "REGEXP_CONTAINS(gp, r'^[0-9]{12}$')"
           config:
             severity: warn
 
       - dbt_utils.expression_is_true:
-          name: stg_parcels__zip_is_5_digits
+          name: stg_district_parcels__zip_is_5_digits
           arguments:
             expression: "REGEXP_CONTAINS(zip, r'^[0-9]{5}$')"
           config:
@@ -821,7 +821,7 @@ models:
 
         data_tests:
           - not_null:
-              name: stg_parcels__jurisdiction_not_null
+              name: stg_district_parcels__jurisdiction_not_null
               config:
                 severity: warn
 
@@ -872,7 +872,7 @@ models:
 
         data_tests:
           - not_null:
-              name: stg_parcels__school_district_not_null
+              name: stg_district_parcels__school_district_not_null
               config:
                 severity: warn
 
@@ -885,8 +885,38 @@ models:
             inferred: false
         data_type: string
 
-      - name: parcel_descriptions
-        description: "Legal description of every parcel in the sale, one 'gp: description' entry per parcel, e.g. '282223251001: LT 8 EAST POLK PLAT 2'. | Renamed from legal_all_parcels. | (inferred from data; the source page only labels the field) | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=legal"
+  - name: stg_geo_parcels
+    description: >-
+      One row per geoparcel (gp) named anywhere in raw.sales_raw: in gp, gps or
+      legal_all_parcels. legal_all_parcels holds one 'gp: description' entry per parcel,
+      separated by ###, and each parcel keeps the description from the most recent sale that
+      lists it. Strings are trimmed and blanks become NULL.
+    config:
+      contract:
+        enforced: true
+
+    columns:
+      - name: gp
+        description: "Geoparcel number, 12 digits, e.g. 802434255001. | Every gp named in gp, gps or legal_all_parcels, once each. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=xysall"
+        config:
+          meta:
+            source_table: xysall
+            source_url: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=xysall
+            inferred: false
+        data_type: string
+        constraints:
+          - type: not_null
+          - type: primary_key
+            warn_unenforced: false
+
+        data_tests:
+          - unique
+          - dbt_expectations.expect_column_value_lengths_to_equal:
+              arguments:
+                value: 12
+
+      - name: parcel_description
+        description: "Legal description of the parcel, e.g. 'LT 8 EAST POLK PLAT 2'. NULL when no sale's legal_all_parcels lists the parcel. | Split from legal_all_parcels: the text after 'gp:' in the parcel's entry, from the most recent sale that lists it. | (inferred from data; the source page only labels the field) | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=legal"
         config:
           meta:
             source_table: legal

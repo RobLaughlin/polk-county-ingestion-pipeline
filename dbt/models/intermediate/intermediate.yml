@@ -534,20 +534,33 @@ models:
         description: "The building version at this sale: a hash of dp and every building column (see the building_columns macro), so it changes whenever any of them changes. NULL when the sale has no building data. | (added in dbt)"
         data_type: string
 
-  - name: int_parcels
+  - name: int_district_parcels
     description: >-
-      Cleans stg_parcels, still one row per district parcel. Zip codes that aren't 5 digits
-      become NULL, and school_district is replaced by its id in dim_school_districts.
+      Cleans stg_district_parcels, still one row per district parcel. dp_short is computed from
+      dp, zip codes that aren't 5 digits become NULL, and school_district is replaced by its id
+      in dim_school_districts.
     config:
       contract:
         enforced: true
 
     data_tests:
-      # Invalid zips are set to NULL in int_parcels.sql, so this should always pass.
+      # Invalid zips are set to NULL in int_district_parcels.sql, so this should always pass.
       - dbt_utils.expression_is_true:
-          name: int_parcels__zip_is_5_digits
+          name: int_district_parcels__zip_is_5_digits
           arguments:
             expression: "REGEXP_CONTAINS(zip, r'^[0-9]{5}$')"
+
+      # dp_short has no leading zeros in a part and no trailing 0 parts (see the short_dp macro).
+      - dbt_utils.expression_is_true:
+          name: int_district_parcels__dp_short_is_short_form
+          arguments:
+            expression: "REGEXP_CONTAINS(dp_short, r'^[0-9]{3}/(0|[1-9][0-9]{0,4})(-(0|[1-9][0-9]{0,2})-[1-9][0-9]{0,2}|-[1-9][0-9]{0,2})?$')"
+
+      # Converting dp_short back must give exactly dp, so the two always describe the same parcel.
+      - dbt_utils.expression_is_true:
+          name: int_district_parcels__dp_is_long_form_of_dp_short
+          arguments:
+            expression: "dp = {{ long_dp('dp_short') }}"
 
     columns:
       - name: dp
@@ -560,6 +573,12 @@ models:
 
         data_tests:
           - unique
+
+      - name: dp_short
+        description: "District/parcel number in the short form dps uses: the district, a slash, then the parcel parts without leading zeros, with trailing 0 parts left off, e.g. 18101588000000 is 181/1588 and 17000370000379 is 170/370-0-379. | Added in int_district_parcels from dp (see the short_dp macro). The trailing-zero rule is inferred from data. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
+        data_type: string
+        constraints:
+          - type: not_null
 
       - name: gp
         description: "Geoparcel number, 12 digits, e.g. 802434255001. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=xysall"
@@ -587,10 +606,6 @@ models:
 
       - name: platname
         description: "Name of the recorded plat (subdivision) the parcel is in, e.g. WHITE BIRCH PLAT 1. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=plats"
-        data_type: string
-
-      - name: parcel_descriptions
-        description: "Legal description of every parcel in the sale, one 'gp: description' entry per parcel, e.g. '282223251001: LT 8 EAST POLK PLAT 2'. | (inferred from data; the source page only labels the field) | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=legal"
         data_type: string
 
       - name: school_district_id

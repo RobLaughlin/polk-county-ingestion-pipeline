@@ -3,8 +3,8 @@ models:
     description: >-
       One row per recorded sale document (book and page), from int_sales: the sale, the assessed
       values, and the measurements of the property as it was sold. Columns are renamed with
-      their units (_dollars, _sf, _ft). Join building_id to dim_buildings, dp to dim_parcels,
-      the dates to dim_dates, and each *_id to its code lookup.
+      their units (_dollars, _sf, _ft). Join building_id to dim_buildings, dp to
+      dim_district_parcels, the dates to dim_dates, and each *_id to its code lookup.
     config:
       contract:
         enforced: true
@@ -58,13 +58,13 @@ models:
         constraints:
           - type: not_null
           - type: foreign_key
-            to: ref('dim_parcels')
+            to: ref('dim_district_parcels')
             to_columns: [dp]
             warn_unenforced: false
         data_tests:
           - relationships:
               arguments:
-                to: ref('dim_parcels')
+                to: ref('dim_district_parcels')
                 field: dp
           - dbt_expectations.expect_column_value_lengths_to_equal:
               arguments:
