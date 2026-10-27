@@ -8,7 +8,8 @@
 #   dimensions, including the code lookups built from seeds/, and the bridges from each sale's
 #   parcel groups to the parcels in them.
 # - marts/views: lightweight views that show codes as names (buildings_descriptive).
-# - marts/reports: tables for BI tools (sales_groups_descriptive, sales_single_descriptive).
+# - marts/reports: tables for BI tools (sales_groups_descriptive, sales_single_descriptive, and
+#   filtered_single_parcel_sales with a TRUE/FALSE column for each market-sale filter).
 #
 # Each folder's YAML describes its models and every column: what it means, what that model or an
 # earlier one did to it, and its source page. Staging also keeps each column's source in meta.
