@@ -22,10 +22,15 @@ SELECT
     price AS price_dollars,
     seller,
     buyer,
-    instrument_id,
-    quality1_id,
-    quality2_id,
-    analysis_quality_id,
+
+    instrument,
+    {# instrument_id, #}
+    dim_quality1_conditions.quality AS quality1,
+    {# quality1_id, #}
+    dim_quality2_conditions.quality AS quality2,
+    {# quality2_id, #}
+    analysis_quality,
+    {# analysis_quality_id, #}
 
     -- Assessed values
     land_full AS land_full_assessment_dollars,
@@ -39,3 +44,11 @@ SELECT
     -- Detached structures
     detached_structs
 FROM {{ ref('int_sales') }}
+INNER JOIN {{ ref('dim_instruments') }} AS dim_instruments
+ON instrument_id = dim_instruments.id
+INNER JOIN {{ ref('dim_quality1_conditions') }} AS dim_quality1_conditions
+ON quality1_id = dim_quality1_conditions.id
+INNER JOIN {{ ref('dim_quality2_conditions') }} AS dim_quality2_conditions
+ON quality2_id = dim_quality2_conditions.id
+INNER JOIN {{ ref('dim_analysis_qualities') }} AS dim_analysis_qualities
+ON analysis_quality_id = dim_analysis_qualities.id
