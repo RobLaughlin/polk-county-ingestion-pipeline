@@ -1,2 +1,2 @@
-# Format, lint, and check dbt before every commit (see scripts/check.sh).
+# Format and lint before every commit (see scripts/check.sh).
 pnpm run check

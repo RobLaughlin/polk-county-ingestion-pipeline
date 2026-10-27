@@ -1,2 +1,3 @@
-# Format, lint, and check dbt before every push (see scripts/check.sh).
-pnpm run check
+# Format, lint, and check dbt before every push. The dbt steps may read BigQuery,
+# so they run here rather than on every commit.
+pnpm run check:all

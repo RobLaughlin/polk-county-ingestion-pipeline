@@ -79,6 +79,7 @@ Run these from the repository root with `pnpm run <command>`. Extra arguments ar
 | `docs:generate`                                          | Generate dbt documentation from .yml descriptions                              |
 | `docs:serve`                                             | Generate the dbt documentation, and then serve the dbt docs                    |
 | `dbt:check`                                              | Checks whether the dbt models parse and compile                                |
-| `check`                                                  | Runs `format`, `lint`, `dbt:check` and `docs:generate`, in turn                |
+| `check`                                                  | Runs `format`, then `lint`                                                     |
+| `check:all`                                              | Runs `check`, then `dbt:check` and `docs:generate`                             |
 
-Husky runs `pnpm run check` before every commit and push (`.husky/pre-commit` and `.husky/pre-push`). It stops if formatting changed any files, so you can review and commit them first. `dbt:check` and `docs:generate` read BigQuery, so the hooks need the gcloud application-default credentials from step 3. Skip the hooks for one commit or push with `--no-verify`.
+Husky runs `pnpm run check` before every commit (`.husky/pre-commit`) and `pnpm run check:all` before every push (`.husky/pre-push`). Both stop if formatting changed any files, so you can review and commit them first. Only pushes run `dbt:check` and `docs:generate`, which may read BigQuery and so need the gcloud application-default credentials from step 3. Skip the hooks for one commit or push with `--no-verify`.

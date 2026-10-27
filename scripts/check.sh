@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Husky runs this before every commit and push (.husky/pre-commit and .husky/pre-push).
+# Formats and lints the project. Husky runs this before every commit (.husky/pre-commit), and
+# as the first step of `pnpm run check:all` before every push (.husky/pre-push).
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cd "$SCRIPT_DIR/.."
 
@@ -15,5 +16,3 @@ if [ "$(git diff)" != "$before" ]; then
 fi
 
 pnpm run lint
-pnpm run dbt:check
-pnpm run docs:generate

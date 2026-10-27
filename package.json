@@ -25,6 +25,7 @@
     "docs:serve": "pnpm run docs:generate && cd dbt && dbt docs serve",
     "dbt:check": "cd dbt && dbt parse && dbt compile",
     "check": "./scripts/check.sh",
+    "check:all": "pnpm run check && pnpm run dbt:check && pnpm run docs:generate",
     "prepare": "husky"
   },
   "devDependencies": {
