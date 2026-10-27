@@ -1,4 +1,14 @@
 models:
+  - name: hq_single_family_sales
+    description: >-
+      Get all high quality single family sales. A high quality sales refers to sales that are 
+      (1) Deed 
+      (2) Good assessment/Is a market sale
+      (3) Arms Length and No Code qualities
+      (4) Over a certain price floor (determined by macro)
+      (5) Has a valid building ID
+      (6) Not a duplicate document
+
   - name: buildings_descriptive
     description: >-
       One row per building version, from dim_buildings, with each code (occupancy, roof type,
