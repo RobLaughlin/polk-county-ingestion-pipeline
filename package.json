@@ -20,7 +20,9 @@
     "lint-python": "uvx ruff@0.17.3 check ingestion scripts",
     "lint-terraform": "terraform -chdir=terraform validate",
     "lint-shell": "uvx --from shellcheck-py@0.11.0.1 shellcheck scripts/*.sh",
-    "lint-yaml": "uvx yamllint@1.37.1 ."
+    "lint-yaml": "uvx yamllint@1.37.1 .",
+    "docs:generate": "cd dbt && dbt docs generate",
+    "docs:serve": "pnpm run docs:generate && cd dbt && dbt docs serve"
   },
   "devDependencies": {
     "prettier": "3.6.2"
