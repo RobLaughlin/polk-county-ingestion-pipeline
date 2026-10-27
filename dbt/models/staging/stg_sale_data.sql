@@ -8,7 +8,8 @@
 -- Strict CASTs: a value that can't be cast fails the build instead of becoming NULL.
 -- Strings are trimmed on both sides, and empty strings become NULL.
 -- Parcel columns (gp, jurisdiction, nbhd, pocket, zip, address, ...) live in stg_district_parcels.
-SELECT
+-- The columns keep the export's order, as in staging.yml, so CASTs and trims are mixed (ST06 skipped).
+SELECT -- noqa: ST06
     NULLIF(TRIM(dp), '') AS dp,
     CAST(sale_date AS DATE) AS sale_date,
     CAST(book AS INT64) AS book,

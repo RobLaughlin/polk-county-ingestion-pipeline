@@ -1,0 +1,6 @@
+# ruff settings for `pnpm run format-python` and `pnpm run lint-python`.
+# ingest.py imports logger.py from its own folder, so list both code folders here to have
+# import sorting treat those modules as the project's own.
+src = ["ingestion", "scripts"]
+# The ingestion image and the host scripts both run Python 3.12.
+target-version = "py312"

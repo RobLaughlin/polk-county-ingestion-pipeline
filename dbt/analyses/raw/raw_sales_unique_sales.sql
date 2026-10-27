@@ -1,13 +1,100 @@
 -- Show all records with duplicate (dp, sale_date) keys.
 
 WITH duplicates AS (
-    SELECT dp, sale_date, COUNT(*) AS duplicate_keys
+    SELECT
+        dp,
+        sale_date,
+        COUNT(*) AS duplicate_keys
     FROM {{ source('raw', 'sales_raw') }}
     GROUP BY dp, sale_date
     HAVING COUNT(*) > 1
 )
-SELECT duplicates.duplicate_keys, *  FROM {{ source('raw', 'sales_raw') }}
-INNER JOIN duplicates
-ON duplicates.dp = sales_raw.dp AND duplicates.sale_date = sales_raw.sale_date
-ORDER BY duplicates.duplicate_keys DESC, duplicates.dp, duplicates.sale_date
 
+SELECT
+    duplicates.duplicate_keys,
+
+    -- Every raw column, in the order of the export (HEADERS in ingestion/ingest.py)
+    sales_raw.jurisdiction,
+    sales_raw.nbhd,
+    sales_raw.pocket,
+    sales_raw.dp,
+    sales_raw.gp,
+    sales_raw.sale_date,
+    sales_raw.book,
+    sales_raw.pg,
+    sales_raw.instrument,
+    sales_raw.price,
+    sales_raw.address,
+    sales_raw.zip,
+    sales_raw.seller,
+    sales_raw.buyer,
+    sales_raw.land_full,
+    sales_raw.bldg_full,
+    sales_raw.total_full,
+    sales_raw.quality1,
+    sales_raw.quality2,
+    sales_raw.analysis_quality,
+    sales_raw.dps,
+    sales_raw.gps,
+    sales_raw.land_sf,
+    sales_raw.land_acres,
+    sales_raw.occupancy,
+    sales_raw.residence_type,
+    sales_raw.bldg_style,
+    sales_raw.exterior_wall_type,
+    sales_raw.percent_brick,
+    sales_raw.roof_type,
+    sales_raw.roof_material,
+    sales_raw.main_living_area,
+    sales_raw.upper_living_area,
+    sales_raw.fin_attic_area,
+    sales_raw.total_living_area,
+    sales_raw.unfin_attic_area,
+    sales_raw.foundation,
+    sales_raw.basement_area,
+    sales_raw.fin_bsmt_area_tot,
+    sales_raw.bsmt_walkout,
+    sales_raw.bsmt_gar_capacity,
+    sales_raw.att_garage_area,
+    sales_raw.garage_brick,
+    sales_raw.open_porch_area,
+    sales_raw.enclose_porch_area,
+    sales_raw.patio_area,
+    sales_raw.deck_area,
+    sales_raw.canopy_area,
+    sales_raw.veneer_area,
+    sales_raw.carport_area,
+    sales_raw.fin_bsmt_area1,
+    sales_raw.fin_bsmt_qual1,
+    sales_raw.fin_bsmt_area2,
+    sales_raw.fin_bsmt_qual2,
+    sales_raw.bathrooms,
+    sales_raw.toilet_rooms,
+    sales_raw.extra_fixtures,
+    sales_raw.whirlpools,
+    sales_raw.hottubs,
+    sales_raw.saunas,
+    sales_raw.fireplaces,
+    sales_raw.bedrooms,
+    sales_raw.rooms,
+    sales_raw.families,
+    sales_raw.year_built,
+    sales_raw.year_remodel,
+    sales_raw.eff_year_built,
+    sales_raw.condition,
+    sales_raw.grade,
+    sales_raw.heating,
+    sales_raw.air_conditioning,
+    sales_raw.percent_complete,
+    sales_raw.condo_fin_liv_area,
+    sales_raw.condo_year_built,
+    sales_raw.detached_structs,
+    sales_raw.platname,
+    sales_raw.legal_all_parcels,
+    sales_raw.school_district,
+    sales_raw.initial_entry_date,
+    sales_raw.yr
+FROM {{ source('raw', 'sales_raw') }} AS sales_raw
+INNER JOIN duplicates
+ON sales_raw.dp = duplicates.dp AND sales_raw.sale_date = duplicates.sale_date
+ORDER BY duplicates.duplicate_keys DESC, duplicates.dp ASC, duplicates.sale_date ASC

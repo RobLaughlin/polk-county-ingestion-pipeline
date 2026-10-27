@@ -25,6 +25,7 @@ WITH duplicates AS (
         ) AS priority
     FROM {{ source('raw', 'sales_raw') }}
 )
+
 SELECT
     dp,
     ANY_VALUE(gp HAVING MIN priority) AS gp,

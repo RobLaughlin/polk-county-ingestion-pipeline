@@ -30,3 +30,7 @@ extended_capitalisation_policy = upper
 
 [sqlfluff:rules:capitalisation.identifiers]
 extended_capitalisation_policy = lower
+
+# dim_dates names its columns after BigQuery's date parts (year, quarter, month), and quarter is a keyword.
+[sqlfluff:rules:references.keywords]
+ignore_words = quarter

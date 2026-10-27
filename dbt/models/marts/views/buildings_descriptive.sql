@@ -7,32 +7,32 @@
 
 SELECT
     -- Keys
-    building_id,
-    dp,
+    dim_buildings.building_id,
+    dim_buildings.dp,
 
     {# occupancy_id, #}
-    occupancy,
+    dim_occupancies.occupancy,
 
     {# residence_type_id, #}
-    residence_type,
+    dim_residence_types.residence_type,
 
     {# bldg_style_id, #}
-    bldg_style,
+    dim_bldg_styles.bldg_style,
 
     {# exterior_wall_type_id, #}
-    exterior_wall_type,
+    dim_exterior_wall_types.exterior_wall_type,
 
     {# roof_type_id, #}
-    roof_type,
+    dim_roof_types.roof_type,
 
     {# roof_material_id, #}
-    roof_material,
+    dim_roof_materials.roof_material,
 
     {# foundation_id, #}
-    foundation,
+    dim_foundations.foundation,
 
     {# heating_id, #}
-    heating,
+    dim_heating_types.heating,
 
     {# fin_bsmt_qual1_id, #}
     dim_basement_qualities1.basement_quality AS fin_bsmt_qual1,
@@ -42,27 +42,27 @@ SELECT
 
     -- Grade and condition
     {# grade_id, #}
-    grade,
-    grade_adjustment,
+    dim_grades.grade,
+    dim_buildings.grade_adjustment,
     {# condition_id, #}
-    condition,
+    dim_conditions.condition,
 
     -- Units and percentages
-    families,
-    brick_pct,
-    air_conditioning_pct,
-    completed_pct,
-    garage_brick_pct,
+    dim_buildings.families,
+    dim_buildings.brick_pct,
+    dim_buildings.air_conditioning_pct,
+    dim_buildings.completed_pct,
+    dim_buildings.garage_brick_pct,
 
     -- Years
-    year_built,
-    eff_year_built,
-    year_remodel,
-    condo_year_built,
+    dim_buildings.year_built,
+    dim_buildings.eff_year_built,
+    dim_buildings.year_remodel,
+    dim_buildings.condo_year_built,
 
     -- When this version was seen
-    first_sale_date,
-    last_sale_date
+    dim_buildings.first_sale_date,
+    dim_buildings.last_sale_date
 FROM {{ ref('dim_buildings') }} AS dim_buildings
 LEFT JOIN {{ ref('dim_occupancies') }} AS dim_occupancies
 ON dim_buildings.occupancy_id = dim_occupancies.id
@@ -89,4 +89,3 @@ LEFT JOIN {{ ref('dim_grades') }} AS dim_grades
 ON dim_buildings.grade_id = dim_grades.id
 LEFT JOIN {{ ref('dim_conditions') }} AS dim_conditions
 ON dim_buildings.condition_id = dim_conditions.id
-

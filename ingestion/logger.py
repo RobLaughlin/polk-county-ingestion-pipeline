@@ -1,11 +1,13 @@
 import csv
 import datetime
 import threading
-from tabulate import tabulate
+
 from lazy_table.artists import Console
+from tabulate import tabulate
+
 
 class Logger:
-    headers = ['timestamp', 'status', 'source', 'destination', 'message']
+    headers = ("timestamp", "status", "source", "destination", "message")
 
     def __init__(self, output_csv_file) -> None:
         self.set_output_csv_file(output_csv_file)
@@ -17,7 +19,8 @@ class Logger:
         self.lock = threading.Lock()
 
     def set_output_csv_file(self, output_csv_file, write_headers=True):
-        self.file = open(output_csv_file, mode="w", newline="", encoding="utf-8")
+        # The file stays open while the logger is in use, so it can't be opened in a with block.
+        self.file = open(output_csv_file, mode="w", newline="", encoding="utf-8")  # noqa: SIM115
         self.writer = csv.writer(self.file)
         if write_headers:
             self.writer.writerow(self.headers)
@@ -25,11 +28,11 @@ class Logger:
     def log(self, status, source="", destination="", message="", to_console=True):
         with self.lock:
             row = [
-                datetime.datetime.now(datetime.timezone.utc),
+                datetime.datetime.now(datetime.UTC),
                 status,
                 source,
                 destination,
-                message
+                message,
             ]
             self.rows.append(row)
             if to_console:

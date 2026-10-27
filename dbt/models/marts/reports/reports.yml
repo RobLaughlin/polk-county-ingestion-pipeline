@@ -510,6 +510,9 @@ models:
         description: "Number of garage stalls in the basement. Describes only the residence on dp (inferred from data). | Renamed from bsmt_gar_capacity. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
 
       # Filters
+      - name: has_building
+        description: "TRUE when the sale has residence data: building_id isn't NULL. | (set in filtered_single_parcel_sales) | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
+
       - name: is_arms_length
         description: "TRUE when the sale has no Iowa Department of Revenue sale condition: quality1 is Arms Length and quality2 is No Code. | FALSE when either is missing (set in filtered_single_parcel_sales). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
 
@@ -521,9 +524,6 @@ models:
 
       - name: is_over_price_floor
         description: "TRUE when price_dollars is above the sale_price_floor macro ($10,000). The Iowa Department of Revenue gives a sale of $10,000 or less condition 46 (Under 10000). | FALSE when price_dollars is missing (set in filtered_single_parcel_sales). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
-
-      - name: has_building
-        description: "TRUE when the sale has residence data: building_id isn't NULL. | (set in filtered_single_parcel_sales) | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
 
       - name: is_finished
         description: "TRUE when the house was finished: completed_pct is NULL and residence_type isn't Foundation or Partial Construction. | FALSE when there's no building or residence_type is missing (set in filtered_single_parcel_sales). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
