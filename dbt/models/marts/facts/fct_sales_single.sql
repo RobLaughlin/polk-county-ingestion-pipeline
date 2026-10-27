@@ -10,6 +10,7 @@
 -- covers as a whole, such as price, is in fct_sales_groups, on the same book and pg.
 SELECT
     -- Keys
+    sale_id,
     book,
     pg,
     dp,

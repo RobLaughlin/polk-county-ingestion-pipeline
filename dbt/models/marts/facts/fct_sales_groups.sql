@@ -9,6 +9,7 @@
 -- The residence on dp is in fct_sales_single, on the same book and pg.
 SELECT
     -- Keys
+    sale_id,
     book,
     pg,
     dp_group_id,

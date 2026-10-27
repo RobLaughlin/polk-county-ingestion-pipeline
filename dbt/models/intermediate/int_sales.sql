@@ -65,11 +65,13 @@ WITH coded AS (
     FROM {{ ref('stg_sale_data') }} AS sales
 )
 
+-- sale_id is book and pg as one number, for tools that join on a single column (see the sale_id macro).
 -- building_id needs the coded columns above, so it's added here (see the building_id macro).
 -- The group IDs key the parcels the sale lists into bridge_dp_groups and bridge_gp_groups
 -- (see the parcel_groups macros). dps and gps stay, because the bridges are built from them.
 SELECT
     *,
+    {{ sale_id('book', 'pg') }} AS sale_id,
     {{ building_id() }} AS building_id,
     {{ group_id(listed_dps('dps')) }} AS dp_group_id,
     {{ group_id(listed_gps('gps')) }} AS gp_group_id,

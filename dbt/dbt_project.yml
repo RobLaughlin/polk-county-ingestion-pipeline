@@ -39,6 +39,9 @@ models:
         +schema: marts_facts
       bridge:
         +schema: marts_bridge
+      views:
+        +schema: marts_views
+        +materialized: view
 
 # Every model test stores its failing rows in an audit dataset next to the models it tests.
 data_tests:
@@ -58,6 +61,9 @@ data_tests:
         +store_failures: true
       bridge:
         +schema: marts_bridge_audit
+        +store_failures: true
+      views:
+        +schema: marts_views_audit
         +store_failures: true
 
 # The valid_* code lists, loaded by dbt seed. The dim_* lookups in marts/dims select from them.

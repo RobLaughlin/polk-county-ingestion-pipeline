@@ -32,6 +32,14 @@ models:
 
     columns:
       # Keys
+      - name: sale_id
+        description: "One number for the recorded document: the book, then the page in the last 9 digits, e.g. book 12345 page 678 is 12345000000678. | (added in dbt; see the sale_id macro)"
+        data_type: int64
+        constraints:
+          - type: not_null
+        data_tests:
+          - unique
+
       - name: book
         description: "Recorder's book number for the recorded document. Book numbers rise over time. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
         data_type: int64
@@ -251,6 +259,14 @@ models:
 
     columns:
       # Keys
+      - name: sale_id
+        description: "One number for the recorded document: the book, then the page in the last 9 digits, e.g. book 12345 page 678 is 12345000000678. | (added in dbt; see the sale_id macro)"
+        data_type: int64
+        constraints:
+          - type: not_null
+        data_tests:
+          - unique
+
       - name: book
         description: "Recorder's book number for the recorded document. Book numbers rise over time. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
         data_type: int64

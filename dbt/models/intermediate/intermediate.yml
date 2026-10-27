@@ -40,6 +40,12 @@ models:
           arguments:
             expression: "fin_bsmt_area_tot = fin_bsmt_area1 + fin_bsmt_area2"
 
+      # sale_id keeps the page in its last 9 digits, so pg must fit (see the sale_id macro).
+      - dbt_utils.expression_is_true:
+          name: int_sales__pg_fits_sale_id
+          arguments:
+            expression: "pg >= 0 AND pg < {{ sale_id_pg_limit() }}"
+
     # Each *_id column references the id of a dim_* lookup in the marts. They can be NULL.
     columns:
       - name: dp
@@ -529,6 +535,15 @@ models:
       - name: grade_adjustment
         description: "Construction quality grade and its adjustment: 4-05 is grade 4 (Average) with a -05 adjustment. Grades run from 0 (Executive) to 6 (Sub-standard) and scale the replacement costs in the Iowa Real Property Appraisal Manual. Describes only the residence on dp (inferred from data). | The adjustment part of grade as a number, e.g. -5 for 4-05, and 0 when there is none. NULL when grade_id is. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
         data_type: int64
+
+      # book and pg as one number (see the sale_id macro)
+      - name: sale_id
+        description: "One number for the recorded document: the book, then the page in the last 9 digits, e.g. book 12345 page 678 is 12345000000678. | (added in dbt; see the sale_id macro)"
+        data_type: int64
+        constraints:
+          - type: not_null
+        data_tests:
+          - unique
 
       # Hash of dp + the building_columns() macro; NULL when the sale has no building data
       - name: building_id
