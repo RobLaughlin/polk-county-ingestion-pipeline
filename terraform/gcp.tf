@@ -121,6 +121,8 @@ locals {
     marts_facts_audit  = "Failing rows stored by fact tests"
     marts_bridge       = "Bridge tables from parcel groups to their parcels"
     marts_bridge_audit = "Failing rows stored by bridge tests"
+    marts_views        = "Views for analysis and reporting"
+    marts_views_audit  = "Failing rows stored by view tests"
   }
 }
 
