@@ -1,0 +1,7 @@
+# Prettier formats the YAML (pnpm run format-yaml). It also skips everything in .gitignore.
+# Lock files are written by pnpm and dbt deps.
+pnpm-lock.yaml
+dbt/package-lock.yml
+dbt/dbt_packages/
+dbt/target/
+dbt/logs/

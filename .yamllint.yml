@@ -1,0 +1,10 @@
+# yamllint settings for `pnpm run lint-yaml`. It checks the same files Prettier formats.
+extends: default
+
+rules:
+  # dbt descriptions are one line each, however long.
+  line-length: disable
+  # dbt YAML files don't start with ---.
+  document-start: disable
+
+ignore-from-file: [.gitignore, .prettierignore]

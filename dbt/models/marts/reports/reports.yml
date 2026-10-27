@@ -77,7 +77,6 @@ models:
       - name: detached_structs
         description: "Detached structures on the parcel as CODE/size pairs, e.g. 'BBK/1584 SHD/120' for a bank barn and a shed; the size is probably square feet. Common codes: GAR Garage, SHD Shed, PTC Concrete Patio, SWR Outdoor Pool, DEC Deck. Includes the structures on every parcel in the dp group (inferred from data). | (the CODE/size format is inferred from data; the source page lists the codes) | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=detached"
 
-
   - name: sales_single_descriptive
     description: >-
       One row per recorded sale document, from fct_sales_single: the residence on dp as it was
@@ -266,7 +265,6 @@ models:
 
       - name: bsmt_garage_stalls
         description: "Number of garage stalls in the basement. Describes only the residence on dp (inferred from data). | Renamed from bsmt_gar_capacity. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=residence"
-
 
   - name: filtered_single_parcel_sales
     description: >-

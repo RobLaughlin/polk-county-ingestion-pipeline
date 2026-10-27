@@ -40,8 +40,8 @@ Introduction to Databases with SQL.
 4. [Docker](https://docs.docker.com/get-started/get-docker/) with Compose v2 Installed
 5. [Python 3](https://www.python.org/downloads/) Installed
 6. [dbt Fusion](https://docs.getdbt.com/docs/fusion/install-fusion) 2.x Installed, which includes the BigQuery adapter
-7. [Node.js](https://nodejs.org/en/download) with [pnpm](https://pnpm.io/installation) Installed (`corepack enable` or `npm install -g pnpm`), to run the project commands
-8. [uv](https://docs.astral.sh/uv/getting-started/installation/) Installed, which the format and lint commands use to run ruff, sqlfluff and shellcheck
+7. [Node.js](https://nodejs.org/en/download) with [pnpm](https://pnpm.io/installation) Installed (`corepack enable` or `npm install -g pnpm`), to run the project commands. Run `pnpm install` once to install Prettier, which formats the YAML.
+8. [uv](https://docs.astral.sh/uv/getting-started/installation/) Installed, which the format and lint commands use to run ruff, sqlfluff, shellcheck and yamllint
 
 ## Instructions
 
@@ -68,10 +68,12 @@ Run these from the repository root with `pnpm run <command>`. Extra arguments ar
 | `format-sql` | sqlfluff on the SQL outside `dbt/`, with the style in `.sqlfluff` |
 | `format-python` | ruff format on `ingestion/` and `scripts/` |
 | `format-terraform` | `terraform fmt` on `terraform/` |
+| `format-yaml` | Prettier on every `.yml` and `.yaml` file except `.prettierignore` |
 | `lint` | Every linter below, in turn |
 | `lint-dbt-sql` | `dbt lint` on the dbt SQL |
 | `lint-sql` | sqlfluff lint on the SQL outside `dbt/` |
 | `lint-python` | ruff check on `ingestion/` and `scripts/` |
 | `lint-terraform` | `terraform validate` (run `terraform init` first) |
 | `lint-shell` | shellcheck on `scripts/*.sh` |
+| `lint-yaml` | yamllint on the same YAML, with the rules in `.yamllint.yml` |
 
