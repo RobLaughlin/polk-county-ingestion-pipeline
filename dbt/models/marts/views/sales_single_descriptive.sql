@@ -23,7 +23,7 @@ SELECT
     hottubs,
     saunas,
     fireplaces,
-    dim_buildings.* EXCEPT (dp, building_id),
+    buildings.* EXCEPT (dp, building_id),
 
     -- Areas (sq ft)
     main_living_area_sf,
@@ -51,6 +51,6 @@ SELECT
 
     
 FROM {{ ref('fct_sales_single') }} AS fct_sales
-LEFT JOIN {{ ref('dim_buildings') }} AS dim_buildings
-ON fct_sales.building_id = dim_buildings.building_id
-AND fct_sales.dp = dim_buildings.dp
+LEFT JOIN {{ ref('buildings_descriptive') }} AS buildings
+ON fct_sales.building_id = buildings.building_id
+AND fct_sales.dp = buildings.dp
