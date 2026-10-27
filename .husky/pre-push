@@ -1,0 +1,2 @@
+# Format, lint, and check dbt before every push (see scripts/check.sh).
+pnpm run check

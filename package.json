@@ -23,9 +23,12 @@
     "lint-yaml": "uvx yamllint@1.37.1 .",
     "docs:generate": "cd dbt && dbt docs generate",
     "docs:serve": "pnpm run docs:generate && cd dbt && dbt docs serve",
-    "dbt:check": "cd dbt && dbt parse && dbt compile"
+    "dbt:check": "cd dbt && dbt parse && dbt compile",
+    "check": "./scripts/check.sh",
+    "prepare": "husky"
   },
   "devDependencies": {
+    "husky": "9.1.7",
     "prettier": "3.6.2"
   }
 }

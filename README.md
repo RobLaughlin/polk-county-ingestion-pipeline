@@ -40,7 +40,7 @@ Introduction to Databases with SQL.
 4. [Docker](https://docs.docker.com/get-started/get-docker/) with Compose v2 Installed
 5. [Python 3](https://www.python.org/downloads/) Installed
 6. [dbt Fusion](https://docs.getdbt.com/docs/fusion/install-fusion) 2.x Installed, which includes the BigQuery adapter
-7. [Node.js](https://nodejs.org/en/download) with [pnpm](https://pnpm.io/installation) Installed (`corepack enable` or `npm install -g pnpm`), to run the project commands. Run `pnpm install` once to install Prettier, which formats the YAML.
+7. [Node.js](https://nodejs.org/en/download) with [pnpm](https://pnpm.io/installation) Installed (`corepack enable` or `npm install -g pnpm`), to run the project commands. Run `pnpm install` once to install Prettier, which formats the YAML, and the Husky git hooks.
 8. [uv](https://docs.astral.sh/uv/getting-started/installation/) Installed, which the format and lint commands use to run ruff, sqlfluff, shellcheck and yamllint
 
 ## Instructions
@@ -79,3 +79,6 @@ Run these from the repository root with `pnpm run <command>`. Extra arguments ar
 | `docs:generate`                                          | Generate dbt documentation from .yml descriptions                              |
 | `docs:serve`                                             | Generate the dbt documentation, and then serve the dbt docs                    |
 | `dbt:check`                                              | Checks whether the dbt models parse and compile                                |
+| `check`                                                  | Runs `format`, `lint`, `dbt:check` and `docs:generate`, in turn                |
+
+Husky runs `pnpm run check` before every commit and push (`.husky/pre-commit` and `.husky/pre-push`). It stops if formatting changed any files, so you can review and commit them first. `dbt:check` and `docs:generate` read BigQuery, so the hooks need the gcloud application-default credentials from step 3. Skip the hooks for one commit or push with `--no-verify`.
