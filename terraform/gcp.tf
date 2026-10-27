@@ -110,19 +110,21 @@ resource "google_bigquery_table" "sales_raw_logs" {
 locals {
   # One dataset per dbt folder. The names must match the +schema settings in dbt/dbt_project.yml.
   dbt_datasets = {
-    seeds              = "Lookup tables loaded from dbt seeds"
-    staging            = "dbt staging models: typed and cleaned raw sales data"
-    staging_audit      = "Failing rows stored by staging tests"
-    intermediate       = "dbt intermediate models"
-    intermediate_audit = "Failing rows stored by intermediate tests"
-    marts_dims         = "Dimension tables"
-    marts_dims_audit   = "Failing rows stored by dimension tests"
-    marts_facts        = "Fact tables"
-    marts_facts_audit  = "Failing rows stored by fact tests"
-    marts_bridge       = "Bridge tables from parcel groups to their parcels"
-    marts_bridge_audit = "Failing rows stored by bridge tests"
-    marts_views        = "Views for analysis and reporting"
-    marts_views_audit  = "Failing rows stored by view tests"
+    seeds               = "Lookup tables loaded from dbt seeds"
+    staging             = "dbt staging models: typed and cleaned raw sales data"
+    staging_audit       = "Failing rows stored by staging tests"
+    intermediate        = "dbt intermediate models"
+    intermediate_audit  = "Failing rows stored by intermediate tests"
+    marts_dims          = "Dimension tables"
+    marts_dims_audit    = "Failing rows stored by dimension tests"
+    marts_facts         = "Fact tables"
+    marts_facts_audit   = "Failing rows stored by fact tests"
+    marts_bridge        = "Bridge tables from parcel groups to their parcels"
+    marts_bridge_audit  = "Failing rows stored by bridge tests"
+    marts_views         = "Views for analysis and reporting"
+    marts_views_audit   = "Failing rows stored by view tests"
+    marts_reports       = "Report tables for BI tools"
+    marts_reports_audit = "Failing rows stored by report tests"
   }
 }
 

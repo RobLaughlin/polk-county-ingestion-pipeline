@@ -1,12 +1,14 @@
 # Turns the Polk County Assessor's residential sales export (raw.sales_raw) into a star schema:
 #
-#   raw.sales_raw -> staging -> intermediate -> marts (dims, facts and bridges)
+#   raw.sales_raw -> staging -> intermediate -> marts (dims, facts, bridges, views and reports)
 #
 # - staging: typed, trimmed copies of the raw table (stg_sale_data, stg_district_parcels, stg_geo_parcels).
 # - intermediate: cleanup and coding (int_sales, int_district_parcels).
 # - marts: fct_sales_groups (each sale as a whole) and fct_sales_single (the residence on dp), their
 #   dimensions, including the code lookups built from seeds/, and the bridges from each sale's
 #   parcel groups to the parcels in them.
+# - marts/views: lightweight views that show codes as names (buildings_descriptive).
+# - marts/reports: tables for BI tools (sales_groups_descriptive, sales_single_descriptive).
 #
 # Each folder's YAML describes its models and every column: what it means, what that model or an
 # earlier one did to it, and its source page. Staging also keeps each column's source in meta.
@@ -42,6 +44,9 @@ models:
       views:
         +schema: marts_views
         +materialized: view
+      reports:
+        +schema: marts_reports
+        +materialized: table
 
 # Every model test stores its failing rows in an audit dataset next to the models it tests.
 data_tests:
@@ -64,6 +69,9 @@ data_tests:
         +store_failures: true
       views:
         +schema: marts_views_audit
+        +store_failures: true
+      reports:
+        +schema: marts_reports_audit
         +store_failures: true
 
 # The valid_* code lists, loaded by dbt seed. The dim_* lookups in marts/dims select from them.

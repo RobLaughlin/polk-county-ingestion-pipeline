@@ -1,7 +1,7 @@
 {{
     config(
-        materialized='view',
-        tags=['marts', 'views']
+        materialized='table',
+        tags=['marts', 'reports']
     )
 }}
 
