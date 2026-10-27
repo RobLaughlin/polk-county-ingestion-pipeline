@@ -54,26 +54,25 @@ Introduction to Databases with SQL.
 7. Run `pnpm run ingest` (`./scripts/ingest.sh`) to run the ingestion script, which handles up to 8 yearly files at a time (`MAX_NUM_THREADS` in `ingestion/ingest.py`). It first runs `./scripts/build_image.sh`, which builds the ingestion image if it isn't built yet, and `./scripts/ingest.sh` then runs `./scripts/run_container.sh`, which starts the ingestion container if it isn't running. Both can also be run on their own. Since an existing image is never rebuilt, run `docker compose build` after editing `docker/Dockerfile`. Stop the container with `docker compose down`.
 8. `cd` into the `dbt` directory and run `dbt deps` to install the dbt packages, then `dbt build` to load the seeds and build and test every model. Rows that fail a test are saved in the matching `_audit` dataset.
 9. After editing a model, rebuild it and everything that uses it with `dbt build --select my_model+`. This doesn't rebuild the models it reads from, so if you edited more than one, run `dbt build`.
-10. Run `dbt docs generate && dbt docs serve` from the `dbt` directory to view the data descriptions: every model and column, where each column comes from, and the lineage from the raw table to the marts, in your browser.
+10. Run `pnpm docs:serve` to view the data descriptions: every model and column, where each column comes from, and the lineage from the raw table to the marts, in your browser.
 
 ## Commands
 
 Run these from the repository root with `pnpm run <command>`. Extra arguments are passed on, e.g. `pnpm run format-dbt-sql models/marts`.
 
-| Command | What it runs |
-| --- | --- |
-| `save-outputs`, `build-image`, `run-container`, `ingest` | The matching script in `scripts/` |
-| `format` | Every formatter below, in turn |
-| `format-dbt-sql` | `dbt format` on the dbt models and analyses, with the style in `dbt/.sqlfluff` |
-| `format-sql` | sqlfluff on the SQL outside `dbt/`, with the style in `.sqlfluff` |
-| `format-python` | ruff format on `ingestion/` and `scripts/` |
-| `format-terraform` | `terraform fmt` on `terraform/` |
-| `format-yaml` | Prettier on every `.yml` and `.yaml` file except `.prettierignore` |
-| `lint` | Every linter below, in turn |
-| `lint-dbt-sql` | `dbt lint` on the dbt SQL |
-| `lint-sql` | sqlfluff lint on the SQL outside `dbt/` |
-| `lint-python` | ruff check on `ingestion/` and `scripts/` |
-| `lint-terraform` | `terraform validate` (run `terraform init` first) |
-| `lint-shell` | shellcheck on `scripts/*.sh` |
-| `lint-yaml` | yamllint on the same YAML, with the rules in `.yamllint.yml` |
-
+| Command                                                  | What it runs                                                                   |
+| -------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| `save-outputs`, `build-image`, `run-container`, `ingest` | The matching script in `scripts/`                                              |
+| `format`                                                 | Every formatter below, in turn                                                 |
+| `format-dbt-sql`                                         | `dbt format` on the dbt models and analyses, with the style in `dbt/.sqlfluff` |
+| `format-sql`                                             | sqlfluff on the SQL outside `dbt/`, with the style in `.sqlfluff`              |
+| `format-python`                                          | ruff format on `ingestion/` and `scripts/`                                     |
+| `format-terraform`                                       | `terraform fmt` on `terraform/`                                                |
+| `format-yaml`                                            | Prettier on every `.yml` and `.yaml` file except `.prettierignore`             |
+| `lint`                                                   | Every linter below, in turn                                                    |
+| `lint-dbt-sql`                                           | `dbt lint` on the dbt SQL                                                      |
+| `lint-sql`                                               | sqlfluff lint on the SQL outside `dbt/`                                        |
+| `lint-python`                                            | ruff check on `ingestion/` and `scripts/`                                      |
+| `lint-terraform`                                         | `terraform validate` (run `terraform init` first)                              |
+| `lint-shell`                                             | shellcheck on `scripts/*.sh`                                                   |
+| `lint-yaml`                                              | yamllint on the same YAML, with the rules in `.yamllint.yml`                   |
