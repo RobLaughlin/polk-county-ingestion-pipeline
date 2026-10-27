@@ -76,3 +76,6 @@ Run these from the repository root with `pnpm run <command>`. Extra arguments ar
 | `lint-terraform`                                         | `terraform validate` (run `terraform init` first)                              |
 | `lint-shell`                                             | shellcheck on `scripts/*.sh`                                                   |
 | `lint-yaml`                                              | yamllint on the same YAML, with the rules in `.yamllint.yml`                   |
+| `docs:generate`                                          | Generate dbt documentation from .yml descriptions                              |
+| `docs:serve`                                             | Generate the dbt documentation, and then serve the dbt docs                    |
+| `dbt:check`                                              | Checks whether the dbt models parse and compile                                |

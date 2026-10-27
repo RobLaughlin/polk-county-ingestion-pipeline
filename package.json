@@ -22,7 +22,8 @@
     "lint-shell": "uvx --from shellcheck-py@0.11.0.1 shellcheck scripts/*.sh",
     "lint-yaml": "uvx yamllint@1.37.1 .",
     "docs:generate": "cd dbt && dbt docs generate",
-    "docs:serve": "pnpm run docs:generate && cd dbt && dbt docs serve"
+    "docs:serve": "pnpm run docs:generate && cd dbt && dbt docs serve",
+    "dbt:check": "cd dbt && dbt parse && dbt compile"
   },
   "devDependencies": {
     "prettier": "3.6.2"
