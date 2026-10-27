@@ -73,3 +73,6 @@ __pycache__/
 /dbt/profiles.yml
 /dbt/outputs.json
 /dbt/models/sources.yml
+
+# pnpm packages (Husky and other dev tools).
+node_modules/

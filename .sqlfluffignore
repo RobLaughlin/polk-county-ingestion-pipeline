@@ -1,0 +1,4 @@
+# dbt formats its own SQL with dbt/.sqlfluff (pnpm run format-dbt-sql).
+dbt/
+logs/
+node_modules/

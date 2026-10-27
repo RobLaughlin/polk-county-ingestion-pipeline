@@ -1,0 +1,32 @@
+# Style for the dbt SQL, read by `dbt format` (layout rules) and `dbt lint` (every rule).
+# Run them with `pnpm run format-dbt-sql` and `pnpm run lint-dbt-sql` from the repo root.
+# format-dbt-sql renders Jinja in turbo mode: the default (symbolic) mode can't format int_sales,
+# whose building_id surrogate key nests too deep. Lint keeps symbolic, which parses every model.
+[sqlfluff]
+templater = dbt
+dialect = bigquery
+max_line_length = 120
+
+[sqlfluff:indentation]
+indent_unit = space
+tab_space_size = 4
+# Keep ON at the same level as its JOIN, as the models are written.
+indented_using_on = False
+
+[sqlfluff:layout:type:comma]
+line_position = trailing
+
+[sqlfluff:rules:capitalisation.keywords]
+capitalisation_policy = upper
+
+[sqlfluff:rules:capitalisation.functions]
+extended_capitalisation_policy = upper
+
+[sqlfluff:rules:capitalisation.literals]
+capitalisation_policy = upper
+
+[sqlfluff:rules:capitalisation.types]
+extended_capitalisation_policy = upper
+
+[sqlfluff:rules:capitalisation.identifiers]
+extended_capitalisation_policy = lower

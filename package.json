@@ -1,0 +1,25 @@
+{
+  "name": "polk-county-ingestion-pipeline",
+  "private": true,
+  "description": "Script runner for the pipeline: pnpm run <script>",
+  "packageManager": "pnpm@10.33.2",
+  "scripts": {
+    "save-outputs": "./scripts/save_outputs.sh",
+    "build-image": "./scripts/build_image.sh",
+    "run-container": "./scripts/run_container.sh",
+    "ingest": "./scripts/ingest.sh",
+
+    "format": "pnpm run format-dbt-sql && pnpm run format-sql && pnpm run format-python && pnpm run format-terraform",
+    "format-dbt-sql": "cd dbt && dbt format --jinja-render-mode turbo",
+    "format-sql": "uvx sqlfluff@4.4.0 format .",
+    "format-python": "uvx ruff@0.17.3 format ingestion scripts",
+    "format-terraform": "terraform fmt -recursive terraform",
+
+    "lint": "pnpm run lint-dbt-sql && pnpm run lint-sql && pnpm run lint-python && pnpm run lint-terraform && pnpm run lint-shell",
+    "lint-dbt-sql": "cd dbt && dbt lint",
+    "lint-sql": "uvx sqlfluff@4.4.0 lint .",
+    "lint-python": "uvx ruff@0.17.3 check ingestion scripts",
+    "lint-terraform": "terraform -chdir=terraform validate",
+    "lint-shell": "uvx --from shellcheck-py@0.11.0.1 shellcheck scripts/*.sh"
+  }
+}

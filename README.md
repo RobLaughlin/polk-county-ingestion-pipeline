@@ -40,6 +40,8 @@ Introduction to Databases with SQL.
 4. [Docker](https://docs.docker.com/get-started/get-docker/) with Compose v2 Installed
 5. [Python 3](https://www.python.org/downloads/) Installed
 6. [dbt Fusion](https://docs.getdbt.com/docs/fusion/install-fusion) 2.x Installed, which includes the BigQuery adapter
+7. [Node.js](https://nodejs.org/en/download) with [pnpm](https://pnpm.io/installation) Installed (`corepack enable` or `npm install -g pnpm`), to run the project commands
+8. [uv](https://docs.astral.sh/uv/getting-started/installation/) Installed, which the format and lint commands use to run ruff, sqlfluff and shellcheck
 
 ## Instructions
 
@@ -48,8 +50,28 @@ Introduction to Databases with SQL.
 3. Run the following command: `gcloud auth application-default login` . If running on WSL2, append `--no-launch-browser` to the command. On Linux/WSL, the default ADC file is `~/.config/gcloud/application_default_credentials.json`; Terraform and local dbt use it automatically when no credential override is set.
 4. `cd` into the `terraform` directory, set your `terraform.tfvars` variables using the `terraform.tfvars.example` template, and run `terraform init`.
 5. Run `terraform plan` and if everything looks good to you, run `terraform apply` to create the GCP infrastructure. Infrastructure can be destroyed with `terraform destroy`. You can also use `terraform show` to show the current terraform state.
-6. Run `./scripts/save_outputs.sh` to export Terraform outputs for ingestion and generate the local dbt profile and raw-source configuration.
-7. Run `./scripts/ingest.sh` to run the ingestion script, which handles up to 8 yearly files at a time (`MAX_NUM_THREADS` in `ingestion/ingest.py`). It first runs `./scripts/build_image.sh`, which builds the ingestion image if it isn't built yet, and `./scripts/ingest.sh` then runs `./scripts/run_container.sh`, which starts the ingestion container if it isn't running. Both can also be run on their own. Since an existing image is never rebuilt, run `docker compose build` after editing `docker/Dockerfile`. Stop the container with `docker compose down`.
+6. Run `pnpm run save-outputs` (`./scripts/save_outputs.sh`) to export Terraform outputs for ingestion and generate the local dbt profile and raw-source configuration.
+7. Run `pnpm run ingest` (`./scripts/ingest.sh`) to run the ingestion script, which handles up to 8 yearly files at a time (`MAX_NUM_THREADS` in `ingestion/ingest.py`). It first runs `./scripts/build_image.sh`, which builds the ingestion image if it isn't built yet, and `./scripts/ingest.sh` then runs `./scripts/run_container.sh`, which starts the ingestion container if it isn't running. Both can also be run on their own. Since an existing image is never rebuilt, run `docker compose build` after editing `docker/Dockerfile`. Stop the container with `docker compose down`.
 8. `cd` into the `dbt` directory and run `dbt deps` to install the dbt packages, then `dbt build` to load the seeds and build and test every model. Rows that fail a test are saved in the matching `_audit` dataset.
 9. After editing a model, rebuild it and everything that uses it with `dbt build --select my_model+`. This doesn't rebuild the models it reads from, so if you edited more than one, run `dbt build`.
 10. Run `dbt docs generate && dbt docs serve` from the `dbt` directory to view the data descriptions: every model and column, where each column comes from, and the lineage from the raw table to the marts, in your browser.
+
+## Commands
+
+Run these from the repository root with `pnpm run <command>`. Extra arguments are passed on, e.g. `pnpm run format-dbt-sql models/marts`.
+
+| Command | What it runs |
+| --- | --- |
+| `save-outputs`, `build-image`, `run-container`, `ingest` | The matching script in `scripts/` |
+| `format` | Every formatter below, in turn |
+| `format-dbt-sql` | `dbt format` on the dbt models and analyses, with the style in `dbt/.sqlfluff` |
+| `format-sql` | sqlfluff on the SQL outside `dbt/`, with the style in `.sqlfluff` |
+| `format-python` | ruff format on `ingestion/` and `scripts/` |
+| `format-terraform` | `terraform fmt` on `terraform/` |
+| `lint` | Every linter below, in turn |
+| `lint-dbt-sql` | `dbt lint` on the dbt SQL |
+| `lint-sql` | sqlfluff lint on the SQL outside `dbt/` |
+| `lint-python` | ruff check on `ingestion/` and `scripts/` |
+| `lint-terraform` | `terraform validate` (run `terraform init` first) |
+| `lint-shell` | shellcheck on `scripts/*.sh` |
+
