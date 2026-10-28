@@ -2,9 +2,10 @@ models:
   - name: sales_groups_descriptive
     description: >-
       One row per recorded sale document, from fct_sales_groups: what the sale covers as a whole,
-      with instrument, quality1, quality2 and analysis_quality shown as names from their dim_*
-      lookups instead of ids. The residence on dp is in sales_single_descriptive, on the same
-      sale_id.
+      with book and pg from bridge_sales and the parties and detached structures from
+      dim_sales_groups. instrument, quality1, quality2 and analysis_quality are shown as names
+      from their dim_* lookups instead of the ids in dim_sales_groups. The residence on dp is in
+      sales_single_descriptive, on the same sale_id.
 
     columns:
       # Keys
@@ -80,9 +81,10 @@ models:
   - name: sales_single_descriptive
     description: >-
       One row per recorded sale document, from fct_sales_single: the residence on dp as it was
-      sold, plus the descriptive columns of its building version from buildings_descriptive. The
-      building columns are NULL when the sale has no building data. What the sale covers as a
-      whole is in sales_groups_descriptive, on the same sale_id.
+      sold, with book and pg from bridge_sales, plus the descriptive columns of its building
+      version from buildings_descriptive. The building columns are NULL when the sale has no
+      building data. What the sale covers as a whole is in sales_groups_descriptive, on the same
+      sale_id.
 
     columns:
       # Keys

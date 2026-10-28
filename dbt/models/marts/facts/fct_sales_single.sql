@@ -7,12 +7,11 @@
 
 -- One row per recorded sale document, with the measurements of the residence on dp as it was sold.
 -- Descriptive building data lives in dim_buildings (joined on building_id), and what the sale
--- covers as a whole, such as price, is in fct_sales_groups, on the same book and pg.
+-- covers as a whole, such as price, is in fct_sales_groups, on the same sale_id. Book and pg are
+-- in bridge_sales.
 SELECT
     -- Keys
     sale_id,
-    book,
-    pg,
     dp,
     building_id,
 

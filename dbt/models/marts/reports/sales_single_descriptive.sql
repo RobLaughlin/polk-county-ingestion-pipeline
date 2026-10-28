@@ -8,8 +8,8 @@
 SELECT
     -- Keys
     fct_sales.sale_id,
-    fct_sales.book,
-    fct_sales.pg,
+    bridge_sales.book,
+    bridge_sales.pg,
     fct_sales.dp,
     fct_sales.building_id,
 
@@ -82,6 +82,8 @@ SELECT
     fct_sales.bsmt_walkout_ft,
     fct_sales.bsmt_garage_stalls
 FROM {{ ref('fct_sales_single') }} AS fct_sales
+INNER JOIN {{ ref('bridge_sales') }} AS bridge_sales
+ON fct_sales.sale_id = bridge_sales.sale_id
 LEFT JOIN {{ ref('buildings_descriptive') }} AS buildings
 ON
     fct_sales.building_id = buildings.building_id

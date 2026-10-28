@@ -6,12 +6,11 @@
 }}
 
 -- One row per recorded sale document, with what the sale covers as a whole: every parcel it lists.
--- The residence on dp is in fct_sales_single, on the same book and pg.
+-- On the same sale_id, book and pg are in bridge_sales, the document type, conditions, parties and
+-- detached structures in dim_sales_groups, and the residence on dp in fct_sales_single.
 SELECT
     -- Keys
     sale_id,
-    book,
-    pg,
     dp_group_id,
     gp_group_id,
     dp_count,
@@ -20,12 +19,6 @@ SELECT
     sale_date,
     initial_entry_date,
     price AS price_dollars,
-    seller,
-    buyer,
-    instrument_id,
-    quality1_id,
-    quality2_id,
-    analysis_quality_id,
 
     -- Assessed values
     land_full AS land_full_assessment_dollars,
@@ -34,8 +27,5 @@ SELECT
 
     -- Land
     land_sf,
-    land_acres,
-
-    -- Detached structures
-    detached_structs
+    land_acres
 FROM {{ ref('int_sales') }}

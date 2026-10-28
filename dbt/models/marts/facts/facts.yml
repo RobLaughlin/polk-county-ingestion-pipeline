@@ -1,29 +1,17 @@
 models:
   - name: fct_sales_groups
     description: >-
-      One row per recorded sale document (book and page), from int_sales: what the sale covers as
-      a whole. The price, assessed values, land and detached structures cover every parcel the
-      sale lists. Join dp_group_id to bridge_dp_groups and gp_group_id to bridge_gp_groups for
-      those parcels, the dates to dim_dates, and each *_id to its code lookup. The residence on dp
-      is in fct_sales_single, on the same book and pg. Columns are renamed with their units
-      (_dollars, _sf).
+      One row per recorded sale document, from int_sales: what the sale covers as a whole. The
+      price, assessed values and land cover every parcel the sale lists. Join dp_group_id to
+      bridge_dp_groups and gp_group_id to bridge_gp_groups for those parcels, and the dates to
+      dim_dates. Join sale_id to bridge_sales for book and pg, to dim_sales_groups for the
+      document type, sale conditions, parties and detached structures, and to fct_sales_single
+      for the residence on dp. Columns are renamed with their units (_dollars, _sf).
     config:
       contract:
         enforced: true
 
-    constraints:
-      - type: primary_key
-        columns: [book, pg]
-        warn_unenforced: false
-
     data_tests:
-      # Ensure (book, pg) is a unique compound key
-      - dbt_utils.unique_combination_of_columns:
-          arguments:
-            combination_of_columns:
-              - book
-              - pg
-
       # The same total check as staging; int_sales sets totals that don't add up to NULL.
       - dbt_utils.expression_is_true:
           name: fct_sales_groups__total_full_is_land_plus_bldg
@@ -37,20 +25,18 @@ models:
         data_type: int64
         constraints:
           - type: not_null
+          - type: primary_key
+            warn_unenforced: false
+          - type: foreign_key
+            to: ref('bridge_sales')
+            to_columns: [sale_id]
+            warn_unenforced: false
         data_tests:
           - unique
-
-      - name: book
-        description: "Recorder's book number for the recorded document. Book numbers rise over time. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
-        data_type: int64
-        constraints:
-          - type: not_null
-
-      - name: pg
-        description: "Recorder's page number within the book. Together, book and pg identify one recorded document. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
-        data_type: int64
-        constraints:
-          - type: not_null
+          - relationships:
+              arguments:
+                to: ref('bridge_sales')
+                field: sale_id
 
       - name: dp_group_id
         description: "The district parcels the sale lists in dps, as a group: join to bridge_dp_groups.group_id for one row per parcel. A hash of the sorted parcels (see the group_id macro), so sales that list the same parcels share a group. | (added in dbt)"
@@ -116,70 +102,6 @@ models:
         constraints:
           - type: not_null
 
-      - name: seller
-        description: "Seller (grantor). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
-        data_type: string
-
-      - name: buyer
-        description: "Buyer (grantee). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
-        data_type: string
-
-      - name: instrument_id
-        description: "Document type: Deed or Contract. Neither the assessor nor the Iowa Department of Revenue uses contract sales for analysis. | Stored as its id in dim_instruments (set in int_sales). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
-        data_type: int64
-        constraints:
-          - type: foreign_key
-            to: ref('dim_instruments')
-            to_columns: [id]
-            warn_unenforced: false
-        data_tests:
-          - relationships:
-              arguments:
-                to: ref('dim_instruments')
-                field: id
-
-      - name: quality1_id
-        description: "First Iowa Department of Revenue sale condition: the reason, if any, the sale isn't a normal market sale, e.g. Family or Foreclosure. Arms Length means no condition. | Stored as its id in dim_quality1_conditions (set in int_sales). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
-        data_type: int64
-        constraints:
-          - type: foreign_key
-            to: ref('dim_quality1_conditions')
-            to_columns: [id]
-            warn_unenforced: false
-        data_tests:
-          - relationships:
-              arguments:
-                to: ref('dim_quality1_conditions')
-                field: id
-
-      - name: quality2_id
-        description: "Second sale condition, for sales with two conditions. No Code means no second condition. | Stored as its id in dim_quality2_conditions (set in int_sales). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
-        data_type: int64
-        constraints:
-          - type: foreign_key
-            to: ref('dim_quality2_conditions')
-            to_columns: [id]
-            warn_unenforced: false
-        data_tests:
-          - relationships:
-              arguments:
-                to: ref('dim_quality2_conditions')
-                field: id
-
-      - name: analysis_quality_id
-        description: "Whether the assessor uses the sale in its own market analysis, such as comparable sales: Good means used and Bad means not used. | Stored as its id in dim_analysis_qualities (set in int_sales). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
-        data_type: int64
-        constraints:
-          - type: foreign_key
-            to: ref('dim_analysis_qualities')
-            to_columns: [id]
-            warn_unenforced: false
-        data_tests:
-          - relationships:
-              arguments:
-                to: ref('dim_analysis_qualities')
-                field: id
-
       # Assessed values
       - name: land_full_assessment_dollars
         description: "Full assessed value of the land at the time of sale, in whole dollars. The value is as of January 1 of that assessment year, including Board of Review changes. Summed over every parcel in the dp group (inferred from data). | Renamed from land_full. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
@@ -202,49 +124,25 @@ models:
         description: "Land area in acres, to 3 decimal places. Summed over every parcel in the dp group (inferred from data). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=slandtotal"
         data_type: numeric(38, 9)
 
-      # Detached structures
-      - name: detached_structs
-        description: "Detached structures on the parcel as CODE/size pairs, e.g. 'BBK/1584 SHD/120' for a bank barn and a shed; the size is probably square feet. Common codes: GAR Garage, SHD Shed, PTC Concrete Patio, SWR Outdoor Pool, DEC Deck. Includes the structures on every parcel in the dp group (inferred from data). | (the CODE/size format is inferred from data; the source page lists the codes) | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=detached"
-        data_type: string
-
   - name: fct_sales_single
     description: >-
-      One row per recorded sale document (book and page), from int_sales: the measurements of the
-      residence on dp, the one parcel the sale is filed under, as it was sold. Join building_id to
-      dim_buildings and dp to dim_district_parcels. What the sale covers as a whole, such as the
-      price, is in fct_sales_groups, on the same book and pg. Columns are renamed with their units
-      (_sf, _ft).
+      One row per recorded sale document, from int_sales: the measurements of the residence on
+      dp, the one parcel the sale is filed under, as it was sold. Join building_id to
+      dim_buildings and dp to dim_district_parcels. Join sale_id to bridge_sales for book and pg,
+      and to fct_sales_groups for what the sale covers as a whole, such as the price. Columns are
+      renamed with their units (_sf, _ft).
     config:
       contract:
         enforced: true
 
-    constraints:
-      - type: primary_key
-        columns: [book, pg]
-        warn_unenforced: false
-      # Only this direction is a foreign key: two models can't each reference the other
-      - type: foreign_key
-        columns: [book, pg]
-        to: ref('fct_sales_groups')
-        to_columns: [book, pg]
-        warn_unenforced: false
-
     data_tests:
-      # Ensure (book, pg) is a unique compound key
-      - dbt_utils.unique_combination_of_columns:
-          arguments:
-            combination_of_columns:
-              - book
-              - pg
-
       # Both facts hold exactly the same sales
       - dbt_utils.equality:
           name: fct_sales_single__same_sales_as_fct_sales_groups
           arguments:
             compare_model: ref('fct_sales_groups')
             compare_columns:
-              - book
-              - pg
+              - sale_id
 
       # The same total checks as staging; int_sales sets totals that don't add up to NULL.
       - dbt_utils.expression_is_true:
@@ -264,20 +162,18 @@ models:
         data_type: int64
         constraints:
           - type: not_null
+          - type: primary_key
+            warn_unenforced: false
+          - type: foreign_key
+            to: ref('bridge_sales')
+            to_columns: [sale_id]
+            warn_unenforced: false
         data_tests:
           - unique
-
-      - name: book
-        description: "Recorder's book number for the recorded document. Book numbers rise over time. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
-        data_type: int64
-        constraints:
-          - type: not_null
-
-      - name: pg
-        description: "Recorder's page number within the book. Together, book and pg identify one recorded document. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
-        data_type: int64
-        constraints:
-          - type: not_null
+          - relationships:
+              arguments:
+                to: ref('bridge_sales')
+                field: sale_id
 
       - name: dp
         description: "District/parcel number: the 14-digit property ID, e.g. 01000001000000. The first 3 digits are the district. Kept as text because leading zeros matter. In a multi-parcel sale, the one parcel the sale is filed under; its dp group in fct_sales_groups lists them all (inferred from data). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"

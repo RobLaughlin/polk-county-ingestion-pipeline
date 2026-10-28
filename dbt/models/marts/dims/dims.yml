@@ -429,6 +429,107 @@ models:
         description: "What the value means, from the assessor's definitions. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
         data_type: string
 
+  - name: dim_sales_groups
+    description: >-
+      One row per recorded sale document, from int_sales: what describes the sale as a whole
+      rather than measures it. That's the document type, the sale conditions, the parties and the
+      detached structures on every parcel the sale lists. Join each *_id to its code lookup, and
+      sale_id to bridge_sales for book and pg and to fct_sales_groups for the price, assessed
+      values and land.
+    config:
+      contract:
+        enforced: true
+
+    columns:
+      # Keys
+      - name: sale_id
+        description: "One number for the recorded document: the book, then the page in the last 9 digits, e.g. book 12345 page 678 is 12345000000678. | (added in dbt; see the sale_id macro)"
+        data_type: int64
+        constraints:
+          - type: not_null
+          - type: primary_key
+            warn_unenforced: false
+          - type: foreign_key
+            to: ref('bridge_sales')
+            to_columns: [sale_id]
+            warn_unenforced: false
+        data_tests:
+          - unique
+          - relationships:
+              arguments:
+                to: ref('bridge_sales')
+                field: sale_id
+
+      # Sale
+      - name: instrument_id
+        description: "Document type: Deed or Contract. Neither the assessor nor the Iowa Department of Revenue uses contract sales for analysis. | Stored as its id in dim_instruments (set in int_sales). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
+        data_type: int64
+        constraints:
+          - type: foreign_key
+            to: ref('dim_instruments')
+            to_columns: [id]
+            warn_unenforced: false
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_instruments')
+                field: id
+
+      - name: quality1_id
+        description: "First Iowa Department of Revenue sale condition: the reason, if any, the sale isn't a normal market sale, e.g. Family or Foreclosure. Arms Length means no condition. | Stored as its id in dim_quality1_conditions (set in int_sales). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
+        data_type: int64
+        constraints:
+          - type: foreign_key
+            to: ref('dim_quality1_conditions')
+            to_columns: [id]
+            warn_unenforced: false
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_quality1_conditions')
+                field: id
+
+      - name: quality2_id
+        description: "Second sale condition, for sales with two conditions. No Code means no second condition. | Stored as its id in dim_quality2_conditions (set in int_sales). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
+        data_type: int64
+        constraints:
+          - type: foreign_key
+            to: ref('dim_quality2_conditions')
+            to_columns: [id]
+            warn_unenforced: false
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_quality2_conditions')
+                field: id
+
+      - name: analysis_quality_id
+        description: "Whether the assessor uses the sale in its own market analysis, such as comparable sales: Good means used and Bad means not used. | Stored as its id in dim_analysis_qualities (set in int_sales). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
+        data_type: int64
+        constraints:
+          - type: foreign_key
+            to: ref('dim_analysis_qualities')
+            to_columns: [id]
+            warn_unenforced: false
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_analysis_qualities')
+                field: id
+
+      - name: buyer
+        description: "Buyer (grantee). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
+        data_type: string
+
+      - name: seller
+        description: "Seller (grantor). | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
+        data_type: string
+
+      # Detached structures
+      - name: detached_structs
+        description: "Detached structures on the parcel as CODE/size pairs, e.g. 'BBK/1584 SHD/120' for a bank barn and a shed; the size is probably square feet. Common codes: GAR Garage, SHD Shed, PTC Concrete Patio, SWR Outdoor Pool, DEC Deck. Includes the structures on every parcel in the dp group (inferred from data). | (the CODE/size format is inferred from data; the source page lists the codes) | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=detached"
+        data_type: string
+
   - name: dim_buildings
     description: >-
       One row per version of a building on a parcel, from int_sales. A new version starts
