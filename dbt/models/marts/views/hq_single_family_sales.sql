@@ -25,14 +25,9 @@ SELECT
         occupancy
     )
 FROM {{ ref('filtered_single_parcel_sales') }}
+-- is_market_sale covers the core filters: arm's length, deed, over the price floor, a finished
+-- building, and not a duplicate document
 WHERE
-    is_arms_length
-    AND is_deed
+    is_market_sale
     AND is_assessor_good
-    AND is_over_price_floor
-    AND has_building
-    AND is_finished
     AND is_single_family
-    AND NOT is_duplicate_document
-    AND is_market_sale
-ORDER BY sale_date DESC

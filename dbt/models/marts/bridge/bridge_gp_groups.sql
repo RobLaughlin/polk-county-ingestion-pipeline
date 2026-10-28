@@ -12,4 +12,3 @@ SELECT DISTINCT
     listed_gp AS gp,
     sales.gp_group_id AS group_id
 FROM {{ ref('int_sales') }} AS sales, UNNEST({{ listed_gps('sales.gps') }}) AS listed_gp
-ORDER BY group_id, gp

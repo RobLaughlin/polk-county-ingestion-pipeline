@@ -105,4 +105,3 @@ ON sales_groups.sale_id = sales_singles.sale_id
 LEFT JOIN {{ ref('bridge_gp_groups') }} AS bridge_gp_groups
 ON sales_groups.gp_group_id = bridge_gp_groups.group_id
 WHERE sales_groups.dp_count = 1
-ORDER BY sales_groups.sale_date DESC

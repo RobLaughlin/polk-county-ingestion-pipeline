@@ -85,6 +85,4 @@ FROM {{ ref('fct_sales_single') }} AS fct_sales
 INNER JOIN {{ ref('bridge_sales') }} AS bridge_sales
 ON fct_sales.sale_id = bridge_sales.sale_id
 LEFT JOIN {{ ref('buildings_descriptive') }} AS buildings
-ON
-    fct_sales.building_id = buildings.building_id
-    AND fct_sales.dp = buildings.dp
+ON fct_sales.building_id = buildings.building_id

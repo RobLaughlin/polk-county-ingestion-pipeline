@@ -45,7 +45,7 @@ geo_parcels AS (
     SELECT gp FROM sales
     WHERE gp IS NOT NULL
     UNION DISTINCT
-    SELECT TRIM(listed_gp) FROM sales, UNNEST(SPLIT(sales.gps, ',')) AS listed_gp
+    SELECT listed_gp FROM sales, UNNEST({{ listed_gps('sales.gps') }}) AS listed_gp
     UNION DISTINCT
     SELECT gp FROM legal_entries
 )
@@ -58,4 +58,3 @@ LEFT JOIN descriptions
 ON
     geo_parcels.gp = descriptions.gp
     AND descriptions.priority = 1
-ORDER BY geo_parcels.gp

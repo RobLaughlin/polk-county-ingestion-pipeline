@@ -38,4 +38,3 @@ SELECT
     ANY_VALUE(platname HAVING MIN priority) AS platname
 FROM duplicates
 GROUP BY dp
-ORDER BY dp

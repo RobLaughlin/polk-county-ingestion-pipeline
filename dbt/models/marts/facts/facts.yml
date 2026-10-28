@@ -81,6 +81,12 @@ models:
               arguments:
                 to: ref('dim_dates')
                 field: date_day
+          - dbt_utils.accepted_range:
+              name: fct_sales_groups__sale_date_is_not_in_future
+              arguments:
+                max_value: "CURRENT_DATE()"
+              config:
+                severity: warn
 
       - name: initial_entry_date
         description: "Probably the date the sale was first entered into the assessor's system. It's usually a few days after sale_date. | (inferred from data)"
@@ -101,6 +107,13 @@ models:
         data_type: int64
         constraints:
           - type: not_null
+        data_tests:
+          - dbt_utils.accepted_range:
+              name: fct_sales_groups__price_is_not_negative
+              arguments:
+                min_value: 0
+              config:
+                severity: warn
 
       # Assessed values
       - name: land_full_assessment_dollars
