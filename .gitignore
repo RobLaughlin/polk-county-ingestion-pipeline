@@ -76,3 +76,4 @@ __pycache__/
 
 # pnpm packages (Husky and other dev tools).
 node_modules/
+/logs/
