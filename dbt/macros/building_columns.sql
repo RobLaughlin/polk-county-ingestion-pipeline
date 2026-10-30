@@ -1,7 +1,7 @@
 {#
     The columns that define a building version: what dim_buildings stores and building_id hashes.
     detached_structs isn't one: in a multi-parcel sale it lists the structures on every parcel,
-    so it's on dim_sales_groups instead.
+    so it's on dim_sales instead.
 #}
 
 {% macro building_columns() %}

@@ -429,16 +429,24 @@ models:
         description: "What the value means, from the assessor's definitions. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
         data_type: string
 
-  - name: dim_sales_groups
+  - name: dim_sales
     description: >-
       One row per recorded sale document, from int_sales: what describes the sale as a whole
-      rather than measures it. That's the document type, the sale conditions, the parties and the
-      detached structures on every parcel the sale lists. Join each *_id to its code lookup, and
-      sale_id to bridge_sales for book and pg and to fct_sales_groups for the price, assessed
-      values and land.
+      rather than measures it. That's the book and page, the document type, the sale conditions,
+      the parties and the detached structures on every parcel the sale lists. fct_sales_groups
+      and fct_sales_single reference it on sale_id. Join each *_id to its code lookup.
     config:
       contract:
         enforced: true
+
+    data_tests:
+      # (book, pg) is unique too, but BigQuery allows one primary key per table and foreign keys
+      # must reference it, so sale_id is the primary key.
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - book
+              - pg
 
     columns:
       # Keys
@@ -449,16 +457,20 @@ models:
           - type: not_null
           - type: primary_key
             warn_unenforced: false
-          - type: foreign_key
-            to: ref('bridge_sales')
-            to_columns: [sale_id]
-            warn_unenforced: false
         data_tests:
           - unique
-          - relationships:
-              arguments:
-                to: ref('bridge_sales')
-                field: sale_id
+
+      - name: book
+        description: "Recorder's book number for the recorded document. Book numbers rise over time. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
+        data_type: int64
+        constraints:
+          - type: not_null
+
+      - name: pg
+        description: "Recorder's page number within the book. Together, book and pg identify one recorded document. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
+        data_type: int64
+        constraints:
+          - type: not_null
 
       # Sale
       - name: instrument_id

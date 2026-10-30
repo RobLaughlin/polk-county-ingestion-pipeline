@@ -6,11 +6,13 @@
 }}
 
 -- One row per recorded sale document, with what describes the sale as a whole rather than
--- measures it: the document type, the sale conditions, the parties and the detached structures.
--- The measures, such as price, are in fct_sales_groups, on the same sale_id.
+-- measures it: the book and page, the document type, the sale conditions, the parties and the
+-- detached structures. Both facts key on sale_id and reference this table.
 SELECT
     -- Keys
     sale_id,
+    book,
+    pg,
 
     -- Sale
     instrument_id,

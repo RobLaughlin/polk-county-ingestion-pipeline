@@ -4,9 +4,9 @@ models:
       One row per recorded sale document, from int_sales: what the sale covers as a whole. The
       price, assessed values and land cover every parcel the sale lists. Join dp_group_id to
       bridge_dp_groups and gp_group_id to bridge_gp_groups for those parcels, and the dates to
-      dim_dates. Join sale_id to bridge_sales for book and pg, to dim_sales_groups for the
-      document type, sale conditions, parties and detached structures, and to fct_sales_single
-      for the residence on dp. Columns are renamed with their units (_dollars, _sf).
+      dim_dates. Join sale_id to dim_sales for book and pg, the document type, sale conditions,
+      parties and detached structures, and to fct_sales_single for the residence on dp. Columns
+      are renamed with their units (_dollars, _sf).
     config:
       contract:
         enforced: true
@@ -28,14 +28,14 @@ models:
           - type: primary_key
             warn_unenforced: false
           - type: foreign_key
-            to: ref('bridge_sales')
+            to: ref('dim_sales')
             to_columns: [sale_id]
             warn_unenforced: false
         data_tests:
           - unique
           - relationships:
               arguments:
-                to: ref('bridge_sales')
+                to: ref('dim_sales')
                 field: sale_id
 
       - name: dp_group_id
@@ -141,9 +141,10 @@ models:
     description: >-
       One row per recorded sale document, from int_sales: the measurements of the residence on
       dp, the one parcel the sale is filed under, as it was sold. Join building_id to
-      dim_buildings and dp to dim_district_parcels. Join sale_id to bridge_sales for book and pg,
-      and to fct_sales_groups for what the sale covers as a whole, such as the price. Columns are
-      renamed with their units (_sf, _ft).
+      dim_buildings and dp to dim_district_parcels. Join sale_id to dim_sales for book and pg,
+      the document type, sale conditions, parties and detached structures, and to
+      fct_sales_groups for what the sale covers as a whole, such as the price. Columns are renamed
+      with their units (_sf, _ft).
     config:
       contract:
         enforced: true
@@ -178,14 +179,14 @@ models:
           - type: primary_key
             warn_unenforced: false
           - type: foreign_key
-            to: ref('bridge_sales')
+            to: ref('dim_sales')
             to_columns: [sale_id]
             warn_unenforced: false
         data_tests:
           - unique
           - relationships:
               arguments:
-                to: ref('bridge_sales')
+                to: ref('dim_sales')
                 field: sale_id
 
       - name: dp

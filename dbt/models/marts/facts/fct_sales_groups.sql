@@ -6,8 +6,8 @@
 }}
 
 -- One row per recorded sale document, with what the sale covers as a whole: every parcel it lists.
--- On the same sale_id, book and pg are in bridge_sales, the document type, conditions, parties and
--- detached structures in dim_sales_groups, and the residence on dp in fct_sales_single.
+-- On the same sale_id, book and pg, the document type, conditions, parties and detached structures
+-- are in dim_sales, and the residence on dp is in fct_sales_single.
 SELECT
     -- Keys
     sale_id,

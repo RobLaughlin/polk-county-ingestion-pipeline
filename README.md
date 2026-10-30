@@ -19,10 +19,9 @@ the Python ingestion job, built with uv.
 4. It then reloads the 80-column `sales_raw` table in BigQuery from every CSV in the bucket.
 5. dbt cleans the raw table and builds a star schema: `fct_sales_groups` (what each sale
    covers as a whole) and `fct_sales_single` (the residence on its main parcel), keyed on
-   `sale_id`. Around them are `dim_sales_groups` (each sale's document type, conditions,
-   parties, and detached structures), parcel, building, date, and code dimensions,
-   `bridge_sales` (each `sale_id`'s book and page), and the parcel group bridges. It tests
-   each layer.
+   `sale_id`. Around them are `dim_sales` (each sale document's book and page, type,
+   conditions, parties, and detached structures), parcel, building, date, and code
+   dimensions, and the parcel group bridges. It tests each layer.
 
 ## Status
 
