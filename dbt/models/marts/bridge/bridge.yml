@@ -3,8 +3,9 @@ models:
     description: >-
       One row per district parcel in each dp group, from int_sales: the parcels a sale lists in
       dps, in long form. Join fct_sales_groups.dp_group_id to group_id, then dp to
-      dim_district_parcels. Sales that list the same parcels share a group. Joining a fact through
-      this bridge repeats each of its values once per parcel, so don't sum them across parcels.
+      dim_district_parcels. Sales that list the same parcels share a group, and each group is
+      in dim_dp_groups. Joining a fact through this bridge repeats each of its values once per
+      parcel, so don't sum them across parcels.
     config:
       contract:
         enforced: true
@@ -39,18 +40,27 @@ models:
                 field: dp
 
       - name: group_id
-        description: "The dp group: a hash of its sorted parcels (see the group_id macro), the same key as fct_sales_groups.dp_group_id. | (added in dbt)"
+        description: "The dp group: a hash of its sorted parcels (see the group_id macro), the same key as fct_sales_groups.dp_group_id and dim_dp_groups.group_id. | (added in dbt)"
         data_type: string
         constraints:
           - type: not_null
+          - type: foreign_key
+            to: ref('dim_dp_groups')
+            to_columns: [group_id]
+            warn_unenforced: false
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_dp_groups')
+                field: group_id
 
   - name: bridge_gp_groups
     description: >-
       One row per geoparcel in each gp group, from int_sales: the geoparcels a sale lists in gps.
       Join fct_sales_groups.gp_group_id to group_id, then gp to dim_geo_parcels. Sales that list
-      the same geoparcels share a group, and sales with a blank gps have none. Joining a fact
-      through this bridge repeats each of its values once per geoparcel, so don't sum them across
-      geoparcels.
+      the same geoparcels share a group, each group is in dim_gp_groups, and sales with a blank
+      gps have none. Joining a fact through this bridge repeats each of its values once per
+      geoparcel, so don't sum them across geoparcels.
     config:
       contract:
         enforced: true
@@ -85,7 +95,16 @@ models:
                 field: gp
 
       - name: group_id
-        description: "The gp group: a hash of its sorted geoparcels (see the group_id macro), the same key as fct_sales_groups.gp_group_id. | (added in dbt)"
+        description: "The gp group: a hash of its sorted geoparcels (see the group_id macro), the same key as fct_sales_groups.gp_group_id and dim_gp_groups.group_id. | (added in dbt)"
         data_type: string
         constraints:
           - type: not_null
+          - type: foreign_key
+            to: ref('dim_gp_groups')
+            to_columns: [group_id]
+            warn_unenforced: false
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_gp_groups')
+                field: group_id

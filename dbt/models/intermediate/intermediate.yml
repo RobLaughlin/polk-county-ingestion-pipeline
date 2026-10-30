@@ -6,7 +6,7 @@ models:
       name, such as occupancy or roof_type, is replaced by its id in the matching dim_* lookup.
       grade is split into grade_id and grade_adjustment, and each sale gets the building_id of
       its building version. dp_group_id and gp_group_id key the parcels in dps and gps into the
-      bridge_dp_groups and bridge_gp_groups marts.
+      dim_dp_groups and dim_gp_groups marts and their bridges.
     config:
       contract:
         enforced: true
@@ -552,11 +552,11 @@ models:
 
       # Hashes of the sorted parcels in dps and gps (see the parcel_groups macros)
       - name: dp_group_id
-        description: "The district parcels the sale lists in dps, as a group: join to bridge_dp_groups.group_id for one row per parcel. A hash of the sorted parcels (see the group_id macro), so sales that list the same parcels share a group. | (added in dbt)"
+        description: "The district parcels the sale lists in dps, as a group: join to dim_dp_groups.group_id for how many there are, or to bridge_dp_groups.group_id for one row per parcel. A hash of the sorted parcels (see the group_id macro), so sales that list the same parcels share a group. | (added in dbt)"
         data_type: string
 
       - name: gp_group_id
-        description: "The geoparcels the sale lists in gps, as a group: join to bridge_gp_groups.group_id for one row per geoparcel. A hash of the sorted geoparcels (see the group_id macro), so sales that list the same geoparcels share a group. NULL when gps is blank, as in about 1,700 sales from the 1990s. | (added in dbt)"
+        description: "The geoparcels the sale lists in gps, as a group: join to dim_gp_groups.group_id for how many there are, or to bridge_gp_groups.group_id for one row per geoparcel. A hash of the sorted geoparcels (see the group_id macro), so sales that list the same geoparcels share a group. NULL when gps is blank, as in about 1,700 sales from the 1990s. | (added in dbt)"
         data_type: string
 
       - name: dp_count

@@ -952,6 +952,82 @@ models:
         description: "Legal description of the parcel, e.g. 'LT 8 EAST POLK PLAT 2'. NULL when no sale's legal_all_parcels lists the parcel. | Split from legal_all_parcels: the text after 'gp:' in the parcel's entry, from the most recent sale that lists it (set in stg_geo_parcels). | (inferred from data; the source page only labels the field) | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=legal"
         data_type: string
 
+  - name: dim_dp_groups
+    description: >-
+      One row per dp group, from int_sales: a set of district parcels some sale lists in dps,
+      with how many there are. Sales that list the same parcels share a group.
+      fct_sales_groups.dp_group_id and bridge_dp_groups.group_id reference group_id; join to
+      bridge_dp_groups for one row per parcel.
+    config:
+      contract:
+        enforced: true
+
+    columns:
+      - name: group_id
+        description: "The dp group: a hash of its sorted parcels (see the group_id macro), the same key as fct_sales_groups.dp_group_id and bridge_dp_groups.group_id. | (added in dbt)"
+        data_type: string
+        constraints:
+          - type: not_null
+          - type: primary_key
+            warn_unenforced: false
+        data_tests:
+          - unique
+          # Every group has its parcels in the bridge. Not a foreign key: group_id repeats there, once per parcel
+          - relationships:
+              arguments:
+                to: ref('bridge_dp_groups')
+                field: group_id
+
+      - name: dp_count
+        description: "Number of district parcels in the group: the parcels a sale lists in dps. 1 for a single-parcel sale. | (added in dbt)"
+        data_type: int64
+        constraints:
+          - type: not_null
+        data_tests:
+          # BigQuery has no CHECK constraints, so this test checks that every group has a parcel
+          - dbt_utils.accepted_range:
+              name: dim_dp_groups__dp_count_is_at_least_one
+              arguments:
+                min_value: 1
+
+  - name: dim_gp_groups
+    description: >-
+      One row per gp group, from int_sales: a set of geoparcels some sale lists in gps, with how
+      many there are. Sales that list the same geoparcels share a group, and sales with a blank
+      gps have none. fct_sales_groups.gp_group_id and bridge_gp_groups.group_id reference
+      group_id; join to bridge_gp_groups for one row per geoparcel.
+    config:
+      contract:
+        enforced: true
+
+    columns:
+      - name: group_id
+        description: "The gp group: a hash of its sorted geoparcels (see the group_id macro), the same key as fct_sales_groups.gp_group_id and bridge_gp_groups.group_id. | (added in dbt)"
+        data_type: string
+        constraints:
+          - type: not_null
+          - type: primary_key
+            warn_unenforced: false
+        data_tests:
+          - unique
+          # Every group has its geoparcels in the bridge. Not a foreign key: group_id repeats there, once per geoparcel
+          - relationships:
+              arguments:
+                to: ref('bridge_gp_groups')
+                field: group_id
+
+      - name: gp_count
+        description: "Number of geoparcels in the group: the geoparcels a sale lists in gps. | (added in dbt; see the listed_gps macro)"
+        data_type: int64
+        constraints:
+          - type: not_null
+        data_tests:
+          # BigQuery has no CHECK constraints, so this test checks that every group has a geoparcel
+          - dbt_utils.accepted_range:
+              name: dim_gp_groups__gp_count_is_at_least_one
+              arguments:
+                min_value: 1
+
   - name: dim_dates
     description: >-
       One row per calendar day, from the earliest to the latest sale or entry date in int_sales,

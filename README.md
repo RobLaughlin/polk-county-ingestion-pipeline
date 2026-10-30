@@ -20,8 +20,8 @@ the Python ingestion job, built with uv.
 5. dbt cleans the raw table and builds a star schema: `fct_sales_groups` (what each sale
    covers as a whole) and `fct_sales_single` (the residence on its main parcel), keyed on
    `sale_id`. Around them are `dim_sales` (each sale document's book and page, type,
-   conditions, parties, and detached structures), parcel, building, date, and code
-   dimensions, and the parcel group bridges. It tests each layer.
+   conditions, parties, and detached structures), parcel, parcel group, building, date, and
+   code dimensions, and the parcel group bridges. It tests each layer.
 
 ## Status
 

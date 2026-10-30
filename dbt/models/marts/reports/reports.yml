@@ -2,9 +2,10 @@ models:
   - name: sales_groups_descriptive
     description: >-
       One row per recorded sale document, from fct_sales_groups: what the sale covers as a whole,
-      with book and pg, the parties and the detached structures from dim_sales. instrument,
-      quality1, quality2 and analysis_quality are shown as names from their dim_* lookups instead
-      of the ids in dim_sales. The residence on dp is in sales_single_descriptive, on the same
+      with book and pg, the parties and the detached structures from dim_sales, and dp_count and
+      gp_count from dim_dp_groups and dim_gp_groups. instrument, quality1, quality2 and
+      analysis_quality are shown as names from their dim_* lookups instead of the ids in
+      dim_sales. The residence on dp is in sales_single_descriptive, on the same
       sale_id.
 
     columns:
@@ -21,13 +22,16 @@ models:
         description: "Recorder's page number within the book. Together, book and pg identify one recorded document. | Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=info/help/tables/table_all&table=rsale"
 
       - name: dp_group_id
-        description: "The district parcels the sale lists in dps, as a group: join to bridge_dp_groups.group_id for one row per parcel. A hash of the sorted parcels (see the group_id macro), so sales that list the same parcels share a group. | (added in dbt)"
+        description: "The district parcels the sale lists in dps, as a group: join to dim_dp_groups.group_id for how many there are, or to bridge_dp_groups.group_id for one row per parcel. A hash of the sorted parcels (see the group_id macro), so sales that list the same parcels share a group. | (added in dbt)"
 
       - name: gp_group_id
-        description: "The geoparcels the sale lists in gps, as a group: join to bridge_gp_groups.group_id for one row per geoparcel. A hash of the sorted geoparcels (see the group_id macro), so sales that list the same geoparcels share a group. NULL when gps is blank, as in about 1,700 sales from the 1990s. | (added in dbt)"
+        description: "The geoparcels the sale lists in gps, as a group: join to dim_gp_groups.group_id for how many there are, or to bridge_gp_groups.group_id for one row per geoparcel. A hash of the sorted geoparcels (see the group_id macro), so sales that list the same geoparcels share a group. NULL when gps is blank, as in about 1,700 sales from the 1990s. | (added in dbt)"
 
       - name: dp_count
-        description: "Number of district parcels the sale lists in dps: 1 for a single-parcel sale. | (added in dbt)"
+        description: "Number of district parcels the sale lists in dps: 1 for a single-parcel sale. | From dim_dp_groups. | (added in dbt)"
+
+      - name: gp_count
+        description: "Number of geoparcels the sale lists in gps. NULL when gps is blank. | From dim_gp_groups. | (added in dbt; see the listed_gps macro)"
 
       # Sale
       - name: sale_date

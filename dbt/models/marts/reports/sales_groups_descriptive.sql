@@ -12,7 +12,8 @@ SELECT
     dim_sales.pg,
     fct_sales_groups.dp_group_id,
     fct_sales_groups.gp_group_id,
-    fct_sales_groups.dp_count,
+    dim_dp_groups.dp_count,
+    dim_gp_groups.gp_count,
 
     -- Sale
     fct_sales_groups.sale_date,
@@ -44,6 +45,11 @@ SELECT
 FROM {{ ref('fct_sales_groups') }} AS fct_sales_groups
 INNER JOIN {{ ref('dim_sales') }} AS dim_sales
 ON fct_sales_groups.sale_id = dim_sales.sale_id
+INNER JOIN {{ ref('dim_dp_groups') }} AS dim_dp_groups
+ON fct_sales_groups.dp_group_id = dim_dp_groups.group_id
+-- A sale with a blank gps has no gp group, so its gp_count is NULL.
+LEFT JOIN {{ ref('dim_gp_groups') }} AS dim_gp_groups
+ON fct_sales_groups.gp_group_id = dim_gp_groups.group_id
 LEFT JOIN {{ ref('dim_instruments') }} AS dim_instruments
 ON dim_sales.instrument_id = dim_instruments.id
 LEFT JOIN {{ ref('dim_quality1_conditions') }} AS dim_quality1_conditions
